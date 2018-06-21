@@ -5,6 +5,7 @@
 #include "DataManager.hpp"
 #include "Graphics.hpp"
 
+#include "WorldMap.hpp"
 #include "Geometry.hpp"
 #include "Utility.hpp"
 #include "Camera.hpp"
@@ -30,6 +31,8 @@ namespace PixelWorldEngine {
 		int resolutionWidth; //分辨率宽度
 		int resolutionHeight; //分辨率高度
 
+		int renderObjectSize; //每一个地图块的大小，默认值为32
+
 		Camera camera; //摄像机
 
 		Graphics::Graphics* graphics; //...
@@ -42,12 +45,16 @@ namespace PixelWorldEngine {
 
 		std::vector<Graphics::Buffer*> buffers; //缓冲数组
 
-		Graphics::Rectangle* square; //正方形
-		Graphics::Rectangle* renderObject; //画布
+		Graphics::RectangleF* renderObject; //正方形
+		Graphics::RectangleF* renderCanvas; //画布
 
 		Graphics::StaticSampler* defaultSampler; //默认的采样器
 
+		WorldMap* worldMap; //当前使用的地图，默认为空
+
 		std::map<int, Graphics::Texture2D*> renderObjectIDGroup; //用于存储纹理，不同的ID对应不同的纹理
+	
+		std::map<std::wstring, WorldMap*> worldMaps; //存储世界的地图
 
 		friend class Application;
 	public:
@@ -88,7 +95,25 @@ namespace PixelWorldEngine {
 		void SetShader();
 
 		/**
-		 * @brief 注册一个渲染物体，注册完成后文件数据就可以释放了
+		 * @brief 设置我们使用的世界地图，使用的地图必须要求注册
+		 * @param[in] worldMapName 地图的名字
+		 */
+		void SetWorldMap(std::wstring worldMapName);
+
+		/**
+		 * @brief 设置我们使用的世界地图，如果地图没有注册那么我们将会为其注册
+		 * @param[in] worldMap 要使用的世界地图
+		 */
+		void SetWorldMap(WorldMap* worldMap);
+
+		/**
+		 * @brief 设置渲染物体的大小
+		 * @param[in] 渲染物体的大小，单位是像素
+		 */
+		void SetRenderObjectSize(int size);
+
+		/**
+		 * @brief 注册一个渲染物体，请注意保持纹理的生命周期
 		 * @param[in] id 我们注册的渲染物体的ID
 		 * @param[in] fileData 渲染物体的数据信息，注意数据必须是数据格式R8G8B8A8，然后图形的长宽必须一样
 		 */
@@ -99,6 +124,18 @@ namespace PixelWorldEngine {
 		 * @param[in] id 我们要释放的渲染物体的ID
 		 */
 		void UnRegisterRenderObjectID(int id);
+
+		/**
+		 * @brief 注册世界的地图
+		 * @oaram[in] worldMap 世界的地图
+		 */
+		void RegisterWorldMap(WorldMap* worldMap);
+
+		/**
+		 * @brief 获取渲染物体的大小
+		 * @return 渲染物体的大小
+		 */
+		auto GetRenderObjectSize() -> int;
 
 		/**
 		 * @brief 获取在当前状况下的世界的图像

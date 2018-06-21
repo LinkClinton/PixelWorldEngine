@@ -237,7 +237,7 @@ void PixelWorldEngine::Graphics::Graphics::SetBlendState(bool state)
 
 }
 
-void PixelWorldEngine::Graphics::Graphics::SetViewPort(Rectangle rect)
+void PixelWorldEngine::Graphics::Graphics::SetViewPort(RectangleF rect)
 {
 
 #ifdef _WIN32

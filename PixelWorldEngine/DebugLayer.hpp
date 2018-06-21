@@ -5,7 +5,6 @@
 namespace PixelWorldEngine {
 
 	enum class Error {
-		//There are more than one application.
 		MoreThanOneInstance,
 		TheDataIsNull,
 		ShaderCompiledFailed,

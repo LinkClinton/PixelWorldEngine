@@ -91,7 +91,7 @@ void PixelWorldEngine::Application::OnRender(void * sender)
 	auto resolutionWidth = worldTexture->GetWidth();
 	auto resolutionHeight = worldTexture->GetHeight();
 
-	auto matrix = Camera(Rectangle(0.f, 0.f, (float)resolutionWidth, (float)resolutionHeight)).GetMatrix();
+	auto matrix = Camera(RectangleF(0.f, 0.f, (float)resolutionWidth, (float)resolutionHeight)).GetMatrix();
 
 	cameraBuffer->Update(&matrix);
 
@@ -106,14 +106,14 @@ void PixelWorldEngine::Application::OnRender(void * sender)
 
 	graphics->SetShader(defaultShader);
 
-	graphics->SetVertexBuffer(pixelWorld->renderObject->GetVertexBuffer());
-	graphics->SetIndexBuffer(pixelWorld->renderObject->GetIndexBuffer());
+	graphics->SetVertexBuffer(pixelWorld->renderCanvas->GetVertexBuffer());
+	graphics->SetIndexBuffer(pixelWorld->renderCanvas->GetIndexBuffer());
 
 	graphics->SetConstantBuffer(cameraBuffer, 0);
 	graphics->SetShaderResource(worldTexture, 0);
 	graphics->SetStaticSampler(defaultSampler, 0);
 
-	graphics->DrawIndexed(pixelWorld->renderObject->GetIndexBuffer()->GetCount());
+	graphics->DrawIndexed(pixelWorld->renderCanvas->GetIndexBuffer()->GetCount());
 
 #ifdef _WIN32
 
@@ -267,9 +267,9 @@ void PixelWorldEngine::Application::OnProcessMessage(MSG message)
 #endif // _WIN32
 
 
-auto PixelWorldEngine::Application::ComputeViewPort(int windowWidth, int windowHeight, int resolutionWidth, int resolutionHeight) -> Rectangle
+auto PixelWorldEngine::Application::ComputeViewPort(int windowWidth, int windowHeight, int resolutionWidth, int resolutionHeight) -> RectangleF
 {
-	if (windowWidth * resolutionHeight == windowHeight * resolutionWidth) return Rectangle(0, 0, (float)windowWidth, (float)windowHeight);
+	if (windowWidth * resolutionHeight == windowHeight * resolutionWidth) return RectangleF(0, 0, (float)windowWidth, (float)windowHeight);
 
 	float Tx = (float)resolutionWidth;
 	float Ty = (float)resolutionHeight;
@@ -298,10 +298,10 @@ auto PixelWorldEngine::Application::ComputeViewPort(int windowWidth, int windowH
 		offY = (windowHeight - scaleHeight) / 2.f;
 	}
 
-	return Rectangle(offX, offY, offX + scaleWidth, offY + scaleHeight);
+	return RectangleF(offX, offY, offX + scaleWidth, offY + scaleHeight);
 }
 
-auto PixelWorldEngine::Application::ComputeMousePosition(Rectangle ViewPort, int resolutionWidth, int resolutionHeight, int x, int y) -> std::pair<int, int>
+auto PixelWorldEngine::Application::ComputeMousePosition(RectangleF ViewPort, int resolutionWidth, int resolutionHeight, int x, int y) -> std::pair<int, int>
 {
 	float width = ViewPort.right - ViewPort.left;
 	float height = ViewPort.bottom - ViewPort.top;

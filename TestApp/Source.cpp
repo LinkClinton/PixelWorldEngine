@@ -19,12 +19,21 @@ using namespace PixelWorldEngine::Graphics;
 Application application = Application(L"Application");
 PixelWorld pixelWorld = PixelWorld(L"PixelWorld", &application);
 DataManager dataManger = DataManager(&application);
+WorldMap worldMap = WorldMap(L"Map1", 100, 100);
 
 int main() {
 	auto texture = dataManger.RegisterTexture(L"C:/Users/LinkC/Pictures/T1.jpg");
+
+	for (int i = 0; i < worldMap.GetWidth(); i++)
+		for (int j = 0; j < worldMap.GetHeight(); j++)
+			worldMap.SetMapData(i, j, new MapData());
+
 	pixelWorld.SetResolution(1920, 1080);
-	pixelWorld.SetCamera(Camera(PixelWorldEngine::Rectangle(0, 0, 1920, 1080)));
+	pixelWorld.SetCamera(Camera(PixelWorldEngine::RectangleF(0, 0, 1280, 720)));
+	pixelWorld.SetRenderObjectSize(32);
 	pixelWorld.RegisterRenderObjectID(0, texture);
+
+	pixelWorld.SetWorldMap(&worldMap);
 
 	application.MakeWindow(L"TestApp", 1920, 1080);
 	application.SetWorld(&pixelWorld);

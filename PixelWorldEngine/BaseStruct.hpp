@@ -21,15 +21,31 @@ namespace PixelWorldEngine {
 		}
 	};
 
-	struct Rectangle {
+	struct RectangleF {
 		float left;
 		float top;
 		float right;
 		float bottom;
 
-		Rectangle() = default;
+		RectangleF() = default;
 
-		Rectangle(float Left, float Top, float Right, float Bottom) {
+		RectangleF(float Left, float Top, float Right, float Bottom) {
+			left = Left;
+			top = Top;
+			right = Right;
+			bottom = Bottom;
+		}
+	};
+
+	struct Rectangle {
+		int left;
+		int top;
+		int right;
+		int bottom;
+
+		Rectangle() = default;
+		
+		Rectangle(int Left, int Top, int Right, int Bottom) {
 			left = Left;
 			top = Top;
 			right = Right;

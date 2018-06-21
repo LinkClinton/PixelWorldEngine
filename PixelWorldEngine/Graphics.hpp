@@ -75,7 +75,7 @@ namespace PixelWorldEngine {
 			void SetBlendState(bool state);
 
 			//表示整个后台缓冲中可见的范围
-			void SetViewPort(PixelWorldEngine::Rectangle rect);
+			void SetViewPort(PixelWorldEngine::RectangleF rect);
 
 			void ClearState();
 

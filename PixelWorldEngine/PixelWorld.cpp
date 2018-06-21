@@ -8,7 +8,9 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::wstring WorldName, Application * A
 	worldName = WorldName;
 	graphics = Application->GetGraphics();
 
-	square = new Graphics::Rectangle(0, 0, 100, 100, graphics);
+	renderObjectSize = 32;
+
+	renderObject = new Graphics::RectangleF(0, 0, (float)renderObjectSize, (float)renderObjectSize, graphics);
 
 	buffers.resize((int)BufferIndex::Count);
 
@@ -23,6 +25,8 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::wstring WorldName, Application * A
 	
 	defaultSampler = new Graphics::StaticSampler(graphics);
 
+	worldMap = nullptr;
+
 	SetShader();
 }
 
@@ -34,7 +38,7 @@ PixelWorldEngine::PixelWorld::~PixelWorld()
 	Utility::Delete(defaultShader);
 	Utility::Delete(renderBuffer);
 	Utility::Delete(renderTarget);
-	Utility::Delete(renderObject);
+	Utility::Delete(renderCanvas);
 }
 
 void PixelWorldEngine::PixelWorld::SetResolution(int width, int height)
@@ -43,7 +47,7 @@ void PixelWorldEngine::PixelWorld::SetResolution(int width, int height)
 
 	Utility::Delete(renderBuffer);
 	Utility::Delete(renderTarget);
-	Utility::Delete(renderObject);
+	Utility::Delete(renderCanvas);
 
 	resolutionWidth = width;
 	resolutionHeight = height;
@@ -53,7 +57,7 @@ void PixelWorldEngine::PixelWorld::SetResolution(int width, int height)
 
 	renderTarget = new Graphics::RenderTarget(graphics, renderBuffer);
 
-	renderObject = new Graphics::Rectangle(0, 0, (float)width, (float)height, graphics);
+	renderCanvas = new Graphics::RectangleF(0, 0, (float)width, (float)height, graphics);
 }
 
 void PixelWorldEngine::PixelWorld::SetCamera(Camera Camera)
@@ -75,6 +79,28 @@ void PixelWorldEngine::PixelWorld::SetShader()
 	shader = defaultShader;
 }
 
+void PixelWorldEngine::PixelWorld::SetWorldMap(std::wstring worldMapName)
+{
+	worldMap = worldMaps[worldMapName];
+}
+
+void PixelWorldEngine::PixelWorld::SetWorldMap(WorldMap * WorldMap)
+{
+	if (worldMaps[WorldMap->GetMapName()] == nullptr)
+		RegisterWorldMap(WorldMap);
+
+	worldMap = WorldMap;
+}
+
+void PixelWorldEngine::PixelWorld::SetRenderObjectSize(int size)
+{
+	renderObjectSize = size;
+
+	Utility::Delete(renderObject);
+
+	renderObject = new Graphics::RectangleF(0, 0, (float)renderObjectSize, (float)renderObjectSize, graphics);
+}
+
 void PixelWorldEngine::PixelWorld::RegisterRenderObjectID(int id, Graphics::Texture2D* texture)
 {
 	renderObjectIDGroup.insert(std::pair<int, Graphics::Texture2D*>(id, texture));
@@ -83,6 +109,16 @@ void PixelWorldEngine::PixelWorld::RegisterRenderObjectID(int id, Graphics::Text
 void PixelWorldEngine::PixelWorld::UnRegisterRenderObjectID(int id)
 {
 	renderObjectIDGroup.erase(id);
+}
+
+void PixelWorldEngine::PixelWorld::RegisterWorldMap(WorldMap * worldMap)
+{
+	worldMaps[worldMap->GetMapName()] = worldMap;
+}
+
+auto PixelWorldEngine::PixelWorld::GetRenderObjectSize() -> int
+{
+	return renderObjectSize;
 }
 
 
@@ -94,18 +130,42 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 
 	graphics->SetRenderTarget(renderTarget);
 	
-	graphics->SetViewPort(Rectangle(0.f, 0.f, (float)resolutionWidth, (float)resolutionHeight));
+	graphics->SetViewPort(RectangleF(0.f, 0.f, (float)resolutionWidth, (float)resolutionHeight));
 
 	graphics->SetShader(shader);
 
-	graphics->SetVertexBuffer(square->GetVertexBuffer());
-	graphics->SetIndexBuffer(square->GetIndexBuffer());
+	graphics->SetVertexBuffer(renderObject->GetVertexBuffer());
+	graphics->SetIndexBuffer(renderObject->GetIndexBuffer());
 
-	graphics->SetConstantBuffers(buffers, 0);
-	graphics->SetShaderResource(renderObjectIDGroup[0], 0);
+	if (worldMap == nullptr) return renderBuffer;
+
+	auto viewRect = camera.GetRectangle();
+	auto renderObjectRect = Rectangle();
+
+	renderObjectRect.left = (int)viewRect.left / renderObjectSize;
+	renderObjectRect.top = (int)viewRect.top / renderObjectSize;
+	renderObjectRect.right = (int)viewRect.right / renderObjectSize + 1;
+	renderObjectRect.bottom = (int)viewRect.bottom / renderObjectSize + 1;
+	
 	graphics->SetStaticSampler(defaultSampler, 0);
+	graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
 
-	graphics->DrawIndexed(square->GetIndexBuffer()->GetCount());
+
+	for (int x = renderObjectRect.left; x <= renderObjectRect.right; x++) {
+
+		for (int y = renderObjectRect.top; y <= renderObjectRect.bottom; y++) {
+			if (worldMap->GetMapData(x, y) == nullptr) continue;
+
+			auto matrix = glm::translate(glm::mat4(1), glm::vec3(x * renderObjectSize - viewRect.left,
+				y * renderObjectSize - viewRect.top, 0.f));
+
+			buffers[(int)BufferIndex::TransformBuffer]->Update(&matrix);
+
+			graphics->SetConstantBuffer(buffers[(int)BufferIndex::TransformBuffer], (int)BufferIndex::TransformBuffer);
+			graphics->SetShaderResource(renderObjectIDGroup[worldMap->GetMapData(x, y)->RenderObjectID], 0);
+			graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount());
+		}
+	}
 
 	return renderBuffer;
 }

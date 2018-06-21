@@ -27,9 +27,9 @@ namespace PixelWorldEngine {
 			auto GetIndexBuffer() -> Buffer*;
 		};
 
-		class Rectangle :public Geometry {
+		class RectangleF :public Geometry {
 		public:
-			Rectangle(float left, float top, float right, float bottom, Graphics* graphics);
+			RectangleF(float left, float top, float right, float bottom, Graphics* graphics);
 		};
 
 	}

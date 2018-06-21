@@ -54,6 +54,7 @@
     <ClCompile Include="ShaderResource.cpp" />
     <ClCompile Include="StaticSampler.cpp" />
     <ClCompile Include="Utility.cpp" />
+    <ClCompile Include="WorldMap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="vsApplication.hlsl">

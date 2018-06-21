@@ -24,7 +24,7 @@ auto PixelWorldEngine::Graphics::Geometry::GetIndexBuffer() -> Buffer *
 	return indexBuffer;
 }
 
-PixelWorldEngine::Graphics::Rectangle::Rectangle(float left, float top, float right, float bottom,
+PixelWorldEngine::Graphics::RectangleF::RectangleF(float left, float top, float right, float bottom,
 	Graphics * graphics) :Geometry(graphics)
 {
 	//left-top left-bottom right-bottom right-top
