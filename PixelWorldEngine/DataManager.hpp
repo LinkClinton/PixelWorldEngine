@@ -72,7 +72,7 @@ namespace PixelWorldEngine {
 		/**
 		 * @brief 读取纹理资源，并且注册，如果文件已经读取那么不会重复读取而是直接返回纹理
 		 * @param[in] fileName 纹理文件路径，目前只支持bmp, jpeg, png 
-		 * @return 纹理文件
+		 * @return 纹理文件，纹理格式为R8G8B8A8
 		 */
 		auto RegisterTexture(std::wstring fileName) -> Graphics::Texture2D*;
 

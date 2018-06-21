@@ -19,23 +19,24 @@ cbuffer Camera : register(b0)
     matrix project;
 };
 
-Texture2D Texture : register(t0);
+cbuffer Transform : register(b1)
+{
+    matrix world;
+};
 
-SamplerState sample : register(s0);
+Texture2D Texture0 : register(t0);
 
-OutputData vs_main(InputData input)
+SamplerState sampler0 : register(s0);
+
+OutputData main(InputData input)
 {
     OutputData result;
-    
-    result.positionH = mul(float4(input.position, 1.0f), project);
+
+    result.positionH = mul(float4(input.position, 1.f), world);
+    result.positionH = mul(result.positionH, project);
 
     result.color = input.color;
     result.tex0 = input.tex0;
 
     return result;
-}
-
-float4 ps_main(OutputData input) : SV_TARGET
-{
-    return Texture.Sample(sample, input.tex0);
 }

@@ -322,8 +322,9 @@ PixelWorldEngine::Application::Application(const wchar_t * ApplicationName)
 
 	cameraBuffer = new Graphics::Buffer(graphics, nullptr, sizeof(glm::mat4x4));
 	
-	defaultShader = new Graphics::GraphicsShader(graphics, 
-		Utility::CharArrayToVector((char*)&ApplicationDefaultShaderCode[0]));
+	defaultShader = new Graphics::GraphicsShader(graphics,
+		Utility::CharArrayToVector((char*)vsApplicationDefaultShaderCode),
+		Utility::CharArrayToVector((char*)psApplicationDefaultShaderCode));
 
 	defaultSampler = new Graphics::StaticSampler(graphics);
 

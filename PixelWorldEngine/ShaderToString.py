@@ -24,8 +24,10 @@ result += "#include \"pch.hpp\"\n\n"
 
 result += "namespace PixelWorldEngine {\n"
 
-result += "\t" + CreateCharArray("PixelWorld", ".hlsl") + "\n"
-result += "\t" + CreateCharArray("Application", ".hlsl") + "\n"
+result += "\t" + CreateCharArray("vsPixelWorld", ".hlsl") + "\n"
+result += "\t" + CreateCharArray("psPixelWorld", ".hlsl") + "\n"
+result += "\t" + CreateCharArray("vsApplication", ".hlsl") + "\n"
+result += "\t" + CreateCharArray("psApplication", ".hlsl") + "\n"
 
 result += "\n}"
 

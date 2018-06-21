@@ -142,13 +142,19 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Application.hlsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="PixelWorld.hlsl">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="ShaderToString.py">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="vsApplication.hlsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="vsPixelWorld.hlsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="psPixelWorld.hlsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="psApplication.hlsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

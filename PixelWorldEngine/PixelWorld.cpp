@@ -17,7 +17,10 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::wstring WorldName, Application * A
 	buffers[(int)BufferIndex::CameraBuffer] = new Graphics::Buffer(graphics, &matrix , sizeof(glm::mat4x4));
 	buffers[(int)BufferIndex::TransformBuffer] = new Graphics::Buffer(graphics, &matrix, sizeof(glm::mat4x4));
 
-	defaultShader = new Graphics::GraphicsShader(graphics, Utility::CharArrayToVector((char*)PixelWorldDefaultShaderCode));
+	defaultShader = new Graphics::GraphicsShader(graphics, 
+		Utility::CharArrayToVector((char*)vsPixelWorldDefaultShaderCode),
+		Utility::CharArrayToVector((char*)psPixelWorldDefaultShaderCode));
+	
 	defaultSampler = new Graphics::StaticSampler(graphics);
 
 	SetShader();
