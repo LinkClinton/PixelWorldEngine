@@ -35,6 +35,9 @@ PixelWorldEngine::Graphics::GraphicsShader::GraphicsShader(Graphics * Graphics,
 			D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", flag, 0,
 			&result, &error);
 
+		if (error != nullptr)
+			DebugLayer::Assert(true, Error::ShaderCompiledFailed, error->GetBufferPointer());
+
 		graphics->device->CreateVertexShader(result->GetBufferPointer(), result->GetBufferSize(),
 			nullptr, &vertexShader);
 
@@ -47,6 +50,9 @@ PixelWorldEngine::Graphics::GraphicsShader::GraphicsShader(Graphics * Graphics,
 		D3DCompile(&PixelShaderCode[0], PixelShaderCode.size(), nullptr, nullptr,
 			D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", flag, 0,
 			&result, &error);
+
+		if (error != nullptr)
+			DebugLayer::Assert(true, Error::ShaderCompiledFailed, error->GetBufferPointer());
 
 		graphics->device->CreatePixelShader(result->GetBufferPointer(), result->GetBufferSize(),
 			nullptr, &pixelShader);

@@ -40,7 +40,3 @@ auto PixelWorldEngine::WorldMap::GetMapName() -> std::wstring
 	return mapName;
 }
 
-PixelWorldEngine::MapData::MapData(int renderObjectID)
-{
-	RenderObjectID = renderObjectID;
-}

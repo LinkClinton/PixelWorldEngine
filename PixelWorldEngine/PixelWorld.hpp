@@ -18,7 +18,13 @@ namespace PixelWorldEngine {
 	enum class BufferIndex : int {
 		CameraBuffer, //摄像机矩阵缓冲
 		TransformBuffer, //变换矩阵缓冲
+		RenderConfig, //记录当前渲染的时候的设置
 		Count
+	};
+
+	struct PixelWorldRenderConfig {
+		int currentRenderObjectID[MAX_RENDER_OBJECT];
+		glm::vec4 unused[3];
 	};
 
 	/**
@@ -32,6 +38,8 @@ namespace PixelWorldEngine {
 		int resolutionHeight; //分辨率高度
 
 		int renderObjectSize; //每一个地图块的大小，默认值为32
+
+		PixelWorldRenderConfig renderConfig; //渲染设置数据
 
 		Camera camera; //摄像机
 
@@ -114,7 +122,7 @@ namespace PixelWorldEngine {
 
 		/**
 		 * @brief 注册一个渲染物体，请注意保持纹理的生命周期
-		 * @param[in] id 我们注册的渲染物体的ID
+		 * @param[in] id 我们注册的渲染物体的ID，注意不能为0
 		 * @param[in] fileData 渲染物体的数据信息，注意数据必须是数据格式R8G8B8A8，然后图形的长宽必须一样
 		 */
 		void RegisterRenderObjectID(int id, Graphics::Texture2D* texture);

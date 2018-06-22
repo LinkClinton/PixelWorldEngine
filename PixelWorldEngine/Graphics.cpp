@@ -101,6 +101,7 @@ void PixelWorldEngine::Graphics::Graphics::SetIndexBuffer(Buffer* buffer)
 
 void PixelWorldEngine::Graphics::Graphics::SetConstantBuffer(Buffer* buffer, int id)
 {
+	if (buffer == nullptr) return;
 
 #ifdef _WIN32
 
@@ -114,6 +115,7 @@ void PixelWorldEngine::Graphics::Graphics::SetConstantBuffer(Buffer* buffer, int
 
 void PixelWorldEngine::Graphics::Graphics::SetShaderResource(ShaderResource* shaderResource, int id)
 {
+	if (shaderResource == nullptr) return;
 
 #ifdef _WIN32
 
@@ -126,6 +128,8 @@ void PixelWorldEngine::Graphics::Graphics::SetShaderResource(ShaderResource* sha
 
 void PixelWorldEngine::Graphics::Graphics::SetStaticSampler(StaticSampler * staticSampler, int id)
 {
+	if (staticSampler == nullptr) return;
+
 #ifdef _WIN32
 
 	deviceContext->VSSetSamplers(id, 1, &staticSampler->sampler);
@@ -160,7 +164,7 @@ void PixelWorldEngine::Graphics::Graphics::SetShaderResources(std::vector<Shader
 
 	std::vector<ID3D11ShaderResourceView*> resourceViews(shaderResource.size());
 
-	for (size_t i = 0; i < shaderResource.size(); i++)
+	for (size_t i = 0; i < shaderResource.size(); i++) 
 		resourceViews[i] = shaderResource[i]->resourceView;
 
 	deviceContext->VSSetShaderResources(startID, shaderResource.size(), &resourceViews[0]);

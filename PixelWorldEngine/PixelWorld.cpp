@@ -18,6 +18,7 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::wstring WorldName, Application * A
 
 	buffers[(int)BufferIndex::CameraBuffer] = new Graphics::Buffer(graphics, &matrix , sizeof(glm::mat4x4));
 	buffers[(int)BufferIndex::TransformBuffer] = new Graphics::Buffer(graphics, &matrix, sizeof(glm::mat4x4));
+	buffers[(int)BufferIndex::RenderConfig] = new Graphics::Buffer(graphics, &renderConfig, sizeof(PixelWorldRenderConfig));
 
 	defaultShader = new Graphics::GraphicsShader(graphics, 
 		Utility::CharArrayToVector((char*)vsPixelWorldDefaultShaderCode),
@@ -159,10 +160,21 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 			auto matrix = glm::translate(glm::mat4(1), glm::vec3(x * renderObjectSize - viewRect.left,
 				y * renderObjectSize - viewRect.top, 0.f));
 
-			buffers[(int)BufferIndex::TransformBuffer]->Update(&matrix);
+			auto mapData = worldMap->GetMapData(x, y);
 
+			memcpy(renderConfig.currentRenderObjectID, mapData->RenderObjectID, sizeof(mapData->RenderObjectID));
+
+			buffers[(int)BufferIndex::TransformBuffer]->Update(&matrix);
+			buffers[(int)BufferIndex::RenderConfig]->Update(&renderObject);
+			
 			graphics->SetConstantBuffer(buffers[(int)BufferIndex::TransformBuffer], (int)BufferIndex::TransformBuffer);
-			graphics->SetShaderResource(renderObjectIDGroup[worldMap->GetMapData(x, y)->RenderObjectID], 0);
+			graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
+
+			for (int id = 0; id < MAX_RENDER_OBJECT; id++) {
+				if (mapData->RenderObjectID[id] == 0) continue;
+				graphics->SetShaderResource(renderObjectIDGroup[mapData->RenderObjectID[id]], id);
+			}
+
 			graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount());
 		}
 	}

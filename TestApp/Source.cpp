@@ -25,13 +25,16 @@ int main() {
 	auto texture = dataManger.RegisterTexture(L"C:/Users/LinkC/Pictures/T1.jpg");
 
 	for (int i = 0; i < worldMap.GetWidth(); i++)
-		for (int j = 0; j < worldMap.GetHeight(); j++)
-			worldMap.SetMapData(i, j, new MapData());
+		for (int j = 0; j < worldMap.GetHeight(); j++) {
+			auto mapData = new MapData();
+			mapData->RenderObjectID[0] = 1;
+			worldMap.SetMapData(i, j, mapData);
+		}
 
 	pixelWorld.SetResolution(1920, 1080);
 	pixelWorld.SetCamera(Camera(PixelWorldEngine::RectangleF(0, 0, 1280, 720)));
 	pixelWorld.SetRenderObjectSize(32);
-	pixelWorld.RegisterRenderObjectID(0, texture);
+	pixelWorld.RegisterRenderObjectID(1, texture);
 
 	pixelWorld.SetWorldMap(&worldMap);
 
