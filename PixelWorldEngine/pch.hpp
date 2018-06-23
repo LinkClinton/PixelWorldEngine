@@ -1,9 +1,10 @@
 #pragma once
 
+#include <functional>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <map>
-#include <fstream>
 
 namespace PixelWorldEngine {
 

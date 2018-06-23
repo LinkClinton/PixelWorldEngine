@@ -4,6 +4,7 @@
 
 #include "Utility.hpp"
 #include "GraphicsEnum.hpp"
+#include "BaseStruct.hpp"
 
 namespace PixelWorldEngine {
 
@@ -41,6 +42,8 @@ namespace PixelWorldEngine {
 
 		public:
 			Texture2D(Graphics* graphics, void* Data, int Width, int Height, PixelFormat PixelFormat = PixelFormat::Unknown, int MipLevels = 1);
+
+			Texture2D(Texture2D* srcTexture, PixelWorldEngine::Rectangle srcRect);
 
 			~Texture2D();
 

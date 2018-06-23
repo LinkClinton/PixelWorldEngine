@@ -17,11 +17,31 @@ namespace PixelWorldEngine {
 		static auto CountPixelFormatSize(Graphics::PixelFormat pixelFormat) -> int;
 
 		template<typename T>
+		static auto Max(T x, T y) -> T;
+
+		template<typename T>
+		static auto Min(T x, T y) -> T;
+
+		template<typename T>
 		static void Dispose(T &object);
 
 		template<typename T>
 		static void Delete(T &object);
 	};
+
+	template<typename T>
+	inline auto Utility::Max(T x, T y) -> T
+	{
+		if (x > y) return x;
+		return y;
+	}
+
+	template<typename T>
+	inline auto Utility::Min(T x, T y) -> T
+	{
+		if (x < y) return x;
+		return y;
+	}
 
 	template<typename T>
 	inline void Utility::Dispose(T & object)

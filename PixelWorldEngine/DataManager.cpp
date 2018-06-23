@@ -91,11 +91,9 @@ auto PixelWorldEngine::DataManager::RegisterTexture(std::wstring fileName) -> Gr
 
 	SDL_Surface* SDL_resultImage = nullptr;
 
-	if (SDL_image->format->format != SDL_PIXELFORMAT_ARGB8888)
-		SDL_resultImage = SDL_ConvertSurfaceFormat(SDL_image, SDL_PIXELFORMAT_ARGB8888 , 0);
+	if (SDL_image->format->format != SDL_PIXELFORMAT_ABGR8888)
+		SDL_resultImage = SDL_ConvertSurfaceFormat(SDL_image, SDL_PIXELFORMAT_ABGR8888, 0);
 	else SDL_resultImage = SDL_image;
-
-	auto color = (SDL_Color*)SDL_resultImage->pixels;
 
 	auto texture = new Graphics::Texture2D(graphics, SDL_resultImage->pixels, SDL_resultImage->w, SDL_resultImage->h,
 		Graphics::PixelFormat::R8G8B8A8);

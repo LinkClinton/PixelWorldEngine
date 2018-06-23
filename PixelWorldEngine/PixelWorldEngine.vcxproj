@@ -46,6 +46,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="DebugLayer.cpp" />
+    <ClCompile Include="Events.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="GraphicsRenderTarget.cpp" />

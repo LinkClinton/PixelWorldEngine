@@ -48,20 +48,43 @@ void PixelWorldEngine::Application::OnMouseMove(void * sender, PixelWorldEngine:
 {
 	mousePositionX = eventArg->x;
 	mousePositionY = eventArg->y;
+
+	
+	if (pixelWorld != nullptr) {
+		auto mousePositionRelative = ComputeMousePosition(RectangleF(0, 0, (float)windowWidth, (float)windowHeight),
+			pixelWorld->resolutionWidth, pixelWorld->resolutionHeight, mousePositionX, mousePositionY);
+
+		mousePositionXRelative = mousePositionRelative.first;
+		mousePositionYRelative = mousePositionRelative.second;
+	}
+	else mousePositionXRelative = mousePositionX,
+		mousePositionYRelative = mousePositionY;
+
+	eventArg->x = mousePositionXRelative;
+	eventArg->y = mousePositionYRelative;
+
+	Events::DoEventHandlers(MouseMove, eventArg);
 }
 
 void PixelWorldEngine::Application::OnMouseWheel(void * sender, PixelWorldEngine::Events::MouseWheelEvent * eventArg)
 {
+	eventArg->x = mousePositionXRelative;
+	eventArg->y = mousePositionYRelative;
+
+	Events::DoEventHandlers(MouseWheel, eventArg);
 }
 
 void PixelWorldEngine::Application::OnMouseClick(void * sender, PixelWorldEngine::Events::MouseClickEvent * eventArg)
 {
+	eventArg->x = mousePositionXRelative;
+	eventArg->y = mousePositionYRelative;
 
+	Events::DoEventHandlers(MouseClick, eventArg);
 }
 
 void PixelWorldEngine::Application::OnKeyClick(void * sender, PixelWorldEngine::Events::KeyClickEvent * eventArg)
 {
-
+	Events::DoEventHandlers(KeyClick, eventArg);
 }
 
 void PixelWorldEngine::Application::OnSizeChange(void * sender, PixelWorldEngine::Events::SizeChangeEvent * eventArg)
@@ -81,6 +104,8 @@ void PixelWorldEngine::Application::OnSizeChange(void * sender, PixelWorldEngine
 void PixelWorldEngine::Application::OnUpdate(void * sender)
 {
 	OnRender(sender);
+
+	Events::DoEventHandlers(Update);
 }
 
 void PixelWorldEngine::Application::OnRender(void * sender)

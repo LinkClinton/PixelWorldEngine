@@ -14,6 +14,16 @@ void PixelWorldEngine::Camera::SetRectangle(RectangleF area)
 	project = glm::orthoLH(rect.left, rect.right, rect.bottom, rect.top, 0.f, 1.f);
 }
 
+void PixelWorldEngine::Camera::Move(glm::vec2 transform)
+{
+	rect.left += transform.x;
+	rect.top += transform.y;
+	rect.right += transform.x;
+	rect.bottom += transform.y;
+
+	project = glm::orthoLH(rect.left, rect.right, rect.bottom, rect.top, 0.f, 1.f);
+}
+
 auto PixelWorldEngine::Camera::GetRectangle() -> RectangleF
 {
 	return rect;

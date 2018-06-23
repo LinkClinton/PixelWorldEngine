@@ -4,6 +4,7 @@
 
 #include "DataManager.hpp"
 #include "Graphics.hpp"
+#include "Events.hpp"
 
 #include "WorldMap.hpp"
 #include "Geometry.hpp"
@@ -41,7 +42,7 @@ namespace PixelWorldEngine {
 
 		PixelWorldRenderConfig renderConfig; //渲染设置数据
 
-		Camera camera; //摄像机
+		Camera* camera; //摄像机
 
 		Graphics::Graphics* graphics; //...
 
@@ -89,7 +90,7 @@ namespace PixelWorldEngine {
 		 * @brief 设置我们使用的摄像机
 		 * @param[in] camera 摄像机
 		 */
-		void SetCamera(Camera camera);
+		void SetCamera(Camera* camera);
 
 		/**
 		 * @brief 设置我们使用的着色器

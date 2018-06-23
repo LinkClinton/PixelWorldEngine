@@ -30,10 +30,16 @@ namespace PixelWorldEngine {
 		Camera(RectangleF area);
 
 		/**
-		 * @brief 设置摄像机能够看到的范围
+		 * @brief 设置摄像机能够看到的范围以及看到的区域
 		 * @param[in] area 表示范围
 		 */
 		void SetRectangle(RectangleF area);
+
+		/**
+		 * @brief 移动摄像机，移动的时候我们能够看到的范围并不会变
+		 * @param[in] transform 移动偏移值
+		 */
+		void Move(glm::vec2 transform);
 
 		/**
 		 * @brief 获取摄像机能够看到的范围

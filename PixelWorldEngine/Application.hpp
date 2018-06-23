@@ -27,6 +27,9 @@ namespace PixelWorldEngine {
 		int mousePositionX;
 		int mousePositionY;
 
+		int mousePositionXRelative;
+		int mousePositionYRelative;
+
 		Graphics::Graphics* graphics;
 		Graphics::RenderTarget* renderTarget;
 
@@ -75,6 +78,12 @@ namespace PixelWorldEngine {
 		static auto ComputeViewPort(int windowWidth, int windowHeight, int resolutionWidth, int resolutionHeight) -> RectangleF;
 
 		static auto ComputeMousePosition(RectangleF ViewPort, int resolutionWidth, int resolutionHeight, int x, int y)->std::pair<int, int>;
+	public:
+		PixelWorldEngine::Events::MouseMoveHandlers MouseMove;
+		PixelWorldEngine::Events::MouseClickHandlers MouseClick;
+		PixelWorldEngine::Events::MouseWheelHandlers MouseWheel;
+		PixelWorldEngine::Events::KeyClickEventHandlers KeyClick;
+		PixelWorldEngine::Events::UpdateEventHandlers Update;
 	public:
 		Application(const wchar_t* ApplicationName);
 

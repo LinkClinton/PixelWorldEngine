@@ -61,13 +61,9 @@ void PixelWorldEngine::PixelWorld::SetResolution(int width, int height)
 	renderCanvas = new Graphics::RectangleF(0, 0, (float)width, (float)height, graphics);
 }
 
-void PixelWorldEngine::PixelWorld::SetCamera(Camera Camera)
+void PixelWorldEngine::PixelWorld::SetCamera(Camera* Camera)
 {
 	camera = Camera;
-
-	auto matrix = camera.GetMatrix();
-
-	buffers[(int)BufferIndex::CameraBuffer]->Update(&matrix);
 }
 
 void PixelWorldEngine::PixelWorld::SetShader(Graphics::GraphicsShader * Shader)
@@ -140,25 +136,27 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 
 	if (worldMap == nullptr) return renderBuffer;
 
-	auto viewRect = camera.GetRectangle();
+	auto viewRect = camera->GetRectangle();
 	auto renderObjectRect = Rectangle();
+	auto matrix = camera->GetMatrix();
 
-	renderObjectRect.left = (int)viewRect.left / renderObjectSize;
-	renderObjectRect.top = (int)viewRect.top / renderObjectSize;
-	renderObjectRect.right = (int)viewRect.right / renderObjectSize + 1;
-	renderObjectRect.bottom = (int)viewRect.bottom / renderObjectSize + 1;
+	buffers[(int)BufferIndex::CameraBuffer]->Update(&matrix);
+
+	renderObjectRect.left = Utility::Max((int)viewRect.left / renderObjectSize, 0);
+	renderObjectRect.top = Utility::Max((int)viewRect.top / renderObjectSize, 0);
+	renderObjectRect.right = Utility::Min((int)viewRect.right / renderObjectSize + 1, worldMap->GetHeight() - 1);
+	renderObjectRect.bottom = Utility::Min((int)viewRect.bottom / renderObjectSize + 1, worldMap->GetHeight() - 1);
 	
 	graphics->SetStaticSampler(defaultSampler, 0);
 	graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
-
-
+	
 	for (int x = renderObjectRect.left; x <= renderObjectRect.right; x++) {
 
 		for (int y = renderObjectRect.top; y <= renderObjectRect.bottom; y++) {
 			if (worldMap->GetMapData(x, y) == nullptr) continue;
 
-			auto matrix = glm::translate(glm::mat4(1), glm::vec3(x * renderObjectSize - viewRect.left,
-				y * renderObjectSize - viewRect.top, 0.f));
+			auto matrix = glm::translate(glm::mat4(1), glm::vec3(x * renderObjectSize,
+				y * renderObjectSize, 0.f));
 
 			auto mapData = worldMap->GetMapData(x, y);
 
