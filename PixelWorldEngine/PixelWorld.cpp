@@ -3,7 +3,7 @@
 #include "Application.hpp"
 #include "EngineDefaultResource.hpp"
 
-PixelWorldEngine::PixelWorld::PixelWorld(std::wstring WorldName, Application * Application)
+PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Application)
 {
 	worldName = WorldName;
 	graphics = Application->GetGraphics();
@@ -76,7 +76,7 @@ void PixelWorldEngine::PixelWorld::SetShader()
 	shader = defaultShader;
 }
 
-void PixelWorldEngine::PixelWorld::SetWorldMap(std::wstring worldMapName)
+void PixelWorldEngine::PixelWorld::SetWorldMap(std::string worldMapName)
 {
 	worldMap = worldMaps[worldMapName];
 }

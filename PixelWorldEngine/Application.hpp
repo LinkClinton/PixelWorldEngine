@@ -14,13 +14,13 @@ namespace PixelWorldEngine {
 
 	class Application {
 	private:
-		std::wstring applicationName;
+		std::string applicationName;
 
 		int windowWidth = 0;
 		int windowHeight = 0;
 
-		std::wstring windowName;
-		std::wstring iconName;
+		std::string windowName;
+		std::string iconName;
 
 		bool isWindowCreated = false;
 
@@ -85,11 +85,11 @@ namespace PixelWorldEngine {
 		PixelWorldEngine::Events::KeyClickEventHandlers KeyClick;
 		PixelWorldEngine::Events::UpdateEventHandlers Update;
 	public:
-		Application(const wchar_t* ApplicationName);
+		Application(const char* ApplicationName);
 
 		~Application();
 
-		void MakeWindow(const wchar_t* WindowName, int Width, int Height, const wchar_t* IconName = L"");
+		void MakeWindow(const char* WindowName, int Width, int Height, const char* IconName = "");
 
 		void MakeFullScreen(bool state);
 

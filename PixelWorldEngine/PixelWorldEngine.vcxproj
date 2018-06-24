@@ -31,12 +31,14 @@
     <ClInclude Include="Events.hpp" />
     <ClInclude Include="Graphics.hpp" />
     <ClInclude Include="GraphicsRenderTarget.hpp" />
+    <ClInclude Include="Input.hpp" />
     <ClInclude Include="KeyCode.hpp" />
     <ClInclude Include="PixelWorld.hpp" />
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="GraphicsShader.hpp" />
     <ClInclude Include="ShaderResource.hpp" />
     <ClInclude Include="StaticSampler.hpp" />
+    <ClInclude Include="Timer.hpp" />
     <ClInclude Include="Utility.hpp" />
     <ClInclude Include="WorldMap.hpp" />
   </ItemGroup>
@@ -51,6 +53,7 @@
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="GraphicsRenderTarget.cpp" />
     <ClCompile Include="GraphicsShader.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="PixelWorld.cpp" />
     <ClCompile Include="ShaderResource.cpp" />
     <ClCompile Include="StaticSampler.cpp" />
@@ -93,7 +96,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>

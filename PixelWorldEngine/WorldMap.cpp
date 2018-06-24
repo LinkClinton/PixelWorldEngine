@@ -1,6 +1,6 @@
 #include "WorldMap.hpp"
 
-PixelWorldEngine::WorldMap::WorldMap(std::wstring name, int Width, int Height, MapData ** data)
+PixelWorldEngine::WorldMap::WorldMap(std::string name, int Width, int Height, MapData ** data)
 {
 	mapName = name;
 
@@ -35,7 +35,7 @@ auto PixelWorldEngine::WorldMap::GetHeight() -> int
 	return height;
 }
 
-auto PixelWorldEngine::WorldMap::GetMapName() -> std::wstring
+auto PixelWorldEngine::WorldMap::GetMapName() -> std::string
 {
 	return mapName;
 }

@@ -1,6 +1,7 @@
 #include "..\PixelWorldEngine\Application.hpp"
 #include "..\PixelWorldEngine\DebugLayer.hpp"
 #include "..\PixelWorldEngine\PixelWorld.hpp"
+#include "..\PixelWorldEngine\Input.hpp"
 
 #include <iostream>
 #include <random>
@@ -21,44 +22,37 @@ std::default_random_engine randomEngine(0);
 #endif // !_WIN32
 
 
-Application application = Application(L"Application");
-PixelWorld pixelWorld = PixelWorld(L"PixelWorld", &application);
+Application application = Application("Application");
+PixelWorld pixelWorld = PixelWorld("PixelWorld", &application);
 DataManager dataManger = DataManager(&application);
-WorldMap worldMap = WorldMap(L"Map1", 100, 100);
+WorldMap worldMap = WorldMap("Map1", 100, 100);
 Camera camera = Camera(PixelWorldEngine::RectangleF(0, 0, 1280, 720));
 
 std::vector<Texture2D*> textures;
 
 void OnKeyEvent(Events::KeyClickEvent* eventArg) {
-	float speed = 10;
 
-	if (eventArg->isDown == true) {
-		switch (eventArg->keyCode)
-		{
-		case KeyCode::A: {
-			camera.Move(glm::vec2(-speed, 0));
-			break;
-		}
-		case KeyCode::W: {
-			camera.Move(glm::vec2(0, -speed));
-			break;
-		}
-		case KeyCode::D: {
-			camera.Move(glm::vec2(speed, 0));
-			break;
-		}
-		case KeyCode::S: {
-			camera.Move(glm::vec2(0, speed));
-			break;
-		}
-		default:
-			break;
-		}
-	}
+}
+
+void OnUpdate() {
+	float speed = 5;
+
+	glm::vec2 transform(0, 0);
+	
+	if (Input::GetKeyCodeDown(KeyCode::A))
+		transform.x -= speed;
+	if (Input::GetKeyCodeDown(KeyCode::D))
+		transform.x += speed;
+	if (Input::GetKeyCodeDown(KeyCode::S))
+		transform.y += speed;
+	if (Input::GetKeyCodeDown(KeyCode::W))
+		transform.y -= speed;
+
+	camera.Move(transform);
 }
 
 int main() {
-	auto texture = dataManger.RegisterTexture(L"C:/Users/LinkC/Pictures/T.jpg");
+	auto texture = dataManger.RegisterTexture("C:/Users/LinkC/Pictures/T.jpg");
 	
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 8; j++) {
@@ -83,7 +77,9 @@ int main() {
 	pixelWorld.SetWorldMap(&worldMap);
 	
 	application.KeyClick.push_back(OnKeyEvent);
-	application.MakeWindow(L"TestApp", 1920, 1080);
+	application.Update.push_back(OnUpdate);
+
+	application.MakeWindow("TestApp", 1920, 1080);
 	application.SetWorld(&pixelWorld);
 	application.ShowWindow();
 	application.RunLoop();

@@ -33,7 +33,7 @@ namespace PixelWorldEngine {
 	 */
 	class PixelWorld {
 	private:
-		std::wstring worldName; //世界的名字 
+		std::string worldName; //世界的名字 
 
 		int resolutionWidth; //分辨率宽度
 		int resolutionHeight; //分辨率高度
@@ -63,7 +63,7 @@ namespace PixelWorldEngine {
 
 		std::map<int, Graphics::Texture2D*> renderObjectIDGroup; //用于存储纹理，不同的ID对应不同的纹理
 	
-		std::map<std::wstring, WorldMap*> worldMaps; //存储世界的地图
+		std::map<std::string, WorldMap*> worldMaps; //存储世界的地图
 
 		friend class Application;
 	public:
@@ -72,7 +72,7 @@ namespace PixelWorldEngine {
 		 * @param[in] WorldName 世界的名字
 		 * @param[in] Application 呈现世界的应用程序
 		 */
-		PixelWorld(std::wstring WorldName, Application* Application);
+		PixelWorld(std::string WorldName, Application* Application);
 
 		/**
 		 * @brief 析构函数
@@ -107,7 +107,7 @@ namespace PixelWorldEngine {
 		 * @brief 设置我们使用的世界地图，使用的地图必须要求注册
 		 * @param[in] worldMapName 地图的名字
 		 */
-		void SetWorldMap(std::wstring worldMapName);
+		void SetWorldMap(std::string worldMapName);
 
 		/**
 		 * @brief 设置我们使用的世界地图，如果地图没有注册那么我们将会为其注册

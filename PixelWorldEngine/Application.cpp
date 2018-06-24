@@ -339,7 +339,7 @@ auto PixelWorldEngine::Application::ComputeMousePosition(RectangleF ViewPort, in
 	return result;
 }
 
-PixelWorldEngine::Application::Application(const wchar_t * ApplicationName)
+PixelWorldEngine::Application::Application(const char * ApplicationName)
 {
 	applicationName = ApplicationName;
 
@@ -373,7 +373,7 @@ PixelWorldEngine::Application::~Application()
 	Utility::Delete(graphics);
 }
 
-void PixelWorldEngine::Application::MakeWindow(const wchar_t * WindowName, int Width, int Height, const wchar_t * IconName)
+void PixelWorldEngine::Application::MakeWindow(const char * WindowName, int Width, int Height, const char * IconName)
 {
 	windowName = WindowName;
 	windowWidth = Width;
@@ -383,7 +383,7 @@ void PixelWorldEngine::Application::MakeWindow(const wchar_t * WindowName, int W
 	if (isWindowCreated == true) {
 
 #ifdef _WIN32
-		SetWindowTextW(hwnd, &windowName[0]);
+		SetWindowText(hwnd, &windowName[0]);
 
 		RECT rect;
 
@@ -410,7 +410,7 @@ void PixelWorldEngine::Application::MakeWindow(const wchar_t * WindowName, int W
 		auto hInstance = GetModuleHandle(0);
 
 		WNDCLASS appInfo;
-
+		
 		appInfo.style = CS_DBLCLKS;
 		appInfo.lpfnWndProc = DefaultWindowProc;
 		appInfo.cbClsExtra = 0;
@@ -433,7 +433,7 @@ void PixelWorldEngine::Application::MakeWindow(const wchar_t * WindowName, int W
 
 		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 
-		hwnd = CreateWindowW(&windowName[0], &windowName[0], WS_OVERLAPPEDWINDOW ^
+		hwnd = CreateWindow(&windowName[0], &windowName[0], WS_OVERLAPPEDWINDOW ^
 			WS_SIZEBOX ^ WS_MAXIMIZEBOX, CW_USEDEFAULT, CW_USEDEFAULT,
 			rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, hInstance, nullptr);
 

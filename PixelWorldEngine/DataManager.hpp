@@ -49,7 +49,7 @@ namespace PixelWorldEngine {
 	private:
 		Graphics::Graphics* graphics;
 
-		std::map<std::wstring, Graphics::Texture2D*> textures;
+		std::map<std::string, Graphics::Texture2D*> textures;
 	public:
 		/**
 		 * @breif 构造函数
@@ -67,27 +67,27 @@ namespace PixelWorldEngine {
 		 * @param[in] fileName 文件名
 		 * @return 返回文件数据
 		 */
-		auto ReadFile(std::wstring fileName) -> FileData;
+		auto ReadFile(std::string fileName) -> FileData;
 
 		/**
 		 * @brief 读取纹理资源，并且注册，如果文件已经读取那么不会重复读取而是直接返回纹理
 		 * @param[in] fileName 纹理文件路径，目前只支持bmp, jpeg, png 
 		 * @return 纹理文件，纹理格式为R8G8B8A8
 		 */
-		auto RegisterTexture(std::wstring fileName) -> Graphics::Texture2D*;
+		auto RegisterTexture(std::string fileName) -> Graphics::Texture2D*;
 
 		/**
 		 * @brief 释放我们注册的纹理资源，如果一个纹理不需要使用的话建议释放以节约内存
 		 * @param[in] 文件名
 		 */
-		auto UnRegisterTexture(std::wstring fileName);
+		auto UnRegisterTexture(std::string fileName);
 
 		/**
 		 * @brief 写入文件
 		 * @param[in] fileName 文件名
 		 * @param[in] fileData 要写入的数据
 		 */
-		void WriteFile(std::wstring fileName, FileData fileData);
+		void WriteFile(std::string fileName, FileData fileData);
 	};
 
 }

@@ -26,7 +26,7 @@ namespace PixelWorldEngine {
 		int width; //世界的宽度
 		int height; //世界的高度
 
-		std::wstring mapName; //世界的地图的名字
+		std::string mapName; //世界的地图的名字
 	protected:
 		std::vector<MapData*> mapData; //存储世界的地图数据信息
 	public:
@@ -37,7 +37,7 @@ namespace PixelWorldEngine {
 		 * @param[in] Height 世界的高度
 		 * @param[in] data 世界的地图的数据信息，数组大小请保证大于等于Width x Height
 		 */
-		WorldMap(std::wstring name, int Width, int Height, MapData** data = nullptr);
+		WorldMap(std::string name, int Width, int Height, MapData** data = nullptr);
 
 		/**
 		 * @brief 设置地图指定位置数据信息
@@ -72,7 +72,7 @@ namespace PixelWorldEngine {
 		 * @brief 获取世界的地图的名字
 		 * @return 世界的地图的名字
 		 */
-		auto GetMapName() -> std::wstring;
+		auto GetMapName() -> std::string;
 	};
 
 }

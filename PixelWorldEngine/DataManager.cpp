@@ -49,7 +49,7 @@ PixelWorldEngine::DataManager::~DataManager()
 	IMG_Quit();
 }
 
-auto PixelWorldEngine::DataManager::ReadFile(std::wstring fileName) -> FileData
+auto PixelWorldEngine::DataManager::ReadFile(std::string fileName) -> FileData
 {
 	FileData result;
 
@@ -69,7 +69,7 @@ auto PixelWorldEngine::DataManager::ReadFile(std::wstring fileName) -> FileData
 
 }
 
-auto PixelWorldEngine::DataManager::RegisterTexture(std::wstring fileName) -> Graphics::Texture2D *
+auto PixelWorldEngine::DataManager::RegisterTexture(std::string fileName) -> Graphics::Texture2D *
 {
 	if (textures[fileName] != nullptr) return textures[fileName];
 
@@ -107,7 +107,7 @@ auto PixelWorldEngine::DataManager::RegisterTexture(std::wstring fileName) -> Gr
 	return texture;
 }
 
-auto PixelWorldEngine::DataManager::UnRegisterTexture(std::wstring fileName)
+auto PixelWorldEngine::DataManager::UnRegisterTexture(std::string fileName)
 {
 	if (textures[fileName] == nullptr) return;
 
