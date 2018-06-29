@@ -4,8 +4,7 @@ PixelWorldEngine::Graphics::Graphics::Graphics()
 {
 #ifdef _WIN32
 
-	D3D_FEATURE_LEVEL features[4] = {
-		D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_1,
+	D3D_FEATURE_LEVEL features[3] = {
 		D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_0,
 		D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_10_1,
 		D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_10_0
@@ -21,7 +20,7 @@ PixelWorldEngine::Graphics::Graphics::Graphics()
 	fillMode = FillMode::FillSolid;
 
 	D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE::D3D_DRIVER_TYPE_HARDWARE,
-		0, createFlag, features, 4, D3D11_SDK_VERSION, &device, &feature, &deviceContext);
+		0, createFlag, features, 3, D3D11_SDK_VERSION, &device, &feature, &deviceContext);
 
 	elementDesc[0] = { "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0, 0, D3D11_INPUT_PER_VERTEX_DATA,0 };
 	elementDesc[1] = { "COLOR",   0,DXGI_FORMAT_R32G32B32A32_FLOAT, 0,12, D3D11_INPUT_PER_VERTEX_DATA ,0 };

@@ -30,12 +30,31 @@ Camera camera = Camera(PixelWorldEngine::RectangleF(0, 0, 1280, 720));
 
 std::vector<Texture2D*> textures;
 
-void OnKeyEvent(Events::KeyClickEvent* eventArg) {
+auto IntToString(int Int) -> std::string {
+	std::string result = "";
+	
+	while (Int > 0) {
+		char c = (Int % 10) + '0';
+		result = c + result;
+
+		Int /= 10;
+	}
+
+	return result;
+}
+
+void OnKeyEvent(void* sender, Events::KeyClickEvent* eventArg) {
 
 }
 
-void OnUpdate() {
-	float speed = 5;
+void OnUpdate(void* sender) {
+	Application* app = (Application*)sender;
+
+	float deltaTime = app->GetDeltaTime();
+
+	app->SetWindow((std::string)"TestApp Fps:" + IntToString(app->GetFramePerSecond()), 1920, 1080);
+
+	float speed = 100 * deltaTime;
 
 	glm::vec2 transform(0, 0);
 	

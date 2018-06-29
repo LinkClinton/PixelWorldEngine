@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <chrono>
 #include <map>
 
 namespace PixelWorldEngine {

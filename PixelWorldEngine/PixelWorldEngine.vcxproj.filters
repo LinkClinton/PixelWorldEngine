@@ -105,6 +105,9 @@
     <ClInclude Include="Timer.hpp">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="PixelObject.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utility.cpp">
@@ -153,6 +156,12 @@
       <Filter>Source Files\Application</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelObject.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>

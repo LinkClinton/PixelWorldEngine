@@ -8,6 +8,7 @@
 #include "Graphics.hpp"
 #include "GraphicsRenderTarget.hpp"
 
+#include "Timer.hpp"
 #include "PixelWorld.hpp"
 
 namespace PixelWorldEngine {
@@ -29,6 +30,9 @@ namespace PixelWorldEngine {
 
 		int mousePositionXRelative;
 		int mousePositionYRelative;
+
+		Timer timer;
+		FpsCounter fpsCounter;
 
 		Graphics::Graphics* graphics;
 		Graphics::RenderTarget* renderTarget;
@@ -85,11 +89,13 @@ namespace PixelWorldEngine {
 		PixelWorldEngine::Events::KeyClickEventHandlers KeyClick;
 		PixelWorldEngine::Events::UpdateEventHandlers Update;
 	public:
-		Application(const char* ApplicationName);
+		Application(std::string ApplicationName);
 
 		~Application();
 
-		void MakeWindow(const char* WindowName, int Width, int Height, const char* IconName = "");
+		void MakeWindow(std::string WindowName, int Width, int Height, std::string IconName = "");
+
+		void SetWindow(std::string WindowName, int Width, int Height);
 
 		void MakeFullScreen(bool state);
 
@@ -104,6 +110,10 @@ namespace PixelWorldEngine {
 		auto GetWindowWidth() -> int;
 
 		auto GetWindowHeight() -> int;
+
+		auto GetFramePerSecond() -> int;
+
+		auto GetDeltaTime() -> float;
 
 		auto GetGraphics() -> Graphics::Graphics*;
 	};

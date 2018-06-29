@@ -73,11 +73,11 @@ namespace PixelWorldEngine {
 			SizeChangeEvent() = default;
 		};
 
-		typedef std::function<void(MouseMoveEvent*)> MouseMoveHandler;
-		typedef std::function<void(MouseClickEvent*)> MouseClickHandler;
-		typedef std::function<void(MouseWheelEvent*)> MouseWheelHandler;
-		typedef std::function<void(KeyClickEvent*)> KeyClickEventHandler;
-		typedef std::function<void()> UpdateEventHandler;
+		typedef std::function<void(void*, MouseMoveEvent*)> MouseMoveHandler;
+		typedef std::function<void(void*, MouseClickEvent*)> MouseClickHandler;
+		typedef std::function<void(void*, MouseWheelEvent*)> MouseWheelHandler;
+		typedef std::function<void(void*, KeyClickEvent*)> KeyClickEventHandler;
+		typedef std::function<void(void*)> UpdateEventHandler;
 
 		typedef std::vector<MouseMoveHandler> MouseMoveHandlers;
 		typedef std::vector<MouseClickHandler> MouseClickHandlers;
@@ -100,15 +100,15 @@ namespace PixelWorldEngine {
 
 		//将一个事件集合里面的事件处理
 		template<typename Handlers, typename EventArg>
-		static void DoEventHandlers(Handlers handlers, EventArg eventarg) {
+		static void DoEventHandlers(Handlers handlers, void* sender, EventArg eventarg) {
 			for (size_t i = 0; i < handlers.size(); i++)
-				handlers[i](eventarg);
+				handlers[i](sender, eventarg);
 		}
 
 		template<typename Handlers>
-		static void DoEventHandlers(Handlers handlers) {
+		static void DoEventHandlers(Handlers handlers, void * sender) {
 			for (size_t i = 0; i < handlers.size(); i++)
-				handlers[i]();
+				handlers[i](sender);
 		}
 	}
 }

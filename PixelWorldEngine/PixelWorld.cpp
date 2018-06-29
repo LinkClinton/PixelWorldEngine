@@ -10,7 +10,7 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 
 	renderObjectSize = 32;
 
-	renderObject = new Graphics::RectangleF(0, 0, (float)renderObjectSize, (float)renderObjectSize, graphics);
+	renderObject = new Graphics::RectangleF(0, 0, 1.f, 1.f, graphics);
 
 	buffers.resize((int)BufferIndex::Count);
 
@@ -89,13 +89,9 @@ void PixelWorldEngine::PixelWorld::SetWorldMap(WorldMap * WorldMap)
 	worldMap = WorldMap;
 }
 
-void PixelWorldEngine::PixelWorld::SetRenderObjectSize(int size)
+void PixelWorldEngine::PixelWorld::SetRenderObjectSize(float size)
 {
 	renderObjectSize = size;
-
-	Utility::Delete(renderObject);
-
-	renderObject = new Graphics::RectangleF(0, 0, (float)renderObjectSize, (float)renderObjectSize, graphics);
 }
 
 void PixelWorldEngine::PixelWorld::RegisterRenderObjectID(int id, Graphics::Texture2D* texture)
@@ -113,7 +109,7 @@ void PixelWorldEngine::PixelWorld::RegisterWorldMap(WorldMap * worldMap)
 	worldMaps[worldMap->GetMapName()] = worldMap;
 }
 
-auto PixelWorldEngine::PixelWorld::GetRenderObjectSize() -> int
+auto PixelWorldEngine::PixelWorld::GetRenderObjectSize() -> float
 {
 	return renderObjectSize;
 }
@@ -142,28 +138,30 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 
 	buffers[(int)BufferIndex::CameraBuffer]->Update(&matrix);
 
-	renderObjectRect.left = Utility::Max((int)viewRect.left / renderObjectSize, 0);
-	renderObjectRect.top = Utility::Max((int)viewRect.top / renderObjectSize, 0);
-	renderObjectRect.right = Utility::Min((int)viewRect.right / renderObjectSize + 1, worldMap->GetHeight() - 1);
-	renderObjectRect.bottom = Utility::Min((int)viewRect.bottom / renderObjectSize + 1, worldMap->GetHeight() - 1);
+	renderObjectRect.left = Utility::Max((int)(viewRect.left / renderObjectSize), 0);
+	renderObjectRect.top = Utility::Max((int)(viewRect.top / renderObjectSize), 0);
+	renderObjectRect.right = Utility::Min((int)(viewRect.right / renderObjectSize) + 1, worldMap->GetHeight() - 1);
+	renderObjectRect.bottom = Utility::Min((int)(viewRect.bottom / renderObjectSize) + 1, worldMap->GetHeight() - 1);
 	
 	graphics->SetStaticSampler(defaultSampler, 0);
 	graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
 	
+	auto scaleMatrix = glm::scale(glm::mat4(1), glm::vec3(renderObjectSize, renderObjectSize, 1.f));
+
 	for (int x = renderObjectRect.left; x <= renderObjectRect.right; x++) {
 
 		for (int y = renderObjectRect.top; y <= renderObjectRect.bottom; y++) {
 			if (worldMap->GetMapData(x, y) == nullptr) continue;
 
 			auto matrix = glm::translate(glm::mat4(1), glm::vec3(x * renderObjectSize,
-				y * renderObjectSize, 0.f));
+				y * renderObjectSize, 0.f)) * scaleMatrix;
 
 			auto mapData = worldMap->GetMapData(x, y);
 
 			memcpy(renderConfig.currentRenderObjectID, mapData->RenderObjectID, sizeof(mapData->RenderObjectID));
 
 			buffers[(int)BufferIndex::TransformBuffer]->Update(&matrix);
-			buffers[(int)BufferIndex::RenderConfig]->Update(&renderObject);
+			buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
 			
 			graphics->SetConstantBuffer(buffers[(int)BufferIndex::TransformBuffer], (int)BufferIndex::TransformBuffer);
 			graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);

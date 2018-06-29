@@ -63,7 +63,7 @@ void PixelWorldEngine::Application::OnMouseMove(void * sender, PixelWorldEngine:
 	eventArg->x = mousePositionXRelative;
 	eventArg->y = mousePositionYRelative;
 
-	Events::DoEventHandlers(MouseMove, eventArg);
+	Events::DoEventHandlers(MouseMove, this, eventArg);
 }
 
 void PixelWorldEngine::Application::OnMouseWheel(void * sender, PixelWorldEngine::Events::MouseWheelEvent * eventArg)
@@ -71,7 +71,7 @@ void PixelWorldEngine::Application::OnMouseWheel(void * sender, PixelWorldEngine
 	eventArg->x = mousePositionXRelative;
 	eventArg->y = mousePositionYRelative;
 
-	Events::DoEventHandlers(MouseWheel, eventArg);
+	Events::DoEventHandlers(MouseWheel, this, eventArg);
 }
 
 void PixelWorldEngine::Application::OnMouseClick(void * sender, PixelWorldEngine::Events::MouseClickEvent * eventArg)
@@ -79,12 +79,12 @@ void PixelWorldEngine::Application::OnMouseClick(void * sender, PixelWorldEngine
 	eventArg->x = mousePositionXRelative;
 	eventArg->y = mousePositionYRelative;
 
-	Events::DoEventHandlers(MouseClick, eventArg);
+	Events::DoEventHandlers(MouseClick, this, eventArg);
 }
 
 void PixelWorldEngine::Application::OnKeyClick(void * sender, PixelWorldEngine::Events::KeyClickEvent * eventArg)
 {
-	Events::DoEventHandlers(KeyClick, eventArg);
+	Events::DoEventHandlers(KeyClick, this, eventArg);
 }
 
 void PixelWorldEngine::Application::OnSizeChange(void * sender, PixelWorldEngine::Events::SizeChangeEvent * eventArg)
@@ -103,9 +103,15 @@ void PixelWorldEngine::Application::OnSizeChange(void * sender, PixelWorldEngine
 
 void PixelWorldEngine::Application::OnUpdate(void * sender)
 {
+	if (timer.GetState() == true)
+		timer.End();
+	timer.Start();
+
+	fpsCounter.Update(GetDeltaTime());
+	
 	OnRender(sender);
 
-	Events::DoEventHandlers(Update);
+	Events::DoEventHandlers(Update, this);
 }
 
 void PixelWorldEngine::Application::OnRender(void * sender)
@@ -339,7 +345,7 @@ auto PixelWorldEngine::Application::ComputeMousePosition(RectangleF ViewPort, in
 	return result;
 }
 
-PixelWorldEngine::Application::Application(const char * ApplicationName)
+PixelWorldEngine::Application::Application(std::string ApplicationName)
 {
 	applicationName = ApplicationName;
 
@@ -373,112 +379,118 @@ PixelWorldEngine::Application::~Application()
 	Utility::Delete(graphics);
 }
 
-void PixelWorldEngine::Application::MakeWindow(const char * WindowName, int Width, int Height, const char * IconName)
+void PixelWorldEngine::Application::MakeWindow(std::string WindowName, int Width, int Height, std::string IconName)
 {
+	if (isWindowCreated == true) return;
+
 	windowName = WindowName;
 	windowWidth = Width;
 	windowHeight = Height;
 	iconName = IconName;
 
-	if (isWindowCreated == true) {
+#ifdef _WIN32
+
+	auto hInstance = GetModuleHandle(0);
+
+	WNDCLASS appInfo;
+
+	appInfo.style = CS_DBLCLKS;
+	appInfo.lpfnWndProc = DefaultWindowProc;
+	appInfo.cbClsExtra = 0;
+	appInfo.cbWndExtra = 0;
+	appInfo.hInstance = hInstance;
+	appInfo.hIcon = (HICON)LoadImage(0, &iconName[0], IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+	appInfo.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	appInfo.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	appInfo.lpszMenuName = NULL;
+	appInfo.lpszClassName = &windowName[0];
+
+	RegisterClass(&appInfo);
+
+	RECT rect;
+
+	rect.top = 0;
+	rect.left = 0;
+	rect.right = windowWidth;
+	rect.bottom = windowHeight;
+
+	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+
+	hwnd = CreateWindow(&windowName[0], &windowName[0], WS_OVERLAPPEDWINDOW ^
+		WS_SIZEBOX ^ WS_MAXIMIZEBOX, CW_USEDEFAULT, CW_USEDEFAULT,
+		rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, hInstance, nullptr);
+
+	swapDesc.BufferCount = 1;
+	swapDesc.BufferDesc.Format = (DXGI_FORMAT)Graphics::PixelFormat::R8G8B8A8;
+	swapDesc.BufferDesc.Height = windowHeight;
+	swapDesc.BufferDesc.RefreshRate.Denominator = 1;
+	swapDesc.BufferDesc.RefreshRate.Numerator = 60;
+	swapDesc.BufferDesc.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
+	swapDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	swapDesc.BufferDesc.Width = windowWidth;
+	swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapDesc.Flags = 0;
+	swapDesc.OutputWindow = hwnd;
+	swapDesc.SampleDesc.Count = 1;
+	swapDesc.SampleDesc.Quality = 0;
+	swapDesc.SwapEffect = DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_DISCARD;
+	swapDesc.Windowed = true;
+
+	IDXGIDevice* device = nullptr;
+	IDXGIAdapter* adapter = nullptr;
+	IDXGIFactory* factory = nullptr;
+
+	graphics->device->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&device));
+	device->GetParent(__uuidof(IDXGIAdapter), reinterpret_cast<void**>(&adapter));
+	adapter->GetParent(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&factory));
+
+	factory->CreateSwapChain(graphics->device, &swapDesc, &swapChain);
+
+	Utility::Dispose(device);
+	Utility::Dispose(adapter);
+	Utility::Dispose(factory);
+
+	self = this;
+#endif // _WIN32
+
+#ifdef LIUNX
+	//创建了一个窗口，请禁用放大以及使用鼠标改变其大小。窗口默认不显示
+	//创建了交换链，请注意不使用多重采样，且后台缓冲格式是R8G8B8A8。
+#endif // LIUNX
+
+	renderTarget = new Graphics::RenderTarget(graphics, this);
+
+	isWindowCreated = true;
+
+}
+
+void PixelWorldEngine::Application::SetWindow(std::string WindowName, int Width, int Height)
+{
+	windowName = WindowName;
+	windowWidth = Width;
+	windowHeight = Height;
 
 #ifdef _WIN32
-		SetWindowText(hwnd, &windowName[0]);
+	SetWindowText(hwnd, &windowName[0]);
 
-		RECT rect;
+	RECT rect;
 
-		rect.top = 0;
-		rect.left = 0;
-		rect.right = windowWidth;
-		rect.bottom = windowHeight;
+	rect.top = 0;
+	rect.left = 0;
+	rect.right = windowWidth;
+	rect.bottom = windowHeight;
 
-		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 
-		SetWindowPos(hwnd, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
-			SWP_NOZORDER ^ SWP_NOMOVE);
+	SetWindowPos(hwnd, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
+		SWP_NOZORDER ^ SWP_NOMOVE);
 
 #endif // _WIN32
 
 #ifdef LIUNX
-		//当窗口已经创建的话，修改他的标题以及宽度和高度
-#endif // LIUNX
-	}
-	else {
-
-#ifdef _WIN32
-
-		auto hInstance = GetModuleHandle(0);
-
-		WNDCLASS appInfo;
-		
-		appInfo.style = CS_DBLCLKS;
-		appInfo.lpfnWndProc = DefaultWindowProc;
-		appInfo.cbClsExtra = 0;
-		appInfo.cbWndExtra = 0;
-		appInfo.hInstance = hInstance;
-		appInfo.hIcon = (HICON)LoadImage(0, &iconName[0], IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
-		appInfo.hCursor = LoadCursor(nullptr, IDC_ARROW);
-		appInfo.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-		appInfo.lpszMenuName = NULL;
-		appInfo.lpszClassName = &windowName[0];
-
-		RegisterClass(&appInfo);
-
-		RECT rect;
-
-		rect.top = 0;
-		rect.left = 0;
-		rect.right = windowWidth;
-		rect.bottom = windowHeight;
-
-		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
-
-		hwnd = CreateWindow(&windowName[0], &windowName[0], WS_OVERLAPPEDWINDOW ^
-			WS_SIZEBOX ^ WS_MAXIMIZEBOX, CW_USEDEFAULT, CW_USEDEFAULT,
-			rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, hInstance, nullptr);
-
-		swapDesc.BufferCount = 1;
-		swapDesc.BufferDesc.Format = (DXGI_FORMAT)Graphics::PixelFormat::R8G8B8A8;
-		swapDesc.BufferDesc.Height = windowHeight;
-		swapDesc.BufferDesc.RefreshRate.Denominator = 1;
-		swapDesc.BufferDesc.RefreshRate.Numerator = 60;
-		swapDesc.BufferDesc.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
-		swapDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		swapDesc.BufferDesc.Width = windowWidth;
-		swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapDesc.Flags = 0;
-		swapDesc.OutputWindow = hwnd;
-		swapDesc.SampleDesc.Count = 1;
-		swapDesc.SampleDesc.Quality = 0;
-		swapDesc.SwapEffect = DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_DISCARD;
-		swapDesc.Windowed = true;
-
-		IDXGIDevice* device = nullptr;
-		IDXGIAdapter* adapter = nullptr;
-		IDXGIFactory* factory = nullptr;
-
-		graphics->device->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&device));
-		device->GetParent(__uuidof(IDXGIAdapter), reinterpret_cast<void**>(&adapter));
-		adapter->GetParent(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&factory));
-
-		factory->CreateSwapChain(graphics->device, &swapDesc, &swapChain);
-
-		Utility::Dispose(device);
-		Utility::Dispose(adapter);
-		Utility::Dispose(factory);
-
-		self = this;
-#endif // _WIN32
-
-#ifdef LIUNX
-		//创建了一个窗口，请禁用放大以及使用鼠标改变其大小。窗口默认不显示
-		//创建了交换链，请注意不使用多重采样，且后台缓冲格式是R8G8B8A8。
+	//当窗口已经创建的话，修改他的标题以及宽度和高度
 #endif // LIUNX
 
-		renderTarget = new Graphics::RenderTarget(graphics, this);
-
-		isWindowCreated = true;
-	}
 }
 
 void PixelWorldEngine::Application::MakeFullScreen(bool state)
@@ -562,6 +574,16 @@ auto PixelWorldEngine::Application::GetWindowWidth() -> int
 auto PixelWorldEngine::Application::GetWindowHeight() -> int
 {
 	return windowHeight;
+}
+
+auto PixelWorldEngine::Application::GetFramePerSecond() -> int
+{
+	return fpsCounter.GetFramePerSecond();
+}
+
+auto PixelWorldEngine::Application::GetDeltaTime() -> float
+{
+	return timer.GetTime();
 }
 
 auto PixelWorldEngine::Application::GetGraphics() -> Graphics::Graphics *

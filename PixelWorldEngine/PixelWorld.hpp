@@ -38,7 +38,7 @@ namespace PixelWorldEngine {
 		int resolutionWidth; //分辨率宽度
 		int resolutionHeight; //分辨率高度
 
-		int renderObjectSize; //每一个地图块的大小，默认值为32
+		float renderObjectSize; //每一个地图块的大小，默认值为32
 
 		PixelWorldRenderConfig renderConfig; //渲染设置数据
 
@@ -117,14 +117,14 @@ namespace PixelWorldEngine {
 
 		/**
 		 * @brief 设置渲染物体的大小
-		 * @param[in] 渲染物体的大小，单位是像素
+		 * @param[in] 渲染物体的大小
 		 */
-		void SetRenderObjectSize(int size);
+		void SetRenderObjectSize(float size);
 
 		/**
 		 * @brief 注册一个渲染物体，请注意保持纹理的生命周期
 		 * @param[in] id 我们注册的渲染物体的ID，注意不能为0
-		 * @param[in] fileData 渲染物体的数据信息，注意数据必须是数据格式R8G8B8A8，然后图形的长宽必须一样
+		 * @param[in] fileData 渲染物体的数据信息，注意数据必须是数据格式R8G8B8A8
 		 */
 		void RegisterRenderObjectID(int id, Graphics::Texture2D* texture);
 
@@ -144,7 +144,7 @@ namespace PixelWorldEngine {
 		 * @brief 获取渲染物体的大小
 		 * @return 渲染物体的大小
 		 */
-		auto GetRenderObjectSize() -> int;
+		auto GetRenderObjectSize() -> float;
 
 		/**
 		 * @brief 获取在当前状况下的世界的图像
