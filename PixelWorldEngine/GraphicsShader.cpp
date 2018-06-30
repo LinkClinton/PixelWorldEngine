@@ -32,7 +32,7 @@ PixelWorldEngine::Graphics::GraphicsShader::GraphicsShader(Graphics * Graphics,
 #endif // DEBUG
 
 		D3DCompile(&VertexShaderCode[0], VertexShaderCode.size(), nullptr, nullptr,
-			D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", flag, 0,
+			D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_4_0", flag, 0,
 			&result, &error);
 
 		if (error != nullptr)
@@ -48,7 +48,7 @@ PixelWorldEngine::Graphics::GraphicsShader::GraphicsShader(Graphics * Graphics,
 		Utility::Dispose(error);
 
 		D3DCompile(&PixelShaderCode[0], PixelShaderCode.size(), nullptr, nullptr,
-			D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", flag, 0,
+			D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_4_0", flag, 0,
 			&result, &error);
 
 		if (error != nullptr)
