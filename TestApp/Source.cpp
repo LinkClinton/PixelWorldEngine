@@ -27,7 +27,7 @@ PixelWorld pixelWorld = PixelWorld("PixelWorld", &application);
 DataManager dataManger = DataManager(&application);
 WorldMap worldMap = WorldMap("Map1", 100, 100);
 Camera camera = Camera(PixelWorldEngine::RectangleF(-640, -360, 640, 360));
-PixelObject pixelObject = PixelObject("Player", 16, 16, 32, 32);
+PixelObject pixelObject = PixelObject("Player", 50, 50, 100, 100);
 
 int resolutionX = 1920;
 int resolutionY = 1080;
@@ -79,7 +79,7 @@ void OnUpdate(void* sender) {
 	float speed = 100 * deltaTime;
 
 	glm::vec2 transform(0, 0);
-	
+
 	if (Input::GetKeyCodeDown(KeyCode::A))
 		transform.x -= speed;
 	if (Input::GetKeyCodeDown(KeyCode::D))
@@ -89,14 +89,15 @@ void OnUpdate(void* sender) {
 	if (Input::GetKeyCodeDown(KeyCode::W))
 		transform.y -= speed;
 
-	if (transform != glm::vec2(0, 0)) {
-		pixelObject.Move(transform.x, transform.y);
-		camera.Move(transform);
-	}
+
+	pixelObject.Move(transform.x, transform.y);
+	camera.SetRectangle(PixelWorldEngine::RectangleF(pixelObject.GetPositionX() - 640.f,
+		pixelObject.GetPositionY() - 360.f, pixelObject.GetPositionX() + 640.f, pixelObject.GetPositionY() + 360.f));
+
 }
 
 int main() {
-	auto texture = dataManger.RegisterTexture("C:/Users/LinkC/Downloads/1.png");
+	auto texture = dataManger.RegisterTexture("C:/Users/LinkC/Pictures/T.jpg");
 	
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 8; j++) {

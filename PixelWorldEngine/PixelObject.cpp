@@ -49,7 +49,7 @@ void PixelWorldEngine::PixelObject::MoveAxisX(float translation)
 			}
 
 			if (moveEnable == false) {
-				positionX = x * renderObjectSize - halfWidth;
+				positionX = x * renderObjectSize - halfWidth - 1;
 				break;
 			}
 		}
@@ -75,7 +75,7 @@ void PixelWorldEngine::PixelObject::MoveAxisX(float translation)
 			}
 
 			if (moveEnable == false) {
-				positionX = x * renderObjectSize + renderObjectSize + halfWidth;
+				positionX = x * renderObjectSize + renderObjectSize + halfWidth + 1;
 				break;
 			}
 		}
@@ -117,13 +117,13 @@ void PixelWorldEngine::PixelObject::MoveAxisY(float translation)
 			}
 
 			if (moveEnable == false) {
-				positionY = y * renderObjectSize - halfHeight;
+				positionY = y * renderObjectSize - halfHeight - 1;
 				break;
 			}
 		}
 
 		if (moveEnable == true)
-			Utility::Min(positionY + translation, worldHeight * renderObjectSize + halfHeight);
+			positionY = Utility::Min(positionY + translation, worldHeight * renderObjectSize + halfHeight);
 	}
 	else {
 		float originY = positionY - halfHeight;
@@ -143,7 +143,7 @@ void PixelWorldEngine::PixelObject::MoveAxisY(float translation)
 			}
 
 			if (moveEnable == false) {
-				positionY = y * renderObjectSize + renderObjectSize + halfHeight;
+				positionY = y * renderObjectSize + renderObjectSize + halfHeight + 1;
 				break;
 			}
 		}
