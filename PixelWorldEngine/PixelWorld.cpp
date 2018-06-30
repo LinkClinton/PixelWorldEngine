@@ -109,9 +109,38 @@ void PixelWorldEngine::PixelWorld::RegisterWorldMap(WorldMap * worldMap)
 	worldMaps[worldMap->GetMapName()] = worldMap;
 }
 
+void PixelWorldEngine::PixelWorld::RegisterPixelObject(PixelObject * pixelObject)
+{
+	if (pixelObject->pixelWorld != nullptr)
+		pixelObject->pixelWorld->UnRegisterPixelObject(pixelObject);
+
+	pixelObjects[pixelObject->name] = pixelObject;
+
+	pixelObject->pixelWorld = this;
+}
+
+void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(PixelObject * pixelObject)
+{
+	pixelObjects.erase(pixelObject->name);
+
+	pixelObject->pixelWorld = nullptr;
+}
+
+void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(std::string objectName)
+{
+	pixelObjects[objectName]->pixelWorld = nullptr;
+
+	pixelObjects.erase(objectName);
+}
+
 auto PixelWorldEngine::PixelWorld::GetRenderObjectSize() -> float
 {
 	return renderObjectSize;
+}
+
+auto PixelWorldEngine::PixelWorld::GetWorldMap() -> WorldMap *
+{
+	return worldMap;
 }
 
 
@@ -173,6 +202,31 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 
 			graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount());
 		}
+	}
+
+	memset(renderConfig.currentRenderObjectID, 0, sizeof(renderConfig.currentRenderObjectID));
+
+	for (auto it = pixelObjects.begin(); it != pixelObjects.end(); it++) {
+		auto pixelObject = it->second;
+
+		if (pixelObject->renderObjectID == 0) continue;
+
+		auto matrix = glm::translate(glm::mat4(1), glm::vec3(pixelObject->positionX - pixelObject->halfWidth,
+			pixelObject->positionY - pixelObject->halfHeight, 0.f));
+
+		matrix = glm::scale(matrix, glm::vec3(pixelObject->width, pixelObject->height, 1.f));
+
+		renderConfig.currentRenderObjectID[0] = pixelObject->renderObjectID;
+
+		buffers[(int)BufferIndex::TransformBuffer]->Update(&matrix);
+		buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
+
+		graphics->SetConstantBuffer(buffers[(int)BufferIndex::TransformBuffer], (int)BufferIndex::TransformBuffer);
+		graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
+
+		graphics->SetShaderResource(renderObjectIDGroup[pixelObject->renderObjectID], 0);
+
+		graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount());
 	}
 
 	return renderBuffer;

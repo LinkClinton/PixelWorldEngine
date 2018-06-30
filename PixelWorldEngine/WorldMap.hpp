@@ -7,10 +7,11 @@ namespace PixelWorldEngine {
 #define MAX_RENDER_OBJECT 4
 
 	/**
-	 * @brief 地图某一块的数据
+	 * @brief 地图某一格的数据
 	 */
 	struct MapData {
-		int RenderObjectID[MAX_RENDER_OBJECT]; //表示这一块渲染的纹理ID，我们将会按照顺序(0 -> MAX_RENDER_OBJECT - 1)将其从上到下叠加，但是请注意纹理的Alpha值。为0的话，就代表不使用
+		int RenderObjectID[MAX_RENDER_OBJECT]; //表示这一格渲染的纹理ID，我们将会按照顺序(0 -> MAX_RENDER_OBJECT - 1)将其从上到下叠加，但是请注意纹理的Alpha值。为0的话，就代表不使用
+		int MoveEnable; //是否允许物体移动到这一格，默认为fasle
 
 		/**
 		 * @brief 默认构造函数

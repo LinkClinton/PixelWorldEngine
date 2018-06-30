@@ -7,6 +7,7 @@
 #include "Events.hpp"
 
 #include "WorldMap.hpp"
+#include "PixelObject.hpp"
 #include "Geometry.hpp"
 #include "Utility.hpp"
 #include "Camera.hpp"
@@ -64,6 +65,7 @@ namespace PixelWorldEngine {
 		std::map<int, Graphics::Texture2D*> renderObjectIDGroup; //用于存储纹理，不同的ID对应不同的纹理
 	
 		std::map<std::string, WorldMap*> worldMaps; //存储世界的地图
+		std::map<std::string, PixelObject*> pixelObjects; //存储世界的物体
 
 		friend class Application;
 	public:
@@ -136,15 +138,40 @@ namespace PixelWorldEngine {
 
 		/**
 		 * @brief 注册世界的地图
-		 * @oaram[in] worldMap 世界的地图
+		 * @param[in] worldMap 世界的地图
 		 */
 		void RegisterWorldMap(WorldMap* worldMap);
+
+		/**
+		 * @brief 注册世界的物体，被注册的物体将会加入到世界中去，如果物体之前在另外一个世界里，那么将会先从移除然后再加入
+		 * @param[in] pixelObject 要被注册的物体
+		 */
+		void RegisterPixelObject(PixelObject* pixelObject);
+
+
+		/**
+		 * @brief 取消注册物体，物体将会从世界中移除
+		 * @param[in] pixelObject 要被取消注册的物体
+		 */
+		void UnRegisterPixelObject(PixelObject* pixelObject);
+
+		/**
+		 * @brief 取消注册物体，物体将会从世界中移除
+		 * @param[in] objectName 要被取消注册的物体的名字
+		 */
+		void UnRegisterPixelObject(std::string objectName);
 
 		/**
 		 * @brief 获取渲染物体的大小
 		 * @return 渲染物体的大小
 		 */
 		auto GetRenderObjectSize() -> float;
+
+		/**
+		 * @brief 获取当前的世界地图
+		 * @return 世界地图
+		 */
+		auto GetWorldMap() -> WorldMap*;
 
 		/**
 		 * @brief 获取在当前状况下的世界的图像

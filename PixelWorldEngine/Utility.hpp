@@ -23,6 +23,9 @@ namespace PixelWorldEngine {
 		static auto Min(T x, T y) -> T;
 
 		template<typename T>
+		static auto Limit(T value, T lower, T upeer) -> T;
+
+		template<typename T>
 		static void Dispose(T &object);
 
 		template<typename T>
@@ -41,6 +44,12 @@ namespace PixelWorldEngine {
 	{
 		if (x < y) return x;
 		return y;
+	}
+
+	template<typename T>
+	inline auto Utility::Limit(T value, T lower, T upeer) -> T
+	{
+		return Max(lower, Min(value, upeer));
 	}
 
 	template<typename T>

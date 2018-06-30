@@ -18,7 +18,11 @@ namespace PixelWorldEngine {
 		float positionX; //物体中心点的X坐标，默认为0
 		float positionY; //物体中心点的Y坐标，默认为0
 
-		float size; //物体大小，默认为1
+		float width; //物体宽度，默认为1
+		float height; //物体高度，默认为1
+
+		float halfWidth; //物体宽度的一半，默认为0.5f
+		float halfHeight; //物体高度的一半，默认为0.5f
 
 		int renderObjectID; //渲染物体的ID，默认为0，即不渲染
 
@@ -29,12 +33,34 @@ namespace PixelWorldEngine {
 		 * @param[in] Name 物体的名字
 		 * @param[in] PositionX 物体(中心点)的X坐标
 		 * @param[in] PositionY 物体(中心点)的Y坐标
-		 * @param[in] Size 物体的大小
+		 * @param[in] Width 物体的宽度
+		 * @param[in] Height 物体的高度
+		 */
+		PixelObject(std::string Name, float PositionX = 0.f, float PositionY = 0.f, float Width = 1.f, float Height = 1.f);
+
+		/**
+		 * @brief 构造函数
+		 * @param[in] Name 物体的名字
+		 * @param[in] PositionX 物体(中心点)的X坐标
+		 * @param[in] PositionY 物体(中心点)的Y坐标
+		 * @param[in] Size 物体的大小，即宽度和高度
 		 */
 		PixelObject(std::string Name, float PositionX = 0.f, float PositionY = 0.f, float Size = 1.f);
 
 		/**
-		 * @brief 移动物体，只有在物体被加载到世界中去后才有效
+		 * @brief 移动物体，只有在物体被加载到世界中去后才有效，这里只对X轴方向进行位移
+		 * @param[in] translation 物体在X方向的位移
+		 */
+		void MoveAxisX(float translation);
+
+		/**
+		 * @brief 移动物体，只有物体在被加载到世界中去后才有效，这里只对Y轴方向进行位移
+		 * @param[in] translation 物体在Y方向的位移
+		 */
+		void MoveAxisY(float translation);
+
+		/**
+		 * @brief 移动物体，只有在物体被加载到世界中去后才有效，且我们的位移顺序是优先X轴，然后再Y轴
 		 * @param[in] translationX 物体在X方向的位移
 		 * @param[in] translationY 物体在Y方向的位移
 		 */
@@ -42,9 +68,16 @@ namespace PixelWorldEngine {
 
 		/**
 		 * @brief 设置物体的大小
-		 * @param[in] objectSize 物体的大小
+		 * @param[in] objectWidth 物体的宽度
+		 * @param[in] objectHeight 物体的高度
 		 */
-		void SetSize(float objectSize);
+		void SetSize(float objectWidth, float objectHeight);
+
+		/**
+		 * @brief 设置物体的大小
+		 * @param[in] Size 物体的大小
+		 */
+		void SetSize(float Size);
 
 		/**
 		 * @brief 设置物体坐标，这里将不会考虑任何其他因素，因此可能导致一些其他问题概不负责
@@ -60,10 +93,16 @@ namespace PixelWorldEngine {
 		void SetRenderObjectID(int id);
 
 		/**
-		 * @brief 获取物体的大小
-		 * @return 物体的大小
+		 * @brief 获取物体的宽度
+		 * @return 物体的宽度
 		 */
-		auto GetSize() -> float;
+		auto GetWidth() -> float;
+
+		/**
+		 * @brief 获取物体的高度
+		 * @return 物体的高度
+		 */
+		auto GetHeight() -> float;
 
 		/**
 		 * @brief 获取物体(中心点)的X坐标

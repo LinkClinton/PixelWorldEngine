@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <cmath>
 #include <map>
 
 namespace PixelWorldEngine {
