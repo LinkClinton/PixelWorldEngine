@@ -26,7 +26,11 @@ Application application = Application("Application");
 PixelWorld pixelWorld = PixelWorld("PixelWorld", &application);
 DataManager dataManger = DataManager(&application);
 WorldMap worldMap = WorldMap("Map1", 100, 100);
-Camera camera = Camera(PixelWorldEngine::RectangleF(0, 0, 1280, 720));
+Camera camera = Camera(PixelWorldEngine::RectangleF(-640, -360, 640, 360));
+PixelObject pixelObject = PixelObject("Player", 16, 16, 32, 32);
+
+int resolutionX = 1920;
+int resolutionY = 1080;
 
 std::vector<Texture2D*> textures;
 
@@ -43,6 +47,10 @@ auto IntToString(int Int) -> std::string {
 	return result;
 }
 
+void OnMouseClick(void* sender, Events::MouseClickEvent* eventArg) {
+	
+}
+
 void OnKeyEvent(void* sender, Events::KeyClickEvent* eventArg) {
 
 }
@@ -53,6 +61,20 @@ void OnUpdate(void* sender) {
 	float deltaTime = app->GetDeltaTime();
 
 	app->SetWindow((std::string)"TestApp Fps:" + IntToString(app->GetFramePerSecond()), 1920, 1080);
+
+	if (Input::GetMouseButtonDown(Events::MouseButton::Left) == true) {
+		auto rect = camera.GetRectangle();
+
+		auto x = rect.left + (float)Input::GetMousePositionX() / (float)resolutionX * (rect.right - rect.left);
+		auto y = rect.top + (float)Input::GetMousePositionY() / (float)resolutionY * (rect.bottom - rect.top);
+
+		auto mapData = pixelWorld.GetWorldMapData(x, y);
+
+		if (mapData != nullptr) {
+			mapData->MoveEnable = false;
+			mapData->RenderObjectID[0] = 22;
+		}
+	}
 
 	float speed = 100 * deltaTime;
 
@@ -67,11 +89,14 @@ void OnUpdate(void* sender) {
 	if (Input::GetKeyCodeDown(KeyCode::W))
 		transform.y -= speed;
 
-	camera.Move(transform);
+	if (transform != glm::vec2(0, 0)) {
+		pixelObject.Move(transform.x, transform.y);
+		camera.Move(transform);
+	}
 }
 
 int main() {
-	auto texture = dataManger.RegisterTexture("C:/Users/LinkC/Pictures/T.jpg");
+	auto texture = dataManger.RegisterTexture("C:/Users/LinkC/Downloads/1.png");
 	
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 8; j++) {
@@ -85,18 +110,23 @@ int main() {
 	for (int i = 0; i < worldMap.GetWidth(); i++)
 		for (int j = 0; j < worldMap.GetHeight(); j++) {
 			auto mapData = new MapData();
-			mapData->RenderObjectID[0] = dis(randomEngine);
+			mapData->MoveEnable = true;
+			mapData->RenderObjectID[0] = 18;
 			worldMap.SetMapData(i, j, mapData);
 		}
+
+	pixelObject.SetRenderObjectID(23);
 
 	pixelWorld.SetResolution(1920, 1080);
 	pixelWorld.SetCamera(&camera);
 	pixelWorld.SetRenderObjectSize(64);
+	pixelWorld.RegisterPixelObject(&pixelObject);
 
 	pixelWorld.SetWorldMap(&worldMap);
 	
 	application.KeyClick.push_back(OnKeyEvent);
 	application.Update.push_back(OnUpdate);
+	application.MouseClick.push_back(OnMouseClick);
 
 	application.MakeWindow("TestApp", 1920, 1080);
 	application.SetWorld(&pixelWorld);

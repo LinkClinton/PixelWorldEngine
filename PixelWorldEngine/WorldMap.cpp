@@ -40,3 +40,8 @@ auto PixelWorldEngine::WorldMap::GetMapName() -> std::string
 	return mapName;
 }
 
+auto PixelWorldEngine::WorldMap::InvalidLocation() -> std::pair<int, int>
+{
+	return std::pair<int, int>(-1, -1);
+}
+

@@ -49,7 +49,6 @@ void PixelWorldEngine::Application::OnMouseMove(void * sender, PixelWorldEngine:
 	mousePositionX = eventArg->x;
 	mousePositionY = eventArg->y;
 
-	
 	if (pixelWorld != nullptr) {
 		auto mousePositionRelative = ComputeMousePosition(RectangleF(0, 0, (float)windowWidth, (float)windowHeight),
 			pixelWorld->resolutionWidth, pixelWorld->resolutionHeight, mousePositionX, mousePositionY);
@@ -297,6 +296,17 @@ void PixelWorldEngine::Application::OnProcessMessage(MSG message)
 
 #endif // _WIN32
 
+auto PixelWorldEngine::Application::ComputeMousePosition(int x, int y) -> std::pair<int, int>
+{
+	if (pixelWorld != nullptr) {
+		auto mousePositionRelative = ComputeMousePosition(RectangleF(0, 0, (float)windowWidth, (float)windowHeight),
+			pixelWorld->resolutionWidth, pixelWorld->resolutionHeight, mousePositionX, mousePositionY);
+		
+		return mousePositionRelative;
+	}
+	else return std::pair<int, int>(x, y);
+}
+
 
 auto PixelWorldEngine::Application::ComputeViewPort(int windowWidth, int windowHeight, int resolutionWidth, int resolutionHeight) -> RectangleF
 {
@@ -542,7 +552,7 @@ void PixelWorldEngine::Application::RunLoop()
 		MSG message;
 		message.hwnd = hwnd;
 
-		if (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) {
+		while (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&message);
 			DispatchMessage(&message);
 

@@ -74,6 +74,12 @@ namespace PixelWorldEngine {
 		 * @return 世界的地图的名字
 		 */
 		auto GetMapName() -> std::string;
+
+		/**
+		 * @brief 不合法的位置坐标
+		 * @return (-1, -1)
+		 */
+		static auto InvalidLocation() -> std::pair<int, int>;
 	};
 
 }

@@ -23,6 +23,12 @@ namespace PixelWorldEngine {
 		static bool IsNumLock();
 
 		static bool ScrollLock();
+
+		static int GetMousePositionX();
+
+		static int GetMousePositionY();
+
+		static auto GetMousePosition() -> std::pair<int, int>;
 	};
 
 }

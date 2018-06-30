@@ -79,9 +79,13 @@ namespace PixelWorldEngine {
 		void OnProcessMessage(MSG message);
 #endif // _WIN32
 
+		auto ComputeMousePosition(int x, int y) -> std::pair<int, int>;
+
 		static auto ComputeViewPort(int windowWidth, int windowHeight, int resolutionWidth, int resolutionHeight) -> RectangleF;
 
-		static auto ComputeMousePosition(RectangleF ViewPort, int resolutionWidth, int resolutionHeight, int x, int y)->std::pair<int, int>;
+		static auto ComputeMousePosition(RectangleF ViewPort, int resolutionWidth, int resolutionHeight, int x, int y) -> std::pair<int, int>;
+		
+		friend class Input;
 	public:
 		PixelWorldEngine::Events::MouseMoveHandlers MouseMove;
 		PixelWorldEngine::Events::MouseClickHandlers MouseClick;

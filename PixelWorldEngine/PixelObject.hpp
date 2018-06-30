@@ -36,16 +36,7 @@ namespace PixelWorldEngine {
 		 * @param[in] Width 物体的宽度
 		 * @param[in] Height 物体的高度
 		 */
-		PixelObject(std::string Name, float PositionX = 0.f, float PositionY = 0.f, float Width = 1.f, float Height = 1.f);
-
-		/**
-		 * @brief 构造函数
-		 * @param[in] Name 物体的名字
-		 * @param[in] PositionX 物体(中心点)的X坐标
-		 * @param[in] PositionY 物体(中心点)的Y坐标
-		 * @param[in] Size 物体的大小，即宽度和高度
-		 */
-		PixelObject(std::string Name, float PositionX = 0.f, float PositionY = 0.f, float Size = 1.f);
+		PixelObject(std::string Name, float PositionX = 0.f, float PositionY = 0.f, float Width = 1.f, float Height = 1);
 
 		/**
 		 * @brief 移动物体，只有在物体被加载到世界中去后才有效，这里只对X轴方向进行位移

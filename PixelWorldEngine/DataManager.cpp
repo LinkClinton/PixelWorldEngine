@@ -91,8 +91,12 @@ auto PixelWorldEngine::DataManager::RegisterTexture(std::string fileName) -> Gra
 
 	SDL_Surface* SDL_resultImage = nullptr;
 
-	if (SDL_image->format->format != SDL_PIXELFORMAT_ABGR8888)
+	bool needFree = false;
+
+	if (SDL_image->format->format != SDL_PIXELFORMAT_ABGR8888) {
 		SDL_resultImage = SDL_ConvertSurfaceFormat(SDL_image, SDL_PIXELFORMAT_ABGR8888, 0);
+		needFree = true;
+	}
 	else SDL_resultImage = SDL_image;
 
 	auto texture = new Graphics::Texture2D(graphics, SDL_resultImage->pixels, SDL_resultImage->w, SDL_resultImage->h,
@@ -101,8 +105,10 @@ auto PixelWorldEngine::DataManager::RegisterTexture(std::string fileName) -> Gra
 	textures[fileName] = texture;
 
 	SDL_FreeSurface(SDL_image);
-	SDL_FreeSurface(SDL_resultImage);
 	SDL_FreeRW(SDL_Rw);
+
+	if (needFree == true)
+		SDL_FreeSurface(SDL_resultImage);
 
 	return texture;
 }

@@ -143,6 +143,29 @@ auto PixelWorldEngine::PixelWorld::GetWorldMap() -> WorldMap *
 	return worldMap;
 }
 
+auto PixelWorldEngine::PixelWorld::GetWorldMapDataIndex(float x, float y) -> std::pair<int, int>
+{
+	auto result = std::pair<int, int>();
+
+	result.first = (int)(x / renderObjectSize);
+	result.second = (int)(y / renderObjectSize);
+
+	if (Utility::IsLimit(result.first, 0, worldMap->GetWidth() - 1) == true &&
+		Utility::IsLimit(result.second, 0, worldMap->GetHeight() - 1) == true)
+		return result;
+	else return std::pair<int, int>(-1, -1);
+}
+
+auto PixelWorldEngine::PixelWorld::GetWorldMapData(float x, float y) -> MapData *
+{
+	if (worldMap == nullptr) return nullptr;
+
+	auto index = GetWorldMapDataIndex(x, y);
+
+	if (index == WorldMap::InvalidLocation()) return nullptr;
+
+	return worldMap->GetMapData(index.first, index.second);
+}
 
 auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 {

@@ -174,6 +174,22 @@ namespace PixelWorldEngine {
 		auto GetWorldMap() -> WorldMap*;
 
 		/**
+		* @brief 获取点(x, y)对应当前世界地图的格子对应坐标，如果不在地图范围内，则返回 (-1, -1)
+		* @param[in] x X坐标
+		* @param[in] y Y坐标
+		* @return 格子的对应坐标
+		*/
+		auto GetWorldMapDataIndex(float x, float y)->std::pair<int, int>;
+
+		/**
+		* @brief 获取点(x, y)对应当前世界地图的格子，如果不在地图范围内，则返回nullptr
+		* @param[in] x X坐标
+		* @param[in] y Y坐标
+		* @return 格子的数据
+		*/
+		auto GetWorldMapData(float x, float y)->MapData*;
+
+		/**
 		 * @brief 获取在当前状况下的世界的图像
 		 * @return 存储当前世界的图像的纹理的指针
 		 */

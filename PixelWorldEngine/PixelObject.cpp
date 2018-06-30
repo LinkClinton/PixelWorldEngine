@@ -17,22 +17,6 @@ PixelWorldEngine::PixelObject::PixelObject(std::string Name, float PositionX, fl
 	renderObjectID = 0;
 }
 
-PixelWorldEngine::PixelObject::PixelObject(std::string Name, float PositionX, float PositionY, float Size)
-{
-	name = Name;
-
-	positionX = PositionX;
-	positionY = PositionY;
-
-	width = Size;
-	height = Size;
-
-	halfWidth = width * 0.5f;
-	halfHeight = height * 0.5f;
-
-	renderObjectID = 0;
-}
-
 void PixelWorldEngine::PixelObject::MoveAxisX(float translation)
 {
 	if (pixelWorld == nullptr || pixelWorld->GetWorldMap() == nullptr) return;
@@ -45,14 +29,14 @@ void PixelWorldEngine::PixelObject::MoveAxisX(float translation)
 	float renderObjectSize = pixelWorld->GetRenderObjectSize();
 
 	int GridTop = Utility::Limit((int)floor((positionY - halfHeight) / renderObjectSize), 0, worldHeight);
-	int GridBottom = Utility::Limit((int)ceil((positionY + halfHeight) / renderObjectSize), 0, worldHeight);
+	int GridBottom = Utility::Limit((int)floor((positionY + halfHeight) / renderObjectSize), 0, worldHeight);
 
 	if (translation >= 0) {
 		float originX = positionX + halfWidth;
 		float targetX = positionX + translation + halfWidth;
 
 		int originGrid = Utility::Limit((int)floor(originX / renderObjectSize), 0, worldWidth);
-		int targetGrid = Utility::Limit((int)ceil(targetX / renderObjectSize), 0, worldWidth);
+		int targetGrid = Utility::Limit((int)floor(targetX / renderObjectSize), 0, worldWidth);
 
 		bool moveEnable = true;
 
@@ -77,7 +61,7 @@ void PixelWorldEngine::PixelObject::MoveAxisX(float translation)
 		float originX = positionX - halfWidth;
 		float targetX = positionX + translation - halfWidth;
 
-		int originGrid = Utility::Limit((int)ceil(originX / renderObjectSize), 0, worldWidth);
+		int originGrid = Utility::Limit((int)floor(originX / renderObjectSize), 0, worldWidth);
 		int targetGrid = Utility::Limit((int)floor(targetX / renderObjectSize), 0, worldWidth);
 
 		bool moveEnable = true;
@@ -97,7 +81,7 @@ void PixelWorldEngine::PixelObject::MoveAxisX(float translation)
 		}
 
 		if (moveEnable == true)
-			positionX = Utility::Max(positionX + translation, 0.f);
+			positionX = Utility::Max(positionX + translation, halfWidth);
 	}
 }
 
@@ -113,14 +97,14 @@ void PixelWorldEngine::PixelObject::MoveAxisY(float translation)
 	float renderObjectSize = pixelWorld->GetRenderObjectSize();
 
 	int GridLeft = Utility::Limit((int)floor((positionX - halfWidth) / renderObjectSize), 0, worldWidth);
-	int GridRight = Utility::Limit((int)ceil((positionX + halfWidth) / renderObjectSize), 0, worldWidth);
+	int GridRight = Utility::Limit((int)floor((positionX + halfWidth) / renderObjectSize), 0, worldWidth);
 
 	if (translation >= 0) {
 		float originY = positionY + halfHeight;
 		float targetY = positionY + translation + halfHeight;
 
 		int originGrid = Utility::Limit((int)floor(originY / renderObjectSize), 0, worldHeight);
-		int targetGrid = Utility::Limit((int)ceil(targetY / renderObjectSize), 0, worldHeight);
+		int targetGrid = Utility::Limit((int)floor(targetY / renderObjectSize), 0, worldHeight);
 
 		bool moveEnable = true;
 
@@ -145,7 +129,7 @@ void PixelWorldEngine::PixelObject::MoveAxisY(float translation)
 		float originY = positionY - halfHeight;
 		float targetY = positionY + translation - halfHeight;
 
-		int originGrid = Utility::Limit((int)ceil(originY / renderObjectSize), 0, worldHeight);
+		int originGrid = Utility::Limit((int)floor(originY / renderObjectSize), 0, worldHeight);
 		int targetGrid = Utility::Limit((int)floor(targetY / renderObjectSize), 0, worldHeight);
 
 		bool moveEnable = true;
@@ -165,7 +149,7 @@ void PixelWorldEngine::PixelObject::MoveAxisY(float translation)
 		}
 
 		if (moveEnable == true)
-			positionY = Utility::Min(positionY + translation, 0.f);
+			positionY = Utility::Max(positionY + translation, halfHeight);
 	}
 }
 

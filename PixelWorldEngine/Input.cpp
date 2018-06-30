@@ -1,4 +1,5 @@
 #include "Input.hpp"
+#include "Application.hpp"
 
 #ifdef _WIN32
 
@@ -7,6 +8,7 @@
 
 #endif // _WIN32
 
+extern PixelWorldEngine::Application* self;
 
 bool PixelWorldEngine::Input::GetMouseButtonDown(Events::MouseButton mouseButton)
 {
@@ -88,4 +90,46 @@ bool PixelWorldEngine::Input::ScrollLock()
 #endif // _WIN32
 
 	return false;
+}
+
+int PixelWorldEngine::Input::GetMousePositionX()
+{
+#ifdef _WIN32
+	POINT point;
+
+	GetCursorPos(&point);
+	ScreenToClient(self->hwnd, &point);
+	
+	return self->ComputeMousePosition(point.x, point.y).first;
+#endif // _WIN32
+
+	return 0;
+}
+
+int PixelWorldEngine::Input::GetMousePositionY()
+{
+#ifdef _WIN32
+	POINT point;
+
+	GetCursorPos(&point);
+	ScreenToClient(self->hwnd, &point);
+
+	return self->ComputeMousePosition(point.x, point.y).second;
+#endif // _WIN32
+
+	return 0;
+}
+
+auto PixelWorldEngine::Input::GetMousePosition() -> std::pair<int, int>
+{
+#ifdef _WIN32
+	POINT point;
+
+	GetCursorPos(&point);
+	ScreenToClient(self->hwnd, &point);
+
+	return self->ComputeMousePosition(point.x, point.y);
+#endif // _WIN32
+
+	return std::pair<int, int>();
 }
