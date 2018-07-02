@@ -24,6 +24,7 @@ namespace PixelWorldEngine {
 		std::string iconName;
 
 		bool isWindowCreated = false;
+		bool isFocused = false;
 
 		int mousePositionX;
 		int mousePositionY;
@@ -120,6 +121,8 @@ namespace PixelWorldEngine {
 		auto GetDeltaTime() -> float;
 
 		auto GetGraphics() -> Graphics::Graphics*;
+
+		auto IsFocused() -> bool;
 	};
 
 }

@@ -31,6 +31,16 @@ LRESULT PixelWorldEngine::Application::DefaultWindowProc(HWND hWnd, UINT message
 
 		break;
 	}
+
+	case WM_SETFOCUS: {
+		self->isFocused = true;
+		break;
+	}
+
+	case WM_KILLFOCUS: {
+		self->isFocused = false;
+		break;
+	}
 	case WM_DESTROY: {
 		PostQuitMessage(0);
 		break;
@@ -39,7 +49,7 @@ LRESULT PixelWorldEngine::Application::DefaultWindowProc(HWND hWnd, UINT message
 		break;
 	}
 
-	return DefWindowProc(hWnd, message, wParam, lParam);;
+	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
 #endif // _WIN32
@@ -477,29 +487,32 @@ void PixelWorldEngine::Application::MakeWindow(std::string WindowName, int Width
 void PixelWorldEngine::Application::SetWindow(std::string WindowName, int Width, int Height)
 {
 	windowName = WindowName;
-	windowWidth = Width;
-	windowHeight = Height;
 
 #ifdef _WIN32
 	SetWindowText(hwnd, &windowName[0]);
+#endif
 
-	RECT rect;
+	if (windowWidth != Width || windowHeight != Height) {
 
-	rect.top = 0;
-	rect.left = 0;
-	rect.right = windowWidth;
-	rect.bottom = windowHeight;
+		windowWidth = Width;
+		windowHeight = Height;
 
-	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+#ifdef _WIN32
 
-	SetWindowPos(hwnd, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
-		SWP_NOZORDER ^ SWP_NOMOVE);
+		RECT rect;
+
+		rect.top = 0;
+		rect.left = 0;
+		rect.right = windowWidth;
+		rect.bottom = windowHeight;
+
+		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+
+		SetWindowPos(hwnd, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
+			SWP_NOZORDER ^ SWP_NOMOVE);
 
 #endif // _WIN32
-
-#ifdef LIUNX
-	//当窗口已经创建的话，修改他的标题以及宽度和高度
-#endif // LIUNX
+	}
 
 }
 
@@ -599,6 +612,11 @@ auto PixelWorldEngine::Application::GetDeltaTime() -> float
 auto PixelWorldEngine::Application::GetGraphics() -> Graphics::Graphics *
 {
 	return graphics;
+}
+
+auto PixelWorldEngine::Application::IsFocused() -> bool
+{
+	return isFocused;
 }
 
 

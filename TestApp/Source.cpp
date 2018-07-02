@@ -27,7 +27,7 @@ PixelWorld pixelWorld = PixelWorld("PixelWorld", &application);
 DataManager dataManger = DataManager(&application);
 WorldMap worldMap = WorldMap("Map1", 100, 100);
 Camera camera = Camera(PixelWorldEngine::RectangleF(-640, -360, 640, 360));
-PixelObject pixelObject = PixelObject("Player", 50, 50, 100, 100);
+PixelObject pixelObject = PixelObject("Player", 16, 16, 32, 32);
 
 int resolutionX = 1920;
 int resolutionY = 1080;
@@ -92,8 +92,9 @@ void OnUpdate(void* sender) {
 
 	if (isKeyDown == true) {
 		pixelObject.Move(transform.x, transform.y);
-		camera.SetRectangle(PixelWorldEngine::RectangleF(pixelObject.GetPositionX() - 640.f,
-			pixelObject.GetPositionY() - 360.f, pixelObject.GetPositionX() + 640.f, pixelObject.GetPositionY() + 360.f));
+		camera.SetFocus(pixelObject.GetPositionX(), pixelObject.GetPositionY(),
+			PixelWorldEngine::RectangleF(640, 360, 640, 360));
+
 	}
 }
 

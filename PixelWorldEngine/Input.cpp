@@ -12,6 +12,7 @@ extern PixelWorldEngine::Application* self;
 
 bool PixelWorldEngine::Input::GetMouseButtonDown(Events::MouseButton mouseButton)
 {
+	if (self->isFocused == false) return false;
 
 #ifdef _WIN32
 	switch (mouseButton)
@@ -30,6 +31,8 @@ bool PixelWorldEngine::Input::GetMouseButtonDown(Events::MouseButton mouseButton
 
 bool PixelWorldEngine::Input::GetMouseButtonUp(Events::MouseButton mouseButton)
 {
+	if (self->isFocused == false) return true;
+
 #ifdef _WIN32
 	switch (mouseButton)
 	{
@@ -48,6 +51,8 @@ bool PixelWorldEngine::Input::GetMouseButtonUp(Events::MouseButton mouseButton)
 
 bool PixelWorldEngine::Input::GetKeyCodeDown(KeyCode keyCode)
 {
+	if (self->isFocused == false) return false;
+
 #ifdef _WIN32
 	return KEYDOWN((int)keyCode);
 #endif // _WIN32
@@ -58,6 +63,8 @@ bool PixelWorldEngine::Input::GetKeyCodeDown(KeyCode keyCode)
 
 bool PixelWorldEngine::Input::GetKeyCodeUp(KeyCode keyCode)
 {
+	if (self->isFocused == false) return true;
+
 #ifdef _WIN32
 	return KEYUP((int)keyCode);
 #endif // _WIN32
