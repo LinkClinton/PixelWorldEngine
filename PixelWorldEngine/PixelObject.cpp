@@ -26,17 +26,17 @@ void PixelWorldEngine::PixelObject::MoveAxisX(float translation)
 
 	auto worldMap = pixelWorld->GetWorldMap();
 
-	float renderObjectSize = pixelWorld->GetRenderObjectSize();
+	float mapBlockSize = worldMap->GetMapBlockSize();
 
-	int GridTop = Utility::Limit((int)ceil((positionY - halfHeight + 1) / renderObjectSize) - 1 , 0, worldHeight);
-	int GridBottom = Utility::Limit((int)ceil((positionY + halfHeight + 1) / renderObjectSize) - 1 , 0, worldHeight);
+	int GridTop = Utility::Limit((int)ceil((positionY - halfHeight + 1) / mapBlockSize) - 1 , 0, worldHeight);
+	int GridBottom = Utility::Limit((int)ceil((positionY + halfHeight + 1) / mapBlockSize) - 1 , 0, worldHeight);
 
 	if (translation >= 0) {
 		float originX = positionX + halfWidth + 1;
 		float targetX = positionX + translation + halfWidth + 1;
 
-		int originGrid = Utility::Limit((int)ceil(originX / renderObjectSize) - 1 , 0, worldWidth);
-		int targetGrid = Utility::Limit((int)ceil(targetX / renderObjectSize) - 1, 0, worldWidth);
+		int originGrid = Utility::Limit((int)ceil(originX / mapBlockSize) - 1 , 0, worldWidth);
+		int targetGrid = Utility::Limit((int)ceil(targetX / mapBlockSize) - 1, 0, worldWidth);
 
 		bool moveEnable = true;
 
@@ -49,20 +49,20 @@ void PixelWorldEngine::PixelObject::MoveAxisX(float translation)
 			}
 
 			if (moveEnable == false) {
-				positionX = x * renderObjectSize - halfWidth - 1;
+				positionX = x * mapBlockSize - halfWidth - 1;
 				break;
 			}
 		}
 
 		if (moveEnable == true)
-			positionX = Utility::Min(positionX + translation, worldWidth * renderObjectSize + halfWidth);
+			positionX = Utility::Min(positionX + translation, worldWidth * mapBlockSize + halfWidth);
 	}
 	else {
 		float originX = positionX - halfWidth;
 		float targetX = positionX + translation - halfWidth;
 
-		int originGrid = Utility::Limit((int)ceil(originX / renderObjectSize) - 1 , 0, worldWidth);
-		int targetGrid = Utility::Limit((int)ceil(targetX / renderObjectSize) - 1 , 0, worldWidth);
+		int originGrid = Utility::Limit((int)ceil(originX / mapBlockSize) - 1 , 0, worldWidth);
+		int targetGrid = Utility::Limit((int)ceil(targetX / mapBlockSize) - 1 , 0, worldWidth);
 
 		bool moveEnable = true;
 
@@ -75,7 +75,7 @@ void PixelWorldEngine::PixelObject::MoveAxisX(float translation)
 			}
 
 			if (moveEnable == false) {
-				positionX = x * renderObjectSize + renderObjectSize + halfWidth;
+				positionX = x * mapBlockSize + mapBlockSize + halfWidth;
 				break;
 			}
 		}
@@ -94,17 +94,17 @@ void PixelWorldEngine::PixelObject::MoveAxisY(float translation)
 
 	auto worldMap = pixelWorld->GetWorldMap();
 
-	float renderObjectSize = pixelWorld->GetRenderObjectSize();
+	float mapBlockSize = worldMap->GetMapBlockSize();
 
-	int GridLeft = Utility::Limit((int)ceil((positionX - halfWidth + 1) / renderObjectSize) - 1 , 0, worldWidth);
-	int GridRight = Utility::Limit((int)ceil((positionX + halfWidth + 1) / renderObjectSize) - 1 , 0, worldWidth);
+	int GridLeft = Utility::Limit((int)ceil((positionX - halfWidth + 1) / mapBlockSize) - 1 , 0, worldWidth);
+	int GridRight = Utility::Limit((int)ceil((positionX + halfWidth + 1) / mapBlockSize) - 1 , 0, worldWidth);
 
 	if (translation >= 0) {
 		float originY = positionY + halfHeight + 1;
 		float targetY = positionY + translation + halfHeight + 1;
 
-		int originGrid = Utility::Limit((int)ceil(originY / renderObjectSize) - 1 , 0, worldHeight);
-		int targetGrid = Utility::Limit((int)ceil(targetY / renderObjectSize) - 1 , 0, worldHeight);
+		int originGrid = Utility::Limit((int)ceil(originY / mapBlockSize) - 1 , 0, worldHeight);
+		int targetGrid = Utility::Limit((int)ceil(targetY / mapBlockSize) - 1 , 0, worldHeight);
 
 		bool moveEnable = true;
 
@@ -117,20 +117,20 @@ void PixelWorldEngine::PixelObject::MoveAxisY(float translation)
 			}
 
 			if (moveEnable == false) {
-				positionY = y * renderObjectSize - halfHeight - 1;
+				positionY = y * mapBlockSize - halfHeight - 1;
 				break;
 			}
 		}
 
 		if (moveEnable == true)
-			positionY = Utility::Min(positionY + translation, worldHeight * renderObjectSize + halfHeight);
+			positionY = Utility::Min(positionY + translation, worldHeight * mapBlockSize + halfHeight);
 	}
 	else {
 		float originY = positionY - halfHeight;
 		float targetY = positionY + translation - halfHeight;
 
-		int originGrid = Utility::Limit((int)ceil(originY / renderObjectSize) - 1 , 0, worldHeight);
-		int targetGrid = Utility::Limit((int)ceil(targetY / renderObjectSize) - 1 , 0, worldHeight);
+		int originGrid = Utility::Limit((int)ceil(originY / mapBlockSize) - 1 , 0, worldHeight);
+		int targetGrid = Utility::Limit((int)ceil(targetY / mapBlockSize) - 1 , 0, worldHeight);
 
 		bool moveEnable = true;
 
@@ -143,7 +143,7 @@ void PixelWorldEngine::PixelObject::MoveAxisY(float translation)
 			}
 
 			if (moveEnable == false) {
-				positionY = y * renderObjectSize + renderObjectSize + halfHeight;
+				positionY = y * mapBlockSize + mapBlockSize + halfHeight;
 				break;
 			}
 		}

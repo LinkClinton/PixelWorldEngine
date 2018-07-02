@@ -68,7 +68,7 @@ void OnUpdate(void* sender) {
 		auto x = rect.left + (float)Input::GetMousePositionX() / (float)resolutionX * (rect.right - rect.left);
 		auto y = rect.top + (float)Input::GetMousePositionY() / (float)resolutionY * (rect.bottom - rect.top);
 
-		auto mapData = pixelWorld.GetWorldMapData(x, y);
+		auto mapData = worldMap.GetWorldMapData(x, y);
 
 		if (mapData != nullptr) {
 			mapData->MoveEnable = false;
@@ -118,6 +118,8 @@ int main() {
 			worldMap.SetMapData(i, j, mapData);
 		}
 
+	worldMap.SetMapBlockSize(64);
+
 	camera.SetFocus(pixelObject.GetPositionX(), pixelObject.GetPositionY(),
 		PixelWorldEngine::RectangleF(640, 360, 640, 360));
 
@@ -125,7 +127,6 @@ int main() {
 
 	pixelWorld.SetResolution(1920, 1080);
 	pixelWorld.SetCamera(&camera);
-	pixelWorld.SetRenderObjectSize(64);
 	pixelWorld.RegisterPixelObject(&pixelObject);
 
 	pixelWorld.SetWorldMap(&worldMap);
