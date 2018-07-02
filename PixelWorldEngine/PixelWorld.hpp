@@ -65,6 +65,7 @@ namespace PixelWorldEngine {
 		std::map<std::string, WorldMap*> worldMaps; //存储世界的地图
 		std::map<std::string, PixelObject*> pixelObjects; //存储世界的物体
 
+		friend class PixelObject;
 		friend class Application;
 	public:
 		/**

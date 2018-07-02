@@ -129,6 +129,12 @@ int main() {
 	pixelWorld.SetCamera(&camera);
 	pixelWorld.RegisterPixelObject(&pixelObject);
 
+	for (int i = 1; i <= 10; i++) {
+		auto object = new PixelObject(IntToString(i), i * 50, i * 50, 32, 32);
+		object->SetRenderObjectID(20);
+		pixelWorld.RegisterPixelObject(object);
+	}
+
 	pixelWorld.SetWorldMap(&worldMap);
 	
 	application.KeyClick.push_back(OnKeyEvent);

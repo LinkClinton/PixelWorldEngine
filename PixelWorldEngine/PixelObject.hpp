@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pch.hpp"
+#include "Collider.hpp"
 
 namespace PixelWorldEngine {
 
@@ -12,6 +13,18 @@ namespace PixelWorldEngine {
 	class PixelObject {
 	private:
 		PixelWorld * pixelWorld; //所在的世界
+
+	    /**
+		* @brief 移动物体，只有在物体被加载到世界中去后才有效，这里只对X轴方向进行位移，且只讨论物体和地图之间的关系
+	    * @param[in] translation 物体在X方向的位移
+		*/
+		auto MoveAxisXMap(float translation) -> float;
+
+		/**
+		* @brief 移动物体，只有物体在被加载到世界中去后才有效，这里只对Y轴方向进行位移，且只讨论物体和地图之间的关系
+		* @param[in] translation 物体在Y方向的位移
+		*/
+		auto MoveAxisYMap(float translation) -> float;
 	protected:
 		std::string name; //物体的名称
 
@@ -26,6 +39,8 @@ namespace PixelWorldEngine {
 
 		int renderObjectID; //渲染物体的ID，默认为0，即不渲染
 
+		Collider collider; //碰撞盒
+
 		friend class PixelWorld;
 	public:
 		/**
@@ -37,18 +52,6 @@ namespace PixelWorldEngine {
 		 * @param[in] Height 物体的高度
 		 */
 		PixelObject(std::string Name, float PositionX = 0.f, float PositionY = 0.f, float Width = 1.f, float Height = 1);
-
-		/**
-		 * @brief 移动物体，只有在物体被加载到世界中去后才有效，这里只对X轴方向进行位移
-		 * @param[in] translation 物体在X方向的位移
-		 */
-		void MoveAxisX(float translation);
-
-		/**
-		 * @brief 移动物体，只有物体在被加载到世界中去后才有效，这里只对Y轴方向进行位移
-		 * @param[in] translation 物体在Y方向的位移
-		 */
-		void MoveAxisY(float translation);
 
 		/**
 		 * @brief 移动物体，只有在物体被加载到世界中去后才有效，且我们的位移顺序是优先X轴，然后再Y轴
@@ -84,10 +87,22 @@ namespace PixelWorldEngine {
 		void SetRenderObjectID(int id);
 
 		/**
+		 * @brief 设置碰撞盒状态，true则为开启，false则代表关闭
+		 * @param[in] enable 碰撞盒的状态
+		 */
+		void EnableCollider(bool enable);
+
+		/**
 		 * @brief 获取物体的宽度
 		 * @return 物体的宽度
 		 */
 		auto GetWidth() -> float;
+
+		/**
+		 * @brief 获取物体的碰撞盒的状态，即是否开启
+		 * @return 放回碰撞盒的状态
+		 */
+		auto IsEnableCollider() -> bool;
 
 		/**
 		 * @brief 获取物体的高度
