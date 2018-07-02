@@ -8,8 +8,6 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 	worldName = WorldName;
 	graphics = Application->GetGraphics();
 
-	renderObjectSize = 32;
-
 	renderObject = new Graphics::RectangleF(0, 0, 1.f, 1.f, graphics);
 
 	buffers.resize((int)BufferIndex::Count);
@@ -89,10 +87,6 @@ void PixelWorldEngine::PixelWorld::SetWorldMap(WorldMap * WorldMap)
 	worldMap = WorldMap;
 }
 
-void PixelWorldEngine::PixelWorld::SetRenderObjectSize(float size)
-{
-	renderObjectSize = size;
-}
 
 void PixelWorldEngine::PixelWorld::RegisterRenderObjectID(int id, Graphics::Texture2D* texture)
 {
@@ -133,38 +127,9 @@ void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(std::string objectName)
 	pixelObjects.erase(objectName);
 }
 
-auto PixelWorldEngine::PixelWorld::GetRenderObjectSize() -> float
-{
-	return renderObjectSize;
-}
-
 auto PixelWorldEngine::PixelWorld::GetWorldMap() -> WorldMap *
 {
 	return worldMap;
-}
-
-auto PixelWorldEngine::PixelWorld::GetWorldMapDataIndex(float x, float y) -> std::pair<int, int>
-{
-	auto result = std::pair<int, int>();
-
-	result.first = (int)(x / renderObjectSize);
-	result.second = (int)(y / renderObjectSize);
-
-	if (Utility::IsLimit(result.first, 0, worldMap->GetWidth() - 1) == true &&
-		Utility::IsLimit(result.second, 0, worldMap->GetHeight() - 1) == true)
-		return result;
-	else return std::pair<int, int>(-1, -1);
-}
-
-auto PixelWorldEngine::PixelWorld::GetWorldMapData(float x, float y) -> MapData *
-{
-	if (worldMap == nullptr) return nullptr;
-
-	auto index = GetWorldMapDataIndex(x, y);
-
-	if (index == WorldMap::InvalidLocation()) return nullptr;
-
-	return worldMap->GetMapData(index.first, index.second);
 }
 
 auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
@@ -187,6 +152,8 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 	auto viewRect = camera->GetRectangle();
 	auto renderObjectRect = Rectangle();
 	auto matrix = camera->GetMatrix();
+
+	auto renderObjectSize = worldMap->GetBlockSize();
 
 	buffers[(int)BufferIndex::CameraBuffer]->Update(&matrix);
 

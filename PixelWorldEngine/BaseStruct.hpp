@@ -35,6 +35,10 @@ namespace PixelWorldEngine {
 			right = Right;
 			bottom = Bottom;
 		}
+
+		static auto Transform(RectangleF rect, float x, float y) -> RectangleF {
+			return RectangleF(rect.left + x, rect.top + y, rect.right + x, rect.bottom + y);
+		}
 	};
 
 	struct Rectangle {
