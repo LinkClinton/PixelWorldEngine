@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -26,6 +27,3 @@ namespace PixelWorldEngine {
 #pragma comment(lib,"Imm32.lib")
 
 #endif // _WIN32
-
-#ifdef DEBUG
-#endif

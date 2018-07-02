@@ -28,15 +28,15 @@ void PixelWorldEngine::PixelObject::MoveAxisX(float translation)
 
 	float renderObjectSize = pixelWorld->GetRenderObjectSize();
 
-	int GridTop = Utility::Limit((int)floor((positionY - halfHeight) / renderObjectSize), 0, worldHeight);
-	int GridBottom = Utility::Limit((int)floor((positionY + halfHeight) / renderObjectSize), 0, worldHeight);
+	int GridTop = Utility::Limit((int)ceil((positionY - halfHeight + 1) / renderObjectSize) - 1 , 0, worldHeight);
+	int GridBottom = Utility::Limit((int)ceil((positionY + halfHeight + 1) / renderObjectSize) - 1 , 0, worldHeight);
 
 	if (translation >= 0) {
-		float originX = positionX + halfWidth;
-		float targetX = positionX + translation + halfWidth;
+		float originX = positionX + halfWidth + 1;
+		float targetX = positionX + translation + halfWidth + 1;
 
-		int originGrid = Utility::Limit((int)floor(originX / renderObjectSize), 0, worldWidth);
-		int targetGrid = Utility::Limit((int)floor(targetX / renderObjectSize), 0, worldWidth);
+		int originGrid = Utility::Limit((int)ceil(originX / renderObjectSize) - 1 , 0, worldWidth);
+		int targetGrid = Utility::Limit((int)ceil(targetX / renderObjectSize) - 1, 0, worldWidth);
 
 		bool moveEnable = true;
 
@@ -61,8 +61,8 @@ void PixelWorldEngine::PixelObject::MoveAxisX(float translation)
 		float originX = positionX - halfWidth;
 		float targetX = positionX + translation - halfWidth;
 
-		int originGrid = Utility::Limit((int)floor(originX / renderObjectSize), 0, worldWidth);
-		int targetGrid = Utility::Limit((int)floor(targetX / renderObjectSize), 0, worldWidth);
+		int originGrid = Utility::Limit((int)ceil(originX / renderObjectSize) - 1 , 0, worldWidth);
+		int targetGrid = Utility::Limit((int)ceil(targetX / renderObjectSize) - 1 , 0, worldWidth);
 
 		bool moveEnable = true;
 
@@ -75,7 +75,7 @@ void PixelWorldEngine::PixelObject::MoveAxisX(float translation)
 			}
 
 			if (moveEnable == false) {
-				positionX = x * renderObjectSize + renderObjectSize + halfWidth + 1;
+				positionX = x * renderObjectSize + renderObjectSize + halfWidth;
 				break;
 			}
 		}
@@ -96,15 +96,15 @@ void PixelWorldEngine::PixelObject::MoveAxisY(float translation)
 
 	float renderObjectSize = pixelWorld->GetRenderObjectSize();
 
-	int GridLeft = Utility::Limit((int)floor((positionX - halfWidth) / renderObjectSize), 0, worldWidth);
-	int GridRight = Utility::Limit((int)floor((positionX + halfWidth) / renderObjectSize), 0, worldWidth);
+	int GridLeft = Utility::Limit((int)ceil((positionX - halfWidth + 1) / renderObjectSize) - 1 , 0, worldWidth);
+	int GridRight = Utility::Limit((int)ceil((positionX + halfWidth + 1) / renderObjectSize) - 1 , 0, worldWidth);
 
 	if (translation >= 0) {
-		float originY = positionY + halfHeight;
-		float targetY = positionY + translation + halfHeight;
+		float originY = positionY + halfHeight + 1;
+		float targetY = positionY + translation + halfHeight + 1;
 
-		int originGrid = Utility::Limit((int)floor(originY / renderObjectSize), 0, worldHeight);
-		int targetGrid = Utility::Limit((int)floor(targetY / renderObjectSize), 0, worldHeight);
+		int originGrid = Utility::Limit((int)ceil(originY / renderObjectSize) - 1 , 0, worldHeight);
+		int targetGrid = Utility::Limit((int)ceil(targetY / renderObjectSize) - 1 , 0, worldHeight);
 
 		bool moveEnable = true;
 
@@ -129,8 +129,8 @@ void PixelWorldEngine::PixelObject::MoveAxisY(float translation)
 		float originY = positionY - halfHeight;
 		float targetY = positionY + translation - halfHeight;
 
-		int originGrid = Utility::Limit((int)floor(originY / renderObjectSize), 0, worldHeight);
-		int targetGrid = Utility::Limit((int)floor(targetY / renderObjectSize), 0, worldHeight);
+		int originGrid = Utility::Limit((int)ceil(originY / renderObjectSize) - 1 , 0, worldHeight);
+		int targetGrid = Utility::Limit((int)ceil(targetY / renderObjectSize) - 1 , 0, worldHeight);
 
 		bool moveEnable = true;
 
@@ -143,7 +143,7 @@ void PixelWorldEngine::PixelObject::MoveAxisY(float translation)
 			}
 
 			if (moveEnable == false) {
-				positionY = y * renderObjectSize + renderObjectSize + halfHeight + 1;
+				positionY = y * renderObjectSize + renderObjectSize + halfHeight;
 				break;
 			}
 		}

@@ -1,12 +1,6 @@
 #include "DebugLayer.hpp"
 #include "Utility.hpp"
 
-#ifdef _DEBUG
-
-#include <iostream>
-
-#endif // _DEBUG
-
 #define MAX_ERROR_TEXT 1000
 
 
@@ -39,11 +33,13 @@ void PixelWorldEngine::DebugLayer::ReportError(Error error, ...)
 
 void PixelWorldEngine::DebugLayer::Assert(bool test, Error error, ...)
 {
+	if (test == false) return;
+
 	va_list args;
 
 	va_start(args, error);
 	std::string errorMessage = GetErrorMessage(error, args);
 	va_end(args);
 
-	if (test == true) ReportMessage(errorMessage);
+	ReportMessage(errorMessage);
 }

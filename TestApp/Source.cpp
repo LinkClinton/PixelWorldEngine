@@ -15,7 +15,7 @@ std::default_random_engine randomEngine(0);
 
 #ifndef _DEBUG
 
-#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" )
+//#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" )
 
 #endif // _DEBUG
 
@@ -77,27 +77,28 @@ void OnUpdate(void* sender) {
 	}
 
 	float speed = 100 * deltaTime;
+	bool isKeyDown = false;
 
 	glm::vec2 transform(0, 0);
 
 	if (Input::GetKeyCodeDown(KeyCode::A))
-		transform.x -= speed;
+		transform.x -= speed, isKeyDown = true;
 	if (Input::GetKeyCodeDown(KeyCode::D))
-		transform.x += speed;
+		transform.x += speed, isKeyDown = true;
 	if (Input::GetKeyCodeDown(KeyCode::S))
-		transform.y += speed;
+		transform.y += speed, isKeyDown = true;
 	if (Input::GetKeyCodeDown(KeyCode::W))
-		transform.y -= speed;
+		transform.y -= speed, isKeyDown = true;
 
-
-	pixelObject.Move(transform.x, transform.y);
-	camera.SetRectangle(PixelWorldEngine::RectangleF(pixelObject.GetPositionX() - 640.f,
-		pixelObject.GetPositionY() - 360.f, pixelObject.GetPositionX() + 640.f, pixelObject.GetPositionY() + 360.f));
-
+	if (isKeyDown == true) {
+		pixelObject.Move(transform.x, transform.y);
+		camera.SetRectangle(PixelWorldEngine::RectangleF(pixelObject.GetPositionX() - 640.f,
+			pixelObject.GetPositionY() - 360.f, pixelObject.GetPositionX() + 640.f, pixelObject.GetPositionY() + 360.f));
+	}
 }
 
 int main() {
-	auto texture = dataManger.RegisterTexture("C:/Users/LinkC/Pictures/T.jpg");
+	auto texture = dataManger.RegisterTexture("T.jpg");
 	
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 8; j++) {
@@ -115,6 +116,9 @@ int main() {
 			mapData->RenderObjectID[0] = 18;
 			worldMap.SetMapData(i, j, mapData);
 		}
+
+	camera.SetFocus(pixelObject.GetPositionX(), pixelObject.GetPositionY(),
+		PixelWorldEngine::RectangleF(640, 360, 640, 360));
 
 	pixelObject.SetRenderObjectID(23);
 

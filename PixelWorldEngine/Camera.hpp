@@ -36,10 +36,25 @@ namespace PixelWorldEngine {
 		void SetRectangle(RectangleF area);
 
 		/**
+		 * @brief 以(positionX, positionY)为核心，构建一个长度为(margin.left + margin.right)，宽度为(margin.top + margin.bottom)的矩形范围
+		 * @param[in] positionX 核心的X坐标
+		 * @param[in] positionY 核心的Y坐标
+		 * @param[in] margin 描述矩形的大小
+		 */
+		void SetFocus(float positionX, float positionY, RectangleF margin);
+
+		/**
 		 * @brief 移动摄像机，移动的时候我们能够看到的范围并不会变
 		 * @param[in] transform 移动偏移值
 		 */
 		void Move(glm::vec2 transform);
+
+		/**
+		 * @brief 移动摄像机，移动的时候我们能够看到的范围并不会变
+		 * @param[in] translationX X位移
+		 * @param[in] translationY Y位移
+		 */
+		void Move(float translationX, float translationY);
 
 		/**
 		 * @brief 获取摄像机能够看到的范围
