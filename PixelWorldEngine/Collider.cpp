@@ -10,11 +10,6 @@ PixelWorldEngine::Collider::Collider(float left, float top, float right, float b
 	isEnable = true;
 }
 
-PixelWorldEngine::Collider::Collider(RectangleF rectangle)
-{
-	rect = rectangle;
-}
-
 void PixelWorldEngine::Collider::SetArea(float left, float top, float right, float bottom)
 {
 	rect.left = left;
@@ -52,9 +47,4 @@ auto PixelWorldEngine::Collider::Intersect(Collider collider) -> bool
 	if (rect.top > collider.rect.bottom) return false;
 
 	return true;
-}
-
-auto PixelWorldEngine::Collider::Translate(Collider collider, float x, float y) -> Collider
-{
-	return Collider(RectangleF::Transform(collider.rect, x, y));
 }

@@ -39,6 +39,8 @@ namespace PixelWorldEngine {
 		int resolutionWidth; //分辨率宽度
 		int resolutionHeight; //分辨率高度
 
+		float renderObjectSize; //每一个地图块的大小，默认值为32
+
 		PixelWorldRenderConfig renderConfig; //渲染设置数据
 
 		Camera* camera; //摄像机
@@ -116,6 +118,12 @@ namespace PixelWorldEngine {
 		void SetWorldMap(WorldMap* worldMap);
 
 		/**
+		 * @brief 设置渲染物体的大小
+		 * @param[in] 渲染物体的大小
+		 */
+		void SetRenderObjectSize(float size);
+
+		/**
 		 * @brief 注册一个渲染物体，请注意保持纹理的生命周期
 		 * @param[in] id 我们注册的渲染物体的ID，注意不能为0
 		 * @param[in] fileData 渲染物体的数据信息，注意数据必须是数据格式R8G8B8A8
@@ -154,10 +162,32 @@ namespace PixelWorldEngine {
 		void UnRegisterPixelObject(std::string objectName);
 
 		/**
+		 * @brief 获取渲染物体的大小
+		 * @return 渲染物体的大小
+		 */
+		auto GetRenderObjectSize() -> float;
+
+		/**
 		 * @brief 获取当前的世界地图
 		 * @return 世界地图
 		 */
 		auto GetWorldMap() -> WorldMap*;
+
+		/**
+		* @brief 获取点(x, y)对应当前世界地图的格子对应坐标，如果不在地图范围内，则返回 (-1, -1)
+		* @param[in] x X坐标
+		* @param[in] y Y坐标
+		* @return 格子的对应坐标
+		*/
+		auto GetWorldMapDataIndex(float x, float y)->std::pair<int, int>;
+
+		/**
+		* @brief 获取点(x, y)对应当前世界地图的格子，如果不在地图范围内，则返回nullptr
+		* @param[in] x X坐标
+		* @param[in] y Y坐标
+		* @return 格子的数据
+		*/
+		auto GetWorldMapData(float x, float y)->MapData*;
 
 		/**
 		 * @brief 获取在当前状况下的世界的图像

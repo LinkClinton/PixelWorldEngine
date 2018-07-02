@@ -21,13 +21,7 @@ namespace PixelWorldEngine {
 		 * @param[in] right Åö×²ºĞµÄÓÒ±ß½ç
 		 * @param[in] bottom Åö×²ºĞµÄÏÂ±ß½ç
 		 */
-		Collider(float left = 0, float top = 0, float right = 0, float bottom = 0);
-
-		/**
-		 * @brief ¹¹Ôìº¯Êı
-		 * @param[in] rectangle Åö×²ºĞµÄ·¶Î§
-		 */
-		Collider(RectangleF rectangle);
+		Collider(float left, float top, float right, float bottom);
 
 		/**
 		 * @brief ÉèÖÃÅö×²ºĞµÄ·¶Î§
@@ -61,15 +55,6 @@ namespace PixelWorldEngine {
 		 * @return ÊÇ·ñÏà×²
 		 */
 		auto Intersect(Collider collider) -> bool;
-
-		/**
-		 * @brief ¶ÔÅö×²ºĞ½øĞĞÎ»ÒÆ
-		 * @param[in] collider Åö×²ºĞ
-		 * @param[in] x XÎ»ÒÆ
-		 * @param[in[ y YÎ»ÒÆ
-		 * @return ½á¹ûÅö×²ºĞ
-		 */
-		static auto Translate(Collider collider, float x, float y) -> Collider;
 	};
 
 }

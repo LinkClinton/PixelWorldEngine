@@ -27,7 +27,7 @@ PixelWorld pixelWorld = PixelWorld("PixelWorld", &application);
 DataManager dataManger = DataManager(&application);
 WorldMap worldMap = WorldMap("Map1", 100, 100);
 Camera camera = Camera(PixelWorldEngine::RectangleF(-640, -360, 640, 360));
-PixelObject pixelObject = PixelObject("Player", 50, 50, 100, 100);
+PixelObject pixelObject = PixelObject("Player", 16, 16, 32, 32);
 
 int resolutionX = 1920;
 int resolutionY = 1080;
@@ -68,17 +68,11 @@ void OnUpdate(void* sender) {
 		auto x = rect.left + (float)Input::GetMousePositionX() / (float)resolutionX * (rect.right - rect.left);
 		auto y = rect.top + (float)Input::GetMousePositionY() / (float)resolutionY * (rect.bottom - rect.top);
 
-		auto position = worldMap.GetWorldMapDataIndex(x, y);
+		auto mapData = pixelWorld.GetWorldMapData(x, y);
 
-		if (position != worldMap.InvalidLocation()) {
-
-			worldMap.EnableMovement(false, position.first, position.second);
-
-			auto mapData = worldMap.GetMapData(position.first, position.second);
-
-			if (mapData != nullptr) {
-				mapData->RenderObjectID[0] = 22;
-			}
+		if (mapData != nullptr) {
+			mapData->MoveEnable = false;
+			mapData->RenderObjectID[0] = 22;
 		}
 	}
 
@@ -119,12 +113,10 @@ int main() {
 	for (int i = 0; i < worldMap.GetWidth(); i++)
 		for (int j = 0; j < worldMap.GetHeight(); j++) {
 			auto mapData = new MapData();
-
+			mapData->MoveEnable = true;
 			mapData->RenderObjectID[0] = 18;
 			worldMap.SetMapData(i, j, mapData);
 		}
-
-	worldMap.SetBlockSize(64);
 
 	camera.SetFocus(pixelObject.GetPositionX(), pixelObject.GetPositionY(),
 		PixelWorldEngine::RectangleF(640, 360, 640, 360));
@@ -133,6 +125,7 @@ int main() {
 
 	pixelWorld.SetResolution(1920, 1080);
 	pixelWorld.SetCamera(&camera);
+	pixelWorld.SetRenderObjectSize(64);
 	pixelWorld.RegisterPixelObject(&pixelObject);
 
 	pixelWorld.SetWorldMap(&worldMap);

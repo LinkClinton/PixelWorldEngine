@@ -1,7 +1,6 @@
 #pragma once
 
 #include "pch.hpp"
-#include "Collider.hpp"
 
 namespace PixelWorldEngine {
 
@@ -27,8 +26,6 @@ namespace PixelWorldEngine {
 
 		int renderObjectID; //渲染物体的ID，默认为0，即不渲染
 
-		Collider collider; //碰撞盒
-
 		friend class PixelWorld;
 	public:
 		/**
@@ -40,6 +37,18 @@ namespace PixelWorldEngine {
 		 * @param[in] Height 物体的高度
 		 */
 		PixelObject(std::string Name, float PositionX = 0.f, float PositionY = 0.f, float Width = 1.f, float Height = 1);
+
+		/**
+		 * @brief 移动物体，只有在物体被加载到世界中去后才有效，这里只对X轴方向进行位移
+		 * @param[in] translation 物体在X方向的位移
+		 */
+		void MoveAxisX(float translation);
+
+		/**
+		 * @brief 移动物体，只有物体在被加载到世界中去后才有效，这里只对Y轴方向进行位移
+		 * @param[in] translation 物体在Y方向的位移
+		 */
+		void MoveAxisY(float translation);
 
 		/**
 		 * @brief 移动物体，只有在物体被加载到世界中去后才有效，且我们的位移顺序是优先X轴，然后再Y轴
