@@ -37,6 +37,12 @@
     <Filter Include="Source Files\IO">
       <UniqueIdentifier>{010a7f6f-d52b-4b64-93fd-d8500eb7bc22}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Physics">
+      <UniqueIdentifier>{27d0bd77-9b31-45ab-9345-e54ff7c8ccc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Physics">
+      <UniqueIdentifier>{7557568a-b932-4b72-a59a-a3ddebcf72ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.hpp">
@@ -108,6 +114,9 @@
     <ClInclude Include="PixelObject.hpp">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Collider.hpp">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utility.cpp">
@@ -163,6 +172,9 @@
     </ClCompile>
     <ClCompile Include="PixelObject.cpp">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider.cpp">
+      <Filter>Source Files\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
