@@ -112,17 +112,19 @@ void PixelWorldEngine::PixelWorld::RegisterWorldMap(WorldMap * worldMap)
 
 void PixelWorldEngine::PixelWorld::RegisterPixelObject(PixelObject * pixelObject)
 {
-	if (pixelObject->pixelWorld != nullptr)
+	if (pixelObject->pixelWorld != nullptr) 
 		pixelObject->pixelWorld->UnRegisterPixelObject(pixelObject);
 
 	pixelObjects[pixelObject->name] = pixelObject;
-
+	pixelObjectLayer.insert(pixelObject);
+	
 	pixelObject->pixelWorld = this;
 }
 
 void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(PixelObject * pixelObject)
 {
 	pixelObjects.erase(pixelObject->name);
+	pixelObjectLayer.erase(pixelObject);
 
 	pixelObject->pixelWorld = nullptr;
 }
@@ -131,6 +133,7 @@ void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(std::string objectName)
 {
 	pixelObjects[objectName]->pixelWorld = nullptr;
 
+	pixelObjectLayer.erase(pixelObjects[objectName]);
 	pixelObjects.erase(objectName);
 }
 
@@ -204,8 +207,8 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 
 	memset(renderConfig.currentRenderObjectID, 0, sizeof(renderConfig.currentRenderObjectID));
 
-	for (auto it = pixelObjects.begin(); it != pixelObjects.end(); it++) {
-		auto pixelObject = it->second;
+	for (auto it = pixelObjectLayer.begin(); it != pixelObjectLayer.end(); it++) {
+		auto pixelObject = *it;
 
 		if (pixelObject->renderObjectID == 0) continue;
 

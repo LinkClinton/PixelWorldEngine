@@ -276,8 +276,15 @@ void PixelWorldEngine::PixelObject::SetRenderObjectID(int id)
 	renderObjectID = id;
 }
 
-void PixelWorldEngine::PixelObject::SetDepthLayer(int depthLayer)
+void PixelWorldEngine::PixelObject::SetDepthLayer(int DepthLayer)
 {
+	if (depthLayer != DepthLayer && pixelWorld != nullptr) {
+		depthLayer = DepthLayer;
+		pixelWorld->pixelObjectLayer.erase(this);
+		pixelWorld->pixelObjectLayer.insert(this);
+	}
+
+	depthLayer = DepthLayer;
 }
 
 void PixelWorldEngine::PixelObject::EnableCollider(bool enable)

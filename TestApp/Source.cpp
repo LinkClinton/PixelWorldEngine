@@ -162,12 +162,13 @@ int main() {
 
 	for (int i = 5; i <= 15; i++) {
 		auto object = new PixelObject(IntToString(i), i * 50, i * 50, 50, 50);
-		object->EnableCollider(true);
+		object->EnableCollider(false);
+		object->SetDepthLayer(1);
 		object->SetRenderObjectID(20);
 		pixelWorld.RegisterPixelObject(object);
 	}
 
-	//pixelWorld.SetWorldMap(&worldMap);
+	pixelWorld.SetWorldMap(&worldMap);
 	
 	application.KeyClick.push_back(OnKeyEvent);
 	application.Update.push_back(OnUpdate);

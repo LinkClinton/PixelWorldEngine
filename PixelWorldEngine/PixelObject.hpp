@@ -53,7 +53,7 @@ namespace PixelWorldEngine {
 		float halfHeight; //物体高度的一半，默认为0.5f
 
 		int renderObjectID; //渲染物体的ID，默认为0，即不渲染
-		int depthLayer; //物体的所在的深度层，默认为0，深度较小的会覆盖深度较大的
+		int depthLayer; //物体的所在的深度层，默认为0，深度较大的会覆盖深度较小的
 
 		Collider collider; //碰撞盒
 
@@ -89,6 +89,7 @@ namespace PixelWorldEngine {
 		virtual void OnLeave(PixelObject* pixelObject);
 
 		friend class PixelWorld;
+		friend class PixelObjectCompare;
 	public:
 		UpdateHandlers Update; //更新事件
 		CollideHandlers Enter; //当进入物体的时候触发，具体参见OnEnter
@@ -139,7 +140,7 @@ namespace PixelWorldEngine {
 		void SetRenderObjectID(int id);
 
 		/**
-		 * @brief 设置深度层，深度较小的会覆盖深度较大的，如果深度相同那么结果未知
+		 * @brief 设置深度层，深度较大的会覆盖深度较小的，如果深度相同那么结果未知
 		 * @param[in] depthLayer 深度层
 		 */
 		void SetDepthLayer(int depthLayer);
@@ -199,4 +200,10 @@ namespace PixelWorldEngine {
 		auto GetName() -> std::string;
 	};
 
+	class PixelObjectCompare {
+	public:
+		bool operator() (PixelObject* object1, PixelObject* object2)const {
+			return object1->depthLayer < object2->depthLayer;
+		}
+	};
 }

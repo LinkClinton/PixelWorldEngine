@@ -64,10 +64,16 @@ namespace PixelWorldEngine {
 	
 		std::map<std::string, WorldMap*> worldMaps; //存储世界的地图
 		std::map<std::string, PixelObject*> pixelObjects; //存储世界的物体
+		
+		std::multiset<PixelObject*, PixelObjectCompare> pixelObjectLayer;//存储不同层的PixelObject
 
 		friend class PixelObject;
 		friend class Application;
 	private:
+		/**
+		 * @brief 更新世界，当应用程序更新的时候，世界也会更新
+		 * @param[in] deltaTime 距离上一次更新的时间
+		 */
 		void OnUpdate(float deltaTime);
 	public:
 		/**
