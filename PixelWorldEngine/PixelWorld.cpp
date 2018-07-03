@@ -154,50 +154,51 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 	graphics->SetVertexBuffer(renderObject->GetVertexBuffer());
 	graphics->SetIndexBuffer(renderObject->GetIndexBuffer());
 
-	if (worldMap == nullptr) return renderBuffer;
+	if (worldMap != nullptr) {
 
-	auto viewRect = camera->GetRectangle();
-	auto renderObjectRect = Rectangle();
-	auto matrix = camera->GetMatrix();
+		auto viewRect = camera->GetRectangle();
+		auto renderObjectRect = Rectangle();
+		auto matrix = camera->GetMatrix();
 
-	buffers[(int)BufferIndex::CameraBuffer]->Update(&matrix);
+		buffers[(int)BufferIndex::CameraBuffer]->Update(&matrix);
 
-	auto mapBlockSize = worldMap->GetMapBlockSize();
+		auto mapBlockSize = worldMap->GetMapBlockSize();
 
-	renderObjectRect.left = Utility::Max((int)(viewRect.left / mapBlockSize), 0);
-	renderObjectRect.top = Utility::Max((int)(viewRect.top / mapBlockSize), 0);
-	renderObjectRect.right = Utility::Min((int)(viewRect.right / mapBlockSize) + 1, worldMap->GetHeight() - 1);
-	renderObjectRect.bottom = Utility::Min((int)(viewRect.bottom / mapBlockSize) + 1, worldMap->GetHeight() - 1);
-	
-	graphics->SetStaticSampler(defaultSampler, 0);
-	graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
-	
-	auto scaleMatrix = glm::scale(glm::mat4(1), glm::vec3(mapBlockSize, mapBlockSize, 1.f));
+		renderObjectRect.left = Utility::Max((int)(viewRect.left / mapBlockSize), 0);
+		renderObjectRect.top = Utility::Max((int)(viewRect.top / mapBlockSize), 0);
+		renderObjectRect.right = Utility::Min((int)(viewRect.right / mapBlockSize) + 1, worldMap->GetHeight() - 1);
+		renderObjectRect.bottom = Utility::Min((int)(viewRect.bottom / mapBlockSize) + 1, worldMap->GetHeight() - 1);
 
-	for (int x = renderObjectRect.left; x <= renderObjectRect.right; x++) {
+		graphics->SetStaticSampler(defaultSampler, 0);
+		graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
 
-		for (int y = renderObjectRect.top; y <= renderObjectRect.bottom; y++) {
-			if (worldMap->GetMapData(x, y) == nullptr) continue;
+		auto scaleMatrix = glm::scale(glm::mat4(1), glm::vec3(mapBlockSize, mapBlockSize, 1.f));
 
-			auto matrix = glm::translate(glm::mat4(1), glm::vec3(x * mapBlockSize,
-				y * mapBlockSize, 0.f)) * scaleMatrix;
+		for (int x = renderObjectRect.left; x <= renderObjectRect.right; x++) {
 
-			auto mapData = worldMap->GetMapData(x, y);
+			for (int y = renderObjectRect.top; y <= renderObjectRect.bottom; y++) {
+				if (worldMap->GetMapData(x, y) == nullptr) continue;
 
-			memcpy(renderConfig.currentRenderObjectID, mapData->RenderObjectID, sizeof(mapData->RenderObjectID));
+				auto matrix = glm::translate(glm::mat4(1), glm::vec3(x * mapBlockSize,
+					y * mapBlockSize, 0.f)) * scaleMatrix;
 
-			buffers[(int)BufferIndex::TransformBuffer]->Update(&matrix);
-			buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
-			
-			graphics->SetConstantBuffer(buffers[(int)BufferIndex::TransformBuffer], (int)BufferIndex::TransformBuffer);
-			graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
+				auto mapData = worldMap->GetMapData(x, y);
 
-			for (int id = 0; id < MAX_RENDER_OBJECT; id++) {
-				if (mapData->RenderObjectID[id] == 0) continue;
-				graphics->SetShaderResource(renderObjectIDGroup[mapData->RenderObjectID[id]], id);
+				memcpy(renderConfig.currentRenderObjectID, mapData->RenderObjectID, sizeof(mapData->RenderObjectID));
+
+				buffers[(int)BufferIndex::TransformBuffer]->Update(&matrix);
+				buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
+
+				graphics->SetConstantBuffer(buffers[(int)BufferIndex::TransformBuffer], (int)BufferIndex::TransformBuffer);
+				graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
+
+				for (int id = 0; id < MAX_RENDER_OBJECT; id++) {
+					if (mapData->RenderObjectID[id] == 0) continue;
+					graphics->SetShaderResource(renderObjectIDGroup[mapData->RenderObjectID[id]], id);
+				}
+
+				graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount());
 			}
-
-			graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount());
 		}
 	}
 

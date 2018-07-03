@@ -19,7 +19,7 @@ std::default_random_engine randomEngine(0);
 
 #endif // _DEBUG
 
-#endif // !_WIN32
+#endif // _WIN32
 
 class Player :public PixelObject {
 protected:
@@ -42,19 +42,19 @@ public:
 
 Application application = Application("Application");
 PixelWorld pixelWorld = PixelWorld("PixelWorld", &application);
-DataManager dataManger = DataManager(&application);
+DataManager dataManager = DataManager(&application);
 WorldMap worldMap = WorldMap("Map1", 100, 100);
 Camera camera = Camera(PixelWorldEngine::RectangleF(-640, -360, 640, 360));
 PixelObject pixelObject = PixelObject("Player", 16, 16, 32, 32);
 
 void OnCollide(PixelObject* pixelObject) {
-	std::cout << "Collidde Object: " + pixelObject->GetName() << std::endl;
+
 }
 void OnEnter(PixelObject* pixelObject){
-	std::cout << "Enter Object: " + pixelObject->GetName() << std::endl;
+
 }
 void OnLeave(PixelObject* pixelObject) {
-	std::cout << "Leave Object: " + pixelObject->GetName() << std::endl;
+
 }
 
 int resolutionX = 1920;
@@ -127,7 +127,7 @@ void OnUpdate(void* sender) {
 }
 
 int main() {
-	auto texture = dataManger.RegisterTexture("T.jpg");
+	auto texture = dataManager.RegisterTexture("T.jpg");
 	
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 8; j++) {

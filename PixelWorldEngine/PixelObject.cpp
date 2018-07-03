@@ -274,6 +274,10 @@ void PixelWorldEngine::PixelObject::SetRenderObjectID(int id)
 	renderObjectID = id;
 }
 
+void PixelWorldEngine::PixelObject::SetDepthLayer(int depthLayer)
+{
+}
+
 void PixelWorldEngine::PixelObject::EnableCollider(bool enable)
 {
 	collider.EnablePhysics(enable);
@@ -307,6 +311,11 @@ auto PixelWorldEngine::PixelObject::GetPositionY() -> float
 auto PixelWorldEngine::PixelObject::GetRenderObjectID() -> int
 {
 	return renderObjectID;
+}
+
+auto PixelWorldEngine::PixelObject::GetDepthLayer() -> int
+{
+	return depthLayer;
 }
 
 auto PixelWorldEngine::PixelObject::GetName() -> std::string

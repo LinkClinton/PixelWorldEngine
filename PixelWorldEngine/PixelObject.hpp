@@ -53,6 +53,7 @@ namespace PixelWorldEngine {
 		float halfHeight; //物体高度的一半，默认为0.5f
 
 		int renderObjectID; //渲染物体的ID，默认为0，即不渲染
+		int depthLayer; //物体的所在的深度层，默认为0，深度较小的会覆盖深度较大的
 
 		Collider collider; //碰撞盒
 
@@ -138,6 +139,12 @@ namespace PixelWorldEngine {
 		void SetRenderObjectID(int id);
 
 		/**
+		 * @brief 设置深度层，深度较小的会覆盖深度较大的，如果深度相同那么结果未知
+		 * @param[in] depthLayer 深度层
+		 */
+		void SetDepthLayer(int depthLayer);
+
+		/**
 		 * @brief 设置碰撞盒状态，true则为开启，false则代表关闭
 		 * @param[in] enable 碰撞盒的状态
 		 */
@@ -178,6 +185,12 @@ namespace PixelWorldEngine {
 		 * @return 渲染ID
 		 */
 		auto GetRenderObjectID() -> int;
+
+		/**
+		 * @brief 获取深度层
+		 * @return 深度层
+		 */
+		auto GetDepthLayer() -> int;
 
 		/**
 		 * @brief 获取物体的名字
