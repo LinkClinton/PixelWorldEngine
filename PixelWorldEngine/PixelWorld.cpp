@@ -146,7 +146,7 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 	graphics->ClearState();
 
 	graphics->SetRenderTarget(renderTarget);
-	
+
 	graphics->SetViewPort(RectangleF(0.f, 0.f, (float)resolutionWidth, (float)resolutionHeight));
 
 	graphics->SetShader(shader);
@@ -154,23 +154,23 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 	graphics->SetVertexBuffer(renderObject->GetVertexBuffer());
 	graphics->SetIndexBuffer(renderObject->GetIndexBuffer());
 
+
+	auto viewRect = camera->GetRectangle();
+	auto renderObjectRect = Rectangle();
+	auto matrix = camera->GetMatrix();
+
+	buffers[(int)BufferIndex::CameraBuffer]->Update(&matrix);
+
+	graphics->SetStaticSampler(defaultSampler, 0);
+	graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
+
 	if (worldMap != nullptr) {
-
-		auto viewRect = camera->GetRectangle();
-		auto renderObjectRect = Rectangle();
-		auto matrix = camera->GetMatrix();
-
-		buffers[(int)BufferIndex::CameraBuffer]->Update(&matrix);
-
 		auto mapBlockSize = worldMap->GetMapBlockSize();
 
 		renderObjectRect.left = Utility::Max((int)(viewRect.left / mapBlockSize), 0);
 		renderObjectRect.top = Utility::Max((int)(viewRect.top / mapBlockSize), 0);
 		renderObjectRect.right = Utility::Min((int)(viewRect.right / mapBlockSize) + 1, worldMap->GetHeight() - 1);
 		renderObjectRect.bottom = Utility::Min((int)(viewRect.bottom / mapBlockSize) + 1, worldMap->GetHeight() - 1);
-
-		graphics->SetStaticSampler(defaultSampler, 0);
-		graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
 
 		auto scaleMatrix = glm::scale(glm::mat4(1), glm::vec3(mapBlockSize, mapBlockSize, 1.f));
 
@@ -229,7 +229,6 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 
 	return renderBuffer;
 }
-
 
 
 

@@ -3,7 +3,8 @@
 
 auto PixelWorldEngine::PixelObject::MoveAxisXMap(float translation) -> float
 {
-	if (pixelWorld == nullptr || pixelWorld->GetWorldMap() == nullptr) return positionX;
+	if (pixelWorld == nullptr) return positionX;
+	if (pixelWorld->worldMap == nullptr) return positionX + translation;
 
 	float PositionX = positionX;
 
@@ -75,7 +76,8 @@ auto PixelWorldEngine::PixelObject::MoveAxisXMap(float translation) -> float
 
 auto PixelWorldEngine::PixelObject::MoveAxisYMap(float translation) -> float
 {
-	if (pixelWorld == nullptr || pixelWorld->GetWorldMap() == nullptr) return positionY;
+	if (pixelWorld == nullptr) return positionY;
+	if (pixelWorld->worldMap == nullptr) return positionY + translation;
 
 	float PositionY = positionY;
 
