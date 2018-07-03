@@ -67,6 +67,8 @@ namespace PixelWorldEngine {
 
 		friend class PixelObject;
 		friend class Application;
+	private:
+		void OnUpdate(float deltaTime);
 	public:
 		/**
 		 * @brief ¹¹Ôìº¯Êý

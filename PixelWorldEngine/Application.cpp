@@ -117,7 +117,9 @@ void PixelWorldEngine::Application::OnUpdate(void * sender)
 	timer.Start();
 
 	fpsCounter.Update(GetDeltaTime());
-	
+
+	pixelWorld->OnUpdate(GetDeltaTime());
+
 	OnRender(sender);
 
 	Events::DoEventHandlers(Update, this);

@@ -3,6 +3,14 @@
 #include "Application.hpp"
 #include "EngineDefaultResource.hpp"
 
+void PixelWorldEngine::PixelWorld::OnUpdate(float deltaTime)
+{
+	for (auto it = pixelObjects.begin(); it != pixelObjects.end(); it++) {
+		it->second->OnUpdate(deltaTime);
+		Events::DoEventHandlers(it->second->Update, deltaTime);
+	}
+}
+
 PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Application)
 {
 	worldName = WorldName;

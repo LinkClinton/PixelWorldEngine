@@ -6,6 +6,21 @@
 namespace PixelWorldEngine {
 
 	class PixelWorld;
+	class PixelObject;
+	
+	/**
+	 * @brief 更新事件
+	 * @param[in] float 距离上次更新间隔的时间，单位秒
+	 */
+	typedef std::function<void(float)> UpdateHandler;
+	/**
+	 * @brief 碰撞事件
+	 * @param[in] 涉及的另外的物体
+	 */
+	typedef std::function<void(PixelObject*)> CollideHandler;
+
+	typedef std::vector<UpdateHandler> UpdateHandlers;
+	typedef std::vector<CollideHandler> CollideHandlers;
 
 	/**
 	 * 世界中的物体
@@ -73,6 +88,11 @@ namespace PixelWorldEngine {
 		virtual void OnLeave(PixelObject* pixelObject);
 
 		friend class PixelWorld;
+	public:
+		UpdateHandlers Update; //更新事件
+		CollideHandlers Enter; //当进入物体的时候触发，具体参见OnEnter
+		CollideHandlers Leave; //当离开物体的时候触发，具体参见OnLeave
+		CollideHandlers Collide; //当物体碰撞到另外的物体的时候触发，具体参见OnCollide
 	public:
 		/**
 		 * @brief 构造函数

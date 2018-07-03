@@ -110,5 +110,11 @@ namespace PixelWorldEngine {
 			for (size_t i = 0; i < handlers.size(); i++)
 				handlers[i](sender);
 		}
+
+		template<typename Handlers, typename EventArg>
+		static void DoEventHandlers(Handlers handlers, EventArg eventarg) {
+			for (size_t i = 0; i < handlers.size(); i++)
+				handlers[i](eventarg);
+		}
 	}
 }

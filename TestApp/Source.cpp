@@ -32,6 +32,9 @@ protected:
 	virtual void OnLeave(PixelObject* pixelObject)override {
 		std::cout << "Leave Object: " + pixelObject->GetName() << std::endl;
 	}
+	virtual void OnUpdate(float deltaTime)override {
+
+	}
 public:
 	Player(std::string Name, float PositionX = 0.f, float PositionY = 0.f, float Width = 1.f, float Height = 1)
 		:PixelObject(Name, PositionX, PositionY, Width, Height){}
@@ -42,7 +45,17 @@ PixelWorld pixelWorld = PixelWorld("PixelWorld", &application);
 DataManager dataManger = DataManager(&application);
 WorldMap worldMap = WorldMap("Map1", 100, 100);
 Camera camera = Camera(PixelWorldEngine::RectangleF(-640, -360, 640, 360));
-Player pixelObject = Player("Player", 16, 16, 32, 32);
+PixelObject pixelObject = PixelObject("Player", 16, 16, 32, 32);
+
+void OnCollide(PixelObject* pixelObject) {
+	std::cout << "Collidde Object: " + pixelObject->GetName() << std::endl;
+}
+void OnEnter(PixelObject* pixelObject){
+	std::cout << "Enter Object: " + pixelObject->GetName() << std::endl;
+}
+void OnLeave(PixelObject* pixelObject) {
+	std::cout << "Leave Object: " + pixelObject->GetName() << std::endl;
+}
 
 int resolutionX = 1920;
 int resolutionY = 1080;
@@ -139,6 +152,9 @@ int main() {
 		PixelWorldEngine::RectangleF(640, 360, 640, 360));
 
 	pixelObject.SetRenderObjectID(23);
+	pixelObject.Collide.push_back(OnCollide);
+	pixelObject.Enter.push_back(OnEnter);
+	pixelObject.Leave.push_back(OnLeave);
 
 	pixelWorld.SetResolution(1920, 1080);
 	pixelWorld.SetCamera(&camera);
@@ -146,7 +162,7 @@ int main() {
 
 	for (int i = 5; i <= 15; i++) {
 		auto object = new PixelObject(IntToString(i), i * 50, i * 50, 50, 50);
-		object->EnableCollider(true);
+		object->EnableCollider(false);
 		object->SetRenderObjectID(20);
 		pixelWorld.RegisterPixelObject(object);
 	}

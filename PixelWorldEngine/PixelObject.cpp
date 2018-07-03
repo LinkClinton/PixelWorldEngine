@@ -197,17 +197,17 @@ void PixelWorldEngine::PixelObject::Move(float translationX, float translationY)
 
 		if (it->second->collider.IsEnablePhysics() == true) {
 			if (targetCollider.Intersect(it->second->collider) == true)
-				OnCollide(it->second);
+				OnCollide(it->second), Events::DoEventHandlers(Collide, it->second);
 		}
 		else {
 			bool originState = collider.Intersect(it->second->collider);
 			bool targetState = targetCollider.Intersect(it->second->collider);
 
 			if (originState == true && targetState == false)
-				OnLeave(it->second);
+				OnLeave(it->second), Events::DoEventHandlers(Leave, it->second);
 
 			if (originState == false && targetState == true)
-				OnEnter(it->second);
+				OnEnter(it->second), Events::DoEventHandlers(Enter, it->second);
 		}
 	}
 
