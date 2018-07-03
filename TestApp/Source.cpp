@@ -21,13 +21,28 @@ std::default_random_engine randomEngine(0);
 
 #endif // !_WIN32
 
+class Player :public PixelObject {
+protected:
+	virtual void OnCollide(PixelObject* pixelObject)override {
+		std::cout << "Collidde Object: " + pixelObject->GetName() << std::endl;
+	}
+	virtual void OnEnter(PixelObject* pixelObject)override {
+		std::cout << "Enter Object: " + pixelObject->GetName() << std::endl;
+	}
+	virtual void OnLeave(PixelObject* pixelObject)override {
+		std::cout << "Leave Object: " + pixelObject->GetName() << std::endl;
+	}
+public:
+	Player(std::string Name, float PositionX = 0.f, float PositionY = 0.f, float Width = 1.f, float Height = 1)
+		:PixelObject(Name, PositionX, PositionY, Width, Height){}
+};
 
 Application application = Application("Application");
 PixelWorld pixelWorld = PixelWorld("PixelWorld", &application);
 DataManager dataManger = DataManager(&application);
 WorldMap worldMap = WorldMap("Map1", 100, 100);
 Camera camera = Camera(PixelWorldEngine::RectangleF(-640, -360, 640, 360));
-PixelObject pixelObject = PixelObject("Player", 16, 16, 32, 32);
+Player pixelObject = Player("Player", 16, 16, 32, 32);
 
 int resolutionX = 1920;
 int resolutionY = 1080;
@@ -129,8 +144,9 @@ int main() {
 	pixelWorld.SetCamera(&camera);
 	pixelWorld.RegisterPixelObject(&pixelObject);
 
-	for (int i = 1; i <= 10; i++) {
-		auto object = new PixelObject(IntToString(i), i * 50, i * 50, 32, 32);
+	for (int i = 5; i <= 15; i++) {
+		auto object = new PixelObject(IntToString(i), i * 50, i * 50, 50, 50);
+		object->EnableCollider(true);
 		object->SetRenderObjectID(20);
 		pixelWorld.RegisterPixelObject(object);
 	}

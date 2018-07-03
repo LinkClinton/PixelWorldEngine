@@ -7,7 +7,7 @@ PixelWorldEngine::Collider::Collider(float left, float top, float right, float b
 	rect.right = right;
 	rect.bottom = bottom;
 
-	isEnable = true;
+	isEnablePhysics = true;
 }
 
 PixelWorldEngine::Collider::Collider(RectangleF rectangle)
@@ -23,9 +23,9 @@ void PixelWorldEngine::Collider::SetArea(float left, float top, float right, flo
 	rect.bottom = bottom;
 }
 
-void PixelWorldEngine::Collider::SetEnable(bool enable)
+void PixelWorldEngine::Collider::EnablePhysics(bool enable)
 {
-	isEnable = enable;
+	isEnablePhysics = enable;
 }
 
 
@@ -34,15 +34,13 @@ auto PixelWorldEngine::Collider::GetArea() -> RectangleF
 	return rect;
 }
 
-auto PixelWorldEngine::Collider::IsEnable() -> bool
+auto PixelWorldEngine::Collider::IsEnablePhysics() -> bool
 {
-	return isEnable;
+	return isEnablePhysics;
 }
 
 auto PixelWorldEngine::Collider::Intersect(Collider collider) -> bool
 {
-	if (isEnable == false || collider.isEnable == false) return false;
-
 	//X-Axis
 	if (rect.right < collider.rect.left) return false;
 	if (rect.left > collider.rect.right) return false;

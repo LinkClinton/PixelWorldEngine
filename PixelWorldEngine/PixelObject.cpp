@@ -145,6 +145,26 @@ auto PixelWorldEngine::PixelObject::MoveAxisYMap(float translation) -> float
 	return PositionY;
 }
 
+void PixelWorldEngine::PixelObject::OnUpdate(float deltaTime)
+{
+}
+
+void PixelWorldEngine::PixelObject::OnMove(float translationX, float translationY)
+{
+}
+
+void PixelWorldEngine::PixelObject::OnCollide(PixelObject* which)
+{
+}
+
+void PixelWorldEngine::PixelObject::OnEnter(PixelObject* pixelObject)
+{
+}
+
+void PixelWorldEngine::PixelObject::OnLeave(PixelObject* pixelObject)
+{
+}
+
 PixelWorldEngine::PixelObject::PixelObject(std::string Name, float PositionX, float PositionY, float Width, float Height)
 {
 	name = Name;
@@ -170,10 +190,32 @@ void PixelWorldEngine::PixelObject::Move(float translationX, float translationY)
 	float resultX = MoveAxisXMap(translationX);
 	float resultY = MoveAxisYMap(translationY);
 
-	auto targetCollider = Collider(resultX - halfWidth, positionY - halfHeight, resultX + halfWidth, positionY + halfHeight);
+	auto targetCollider = Collider(resultX - halfWidth, resultY - halfHeight, resultX + halfWidth, resultY + halfHeight);
 
 	for (auto it = pixelWorld->pixelObjects.begin(); it != pixelWorld->pixelObjects.end(); it++) {
 		if (it->first == name) continue;
+
+		if (it->second->collider.IsEnablePhysics() == true) {
+			if (targetCollider.Intersect(it->second->collider) == true)
+				OnCollide(it->second);
+		}
+		else {
+			bool originState = collider.Intersect(it->second->collider);
+			bool targetState = targetCollider.Intersect(it->second->collider);
+
+			if (originState == true && targetState == false)
+				OnLeave(it->second);
+
+			if (originState == false && targetState == true)
+				OnEnter(it->second);
+		}
+	}
+
+
+	targetCollider = Collider(resultX - halfWidth, positionY - halfHeight, resultX + halfWidth, positionY + halfHeight);
+
+	for (auto it = pixelWorld->pixelObjects.begin(); it != pixelWorld->pixelObjects.end(); it++) {
+		if (it->first == name || it->second->collider.IsEnablePhysics() == false) continue;
 
 		if (targetCollider.Intersect(it->second->collider) == true) {
 			resultX = positionX;
@@ -184,7 +226,7 @@ void PixelWorldEngine::PixelObject::Move(float translationX, float translationY)
 	targetCollider = Collider(positionX - halfWidth, resultY - halfHeight, positionX + halfWidth, resultY + halfHeight);
 
 	for (auto it = pixelWorld->pixelObjects.begin(); it != pixelWorld->pixelObjects.end(); it++) {
-		if (it->first == name) continue;
+		if (it->first == name || it->second->collider.IsEnablePhysics() == false) continue;
 
 		if (targetCollider.Intersect(it->second->collider) == true) {
 			resultY = positionY;
@@ -192,10 +234,15 @@ void PixelWorldEngine::PixelObject::Move(float translationX, float translationY)
 		}
 	}
 
+	auto realTranslationX = resultX - positionX;
+	auto realTranslationY = resultY - positionY;
+
 	positionX = resultX;
 	positionY = resultY;
 
 	collider.SetArea(positionX - halfWidth, positionY - halfHeight, positionX + halfWidth, positionY + halfHeight);
+
+	OnMove(realTranslationX, realTranslationY);
 }
 
 void PixelWorldEngine::PixelObject::SetSize(float objectWidth, float objectHeight)
@@ -229,7 +276,7 @@ void PixelWorldEngine::PixelObject::SetRenderObjectID(int id)
 
 void PixelWorldEngine::PixelObject::EnableCollider(bool enable)
 {
-	collider.SetEnable(enable);
+	collider.EnablePhysics(enable);
 }
 
 auto PixelWorldEngine::PixelObject::GetWidth() -> float
@@ -239,7 +286,7 @@ auto PixelWorldEngine::PixelObject::GetWidth() -> float
 
 auto PixelWorldEngine::PixelObject::IsEnableCollider() -> bool
 {
-	return collider.IsEnable();
+	return collider.IsEnablePhysics();
 }
 
 auto PixelWorldEngine::PixelObject::GetHeight() -> float

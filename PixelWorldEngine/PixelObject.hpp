@@ -14,9 +14,9 @@ namespace PixelWorldEngine {
 	private:
 		PixelWorld * pixelWorld; //所在的世界
 
-	    /**
+		/**
 		* @brief 移动物体，只有在物体被加载到世界中去后才有效，这里只对X轴方向进行位移，且只讨论物体和地图之间的关系
-	    * @param[in] translation 物体在X方向的位移
+		* @param[in] translation 物体在X方向的位移
 		*/
 		auto MoveAxisXMap(float translation) -> float;
 
@@ -25,7 +25,7 @@ namespace PixelWorldEngine {
 		* @param[in] translation 物体在Y方向的位移
 		*/
 		auto MoveAxisYMap(float translation) -> float;
-	protected:
+	private:
 		std::string name; //物体的名称
 
 		float positionX; //物体中心点的X坐标，默认为0
@@ -40,6 +40,37 @@ namespace PixelWorldEngine {
 		int renderObjectID; //渲染物体的ID，默认为0，即不渲染
 
 		Collider collider; //碰撞盒
+
+	protected:
+		/**
+		 * @brief 更新事件
+		 * @param[in] deltaTime 距离上一次更新经过的时间，单位秒
+		 */
+		virtual void OnUpdate(float deltaTime);
+
+		/**
+		 * @brief 移动事件，位移量将会经过考虑碰撞
+		 * @param[in] translationX 在X轴的位移
+		 * @param[in] translationY 在Y轴的位移
+		 */
+		virtual void OnMove(float translationX, float translationY);
+
+		/**
+		 * @brief 当物体在移动的时候碰到其他物体的时候，将会触发
+		 * @param[in] piexlObject 碰撞到的物体
+		 */
+		virtual void OnCollide(PixelObject* piexlObject);
+
+		/**
+		 * @brief 当物体进入到另外的物体是触发，只有在物体没有开启物理碰撞的时候触发
+		 * @param[in] pixelObject 进入的物体
+		 */
+		virtual void OnEnter(PixelObject* pixelObject);
+
+		/**
+		 * @brief 当物体离开之前进入的物体的时候触发，只有在物体没有开启物理碰撞的时候触发
+		 */
+		virtual void OnLeave(PixelObject* pixelObject);
 
 		friend class PixelWorld;
 	public:

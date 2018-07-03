@@ -13,7 +13,7 @@ namespace PixelWorldEngine {
 	private:
 		RectangleF rect; //描述盒子的范围
 
-		bool isEnable; //是否启用
+		bool isEnablePhysics; //是否启用
 	public:
 		/**
 		* @brief 构造函数
@@ -41,9 +41,9 @@ namespace PixelWorldEngine {
 
 		/**
 		* @brief 是否启用物理碰撞
-		* @param[in] enable 表示物理碰撞的启用状态，true表示启用，false则表示不启用
+		* @param[in] enable 表示物理碰撞的启用状态，即是否拥有物理属性，例如无法穿过等等，true表示启用，false则表示不启用
 		*/
-		void SetEnable(bool enable);
+		void EnablePhysics(bool enable);
 
 		/**
 		* @brief 获取碰撞盒范围
@@ -55,7 +55,7 @@ namespace PixelWorldEngine {
 		* @brief 获取物理碰撞的启用状态
 		* @return 物理碰撞的启用状态
 		*/
-		auto IsEnable() -> bool;
+		auto IsEnablePhysics() -> bool;
 
 		/**
 		* @brief 检测是否和一个碰撞盒相撞
