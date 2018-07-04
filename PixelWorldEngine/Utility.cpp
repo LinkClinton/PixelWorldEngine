@@ -56,4 +56,3 @@ auto PixelWorldEngine::Utility::CountPixelFormatSize(Graphics::PixelFormat pixel
 		return 0;
 	}
 }
-

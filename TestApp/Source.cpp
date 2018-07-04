@@ -47,6 +47,7 @@ DataManager dataManager = DataManager(&application);
 WorldMap worldMap = WorldMap("Map1", 100, 100);
 Camera camera = Camera(PixelWorldEngine::RectangleF(-640, -360, 640, 360));
 PixelObject pixelObject = PixelObject("Player", 16, 16, 32, 32);
+Animator animator = Animator("Animator");
 
 void OnCollide(PixelObject* pixelObject) {
 	
@@ -56,6 +57,13 @@ void OnEnter(PixelObject* pixelObject){
 }
 void OnLeave(PixelObject* pixelObject) {
 
+}
+
+void SetRenderObjectID(void* Which, void* Data) {
+	auto which = (PixelObject*)Which;
+	auto data = *(int*)Data;
+
+	which->SetRenderObjectID(data);
 }
 
 int resolutionX = 1920;
@@ -129,7 +137,20 @@ void OnUpdate(void* sender) {
 
 int main() {
 	auto texture = dataManager.RegisterTexture("T.jpg");
-	
+
+	std::vector<KeyFrame> keyFrames;
+
+	keyFrames.push_back(KeyFrame(1, 0));
+	keyFrames.push_back(KeyFrame(2, 1));
+	keyFrames.push_back(KeyFrame(2, 2));
+
+	Animation* animation = new Animation("Animation", keyFrames);
+
+	animator.AddAnimation(&pixelObject, SetRenderObjectID, animation, 0);
+	animator.EnableRepeat(true);
+
+	animator.Run();
+
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 8; j++) {
 			textures.push_back(new Texture2D(texture, PixelWorldEngine::Rectangle(j * 64, i * 64, j * 64 + 64, i * 64 + 64)));
@@ -174,6 +195,8 @@ int main() {
 	application.KeyClick.push_back(OnKeyEvent);
 	application.Update.push_back(OnUpdate);
 	application.MouseClick.push_back(OnMouseClick);
+
+	application.RegisterAnimator(&animator);
 
 	application.MakeWindow("TestApp", 1920, 1080);
 	application.SetWorld(&pixelWorld);

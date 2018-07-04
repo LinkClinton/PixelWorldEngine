@@ -78,5 +78,4 @@ namespace PixelWorldEngine {
 		object = nullptr;
 	}
 
-
 }

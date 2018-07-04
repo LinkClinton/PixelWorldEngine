@@ -46,6 +46,8 @@ namespace PixelWorldEngine {
 		Graphics::GraphicsShader* defaultShader;
 		Graphics::StaticSampler* defaultSampler;
 
+		std::map<std::string, Animator*> animators;
+
 		PixelWorld* pixelWorld;
 
 #ifdef _WIN32
@@ -91,6 +93,7 @@ namespace PixelWorldEngine {
 		static auto ComputeMousePosition(RectangleF ViewPort, int resolutionWidth, int resolutionHeight, int x, int y) -> std::pair<int, int>;
 		
 		friend class Input;
+		friend class Animator;
 	public:
 		PixelWorldEngine::Events::MouseMoveHandlers MouseMove;
 		PixelWorldEngine::Events::MouseClickHandlers MouseClick;
@@ -115,6 +118,12 @@ namespace PixelWorldEngine {
 		void RunLoop();
 
 		void SetWorld(PixelWorld* pixelWorld);
+
+		void RegisterAnimator(Animator* animator);
+
+		void UnRegisterAnimator(Animator* animator);
+
+		void UnRegisterAnimator(std::string name);
 
 		auto GetWindowWidth() -> int;
 

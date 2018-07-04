@@ -115,6 +115,9 @@ void PixelWorldEngine::Application::OnUpdate(void * sender)
 
 	pixelWorld->OnUpdate(deltaTime);
 
+	for (auto it = animators.begin(); it != animators.end(); it++)
+		it->second->OnUpdate(deltaTime);
+
 	OnRender(sender);
 
 	Events::DoEventHandlers(Update, this);
@@ -588,6 +591,21 @@ void PixelWorldEngine::Application::RunLoop()
 void PixelWorldEngine::Application::SetWorld(PixelWorld * PixelWorld)
 {
 	pixelWorld = PixelWorld;
+}
+
+void PixelWorldEngine::Application::RegisterAnimator(Animator * animator)
+{
+	animators[animator->name] = animator;
+}
+
+void PixelWorldEngine::Application::UnRegisterAnimator(Animator * animator)
+{
+	animators.erase(animator->name);
+}
+
+void PixelWorldEngine::Application::UnRegisterAnimator(std::string name)
+{
+	animators.erase(name);
 }
 
 auto PixelWorldEngine::Application::GetWindowWidth() -> int
