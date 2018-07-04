@@ -287,7 +287,7 @@ void PixelWorldEngine::PixelObject::SetDepthLayer(int DepthLayer)
 	depthLayer = DepthLayer;
 }
 
-void PixelWorldEngine::PixelObject::EnableCollider(bool enable)
+void PixelWorldEngine::PixelObject::EnablePhysicsCollision(bool enable)
 {
 	collider.EnablePhysics(enable);
 }

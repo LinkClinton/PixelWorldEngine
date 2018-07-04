@@ -2,6 +2,7 @@
 #include "..\PixelWorldEngine\DebugLayer.hpp"
 #include "..\PixelWorldEngine\PixelWorld.hpp"
 #include "..\PixelWorldEngine\Input.hpp"
+#include "..\PixelWorldEngine\Animation.hpp"
 
 #include <iostream>
 #include <random>
@@ -48,7 +49,7 @@ Camera camera = Camera(PixelWorldEngine::RectangleF(-640, -360, 640, 360));
 PixelObject pixelObject = PixelObject("Player", 16, 16, 32, 32);
 
 void OnCollide(PixelObject* pixelObject) {
-
+	
 }
 void OnEnter(PixelObject* pixelObject){
 
@@ -162,7 +163,7 @@ int main() {
 
 	for (int i = 5; i <= 15; i++) {
 		auto object = new PixelObject(IntToString(i), i * 50, i * 50, 50, 50);
-		object->EnableCollider(false);
+		object->EnablePhysicsCollision(false);
 		object->SetDepthLayer(1);
 		object->SetRenderObjectID(20);
 		pixelWorld.RegisterPixelObject(object);

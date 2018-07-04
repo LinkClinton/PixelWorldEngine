@@ -146,10 +146,10 @@ namespace PixelWorldEngine {
 		void SetDepthLayer(int depthLayer);
 
 		/**
-		 * @brief 设置碰撞盒状态，true则为开启，false则代表关闭
-		 * @param[in] enable 碰撞盒的状态
+		 * @brief 是否允许物理碰撞，true则为开启，false则代表关闭
+		 * @param[in] enable 是否允许
 		 */
-		void EnableCollider(bool enable);
+		void EnablePhysicsCollision(bool enable);
 
 		/**
 		 * @brief 获取物体的宽度

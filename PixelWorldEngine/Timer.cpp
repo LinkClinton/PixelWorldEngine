@@ -2,30 +2,46 @@
 
 
 PixelWorldEngine::Timer::Timer() {
-	started = false;
+	lastTime = Time::now();
 }
 
 
 void PixelWorldEngine::Timer::Start() {
 	lastTime = Time::now();
-	started = true;
 }
 
-void PixelWorldEngine::Timer::End() {
-	nowTime = Time::now();
-	Time = std::chrono::duration_cast<std::chrono::duration<float>>(nowTime - lastTime);
+float PixelWorldEngine::Timer::GetTime() {	
+	auto Time = std::chrono::duration_cast<std::chrono::duration<float>>(Time::now() - lastTime);
 	
-	started = false;
-}
-
-
-bool PixelWorldEngine::Timer::GetState() {
-	return started;
-}
-
-
-float PixelWorldEngine::Timer::GetTime() {
 	return Time.count();
+}
+
+PixelWorldEngine::TimerExt::TimerExt(float startTime)
+{
+	lastPassTime = 0;
+	passTime = startTime;
+}
+
+void PixelWorldEngine::TimerExt::Reset(float startTime)
+{
+	lastPassTime = 0;
+	passTime = startTime;
+}
+
+void PixelWorldEngine::TimerExt::Pass(float PassTime)
+{
+	lastPassTime = passTime;
+	passTime += PassTime;
+}
+
+auto PixelWorldEngine::TimerExt::GetPassTime() -> float
+{
+	return passTime;
+}
+
+auto PixelWorldEngine::TimerExt::GetLastPassTime() -> float
+{
+	return lastPassTime;
 }
 
 PixelWorldEngine::FpsCounter::FpsCounter()

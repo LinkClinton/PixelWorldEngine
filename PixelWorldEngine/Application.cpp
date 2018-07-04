@@ -2,19 +2,14 @@
 
 #include "EngineDefaultResource.hpp"
 
-#ifdef _DEBUG
-
-#include <iostream>
-
-#endif // _DEBUG
-
-
 #ifdef _WIN32
 
 #define KEYDOWN(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
 #define KEYUP(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 0 : 1)
 
 PixelWorldEngine::Application* self;
+
+bool isCreate = false;
 
 LRESULT PixelWorldEngine::Application::DefaultWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -112,13 +107,13 @@ void PixelWorldEngine::Application::OnSizeChange(void * sender, PixelWorldEngine
 
 void PixelWorldEngine::Application::OnUpdate(void * sender)
 {
-	if (timer.GetState() == true)
-		timer.End();
+	deltaTime = timer.GetTime();
+
 	timer.Start();
 
-	fpsCounter.Update(GetDeltaTime());
+	fpsCounter.Update(deltaTime);
 
-	pixelWorld->OnUpdate(GetDeltaTime());
+	pixelWorld->OnUpdate(deltaTime);
 
 	OnRender(sender);
 
@@ -369,6 +364,8 @@ auto PixelWorldEngine::Application::ComputeMousePosition(RectangleF ViewPort, in
 
 PixelWorldEngine::Application::Application(std::string ApplicationName)
 {
+	DebugLayer::Assert(isCreate, Error::MoreThanOneInstance);
+
 	applicationName = ApplicationName;
 
 	graphics = new Graphics::Graphics();
@@ -380,6 +377,8 @@ PixelWorldEngine::Application::Application(std::string ApplicationName)
 		Utility::CharArrayToVector((char*)psApplicationDefaultShaderCode));
 
 	defaultSampler = new Graphics::StaticSampler(graphics);
+
+	isCreate = true;
 
 #ifdef _WIN32
 	ImmDisableIME(0);
@@ -608,7 +607,7 @@ auto PixelWorldEngine::Application::GetFramePerSecond() -> int
 
 auto PixelWorldEngine::Application::GetDeltaTime() -> float
 {
-	return timer.GetTime();
+	return deltaTime;
 }
 
 auto PixelWorldEngine::Application::GetGraphics() -> Graphics::Graphics *

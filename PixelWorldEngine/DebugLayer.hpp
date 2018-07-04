@@ -5,10 +5,18 @@
 namespace PixelWorldEngine {
 
 	enum class Error {
+		//There are more than one instance.
 		MoreThanOneInstance,
+		//The data is null.
 		TheDataIsNull,
+		//The shader was compiled failed. Code : %s
 		ShaderCompiledFailed,
+		//The file (%s) format is not supported.
 		FormatIsNotSupported,
+		//The animation (%s) need two frames at least.
+		NeedMoreThanOneFrame,
+		//We can not add the animation (%s) into animator (%s) when the animator is running.
+		CanNotAddAnimationWhenAnimatorRun,
 		Count
 	};
 
@@ -16,7 +24,9 @@ namespace PixelWorldEngine {
 		"There are more than one instance.",
 		"The data is null.",
 		"The shader was compiled failed. Code : %s",
-		"The file (%s) format is not supported."
+		"The file (%s) format is not supported.",
+		"The animation (%s) need two frames at least.",
+		"We can not add the animation (%s) into animator (%s) when the animator is running."
 	};
 
 	class DebugLayer {

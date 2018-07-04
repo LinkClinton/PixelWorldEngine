@@ -11,6 +11,8 @@
 #include "Timer.hpp"
 #include "PixelWorld.hpp"
 
+#include "Animation.hpp"
+
 namespace PixelWorldEngine {
 
 	class Application {
@@ -31,6 +33,8 @@ namespace PixelWorldEngine {
 
 		int mousePositionXRelative;
 		int mousePositionYRelative;
+
+		float deltaTime;
 
 		Timer timer;
 		FpsCounter fpsCounter;

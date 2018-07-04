@@ -39,22 +39,22 @@ Texture2D Texture3 : register(t3);
 
 SamplerState sampler0 : register(s0);
 
-static const float eps = 0.00001f;
-
 float4 main(OutputData input) : SV_TARGET
 {
     if (renderObjectID[0] != 0)
     {
         float4 result = Texture0.Sample(sampler0, input.tex0);
 
-        if (result.a >= eps) return result;
+		if (result.a > 0) 
+			return result;
+
     }
 
     if (renderObjectID[1] != 0)
     {
         float4 result = Texture1.Sample(sampler0, input.tex0);
 
-        if (result.a >= eps)
+        if (result.a > 0)
             return result;
     }
 
@@ -62,7 +62,7 @@ float4 main(OutputData input) : SV_TARGET
     {
         float4 result = Texture2.Sample(sampler0, input.tex0);
 
-        if (result.a >= eps)
+        if (result.a > 0)
             return result;
     }
 
@@ -70,9 +70,11 @@ float4 main(OutputData input) : SV_TARGET
     {
         float4 result = Texture3.Sample(sampler0, input.tex0);
 
-        if (result.a >= eps)
+        if (result.a > 0)
             return result;
     }   
     
+    clip(-1);
+
     return float4(0, 0, 0, 0);
 }

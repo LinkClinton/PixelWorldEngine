@@ -12,9 +12,6 @@ namespace PixelWorldEngine {
 	class Timer {
 	private:
 		Time::time_point lastTime; //上次计时的时间
-		Time::time_point nowTime;  //现在的时间
-		std::chrono::duration<float> Time; //前面两者相差的时间
-		bool started; //计时器状态
 	public:
 		/**
 		 * @brief 构造函数
@@ -27,19 +24,48 @@ namespace PixelWorldEngine {
 		void  Start();
 
 		/**
-		 * @brief 结束计时
-		 */
-		void  End();
-
-		/**
-		 * @brief 获取计时器状态，表示计时器是否在运行
-		 */
-		bool  GetState();
-
-		/**
-		 * @brief 获取上次开始到上次结束经过的时间，单位秒
+		 * @brief 获取现在到开始的时间间隔，单位秒
 		 */
 		float GetTime();
+	};
+
+	/**
+	 * @brief 另一种计时器
+	 */
+	class TimerExt {
+	private:
+		float passTime; //经过的时间
+		float lastPassTime; //上次使用Pass经过的时间
+	public:
+		/**
+		 * @brief 构造函数
+		 * @param[in] startTime 开始的时间
+		 */
+		TimerExt(float startTime = 0);
+
+		/**
+		 * @brief 重置
+		 * @param[in] startTime 开始的时间
+		 */
+		void Reset(float startTime = 0);
+
+		/**
+		 * @brief 经过一段时间
+		 * @param[in] passTime 经过的时间
+		 */
+		void Pass(float passTime);
+
+		/**
+		 * @brief 获取经过的时间
+		 * @return 经过的时间
+		 */
+		auto GetPassTime() -> float;
+		
+		/**
+		 * @brief 获取上次经过的时间
+		 * @return 上次使用Pass经过的时间
+		 */
+		auto GetLastPassTime() -> float;
 	};
 
 	/**
