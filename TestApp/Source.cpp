@@ -140,11 +140,12 @@ int main() {
 
 	std::vector<KeyFrame> keyFrames;
 
-	keyFrames.push_back(KeyFrame(1, 0));
-	keyFrames.push_back(KeyFrame(2, 1));
-	keyFrames.push_back(KeyFrame(2, 2));
+	Animation* animation = new Animation("Animation");
+	animation->SetKeyFrame(1, 0);
+	animation->SetKeyFrame(2, 1);
+	animation->SetKeyFrame(2, 2);
 
-	Animation* animation = new Animation("Animation", keyFrames);
+	animation->Sort();
 
 	animator.AddAnimation(&pixelObject, SetRenderObjectID, animation, 0);
 	animator.EnableRepeat(true);

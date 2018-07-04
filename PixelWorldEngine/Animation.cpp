@@ -3,11 +3,9 @@
 #include "DebugLayer.hpp"
 #include "Application.hpp"
 
-PixelWorldEngine::KeyFrame::KeyFrame()
+void PixelWorldEngine::KeyFrame::Destory()
 {
-	data = nullptr;
-
-	timePos = 0;
+	Utility::Delete(data);
 }
 
 void PixelWorldEngine::KeyFrame::SetTimePos(float TimePos)
@@ -20,9 +18,9 @@ auto PixelWorldEngine::KeyFrame::GetTimePos() -> float
 	return timePos;
 }
 
-bool PixelWorldEngine::KeyFrame::Compare(KeyFrame frame1, KeyFrame frame2)
+bool PixelWorldEngine::KeyFrame::operator<(KeyFrame keyFrame) const
 {
-	return frame1.timePos < frame2.timePos;
+	return timePos < keyFrame.timePos;
 }
 
 auto PixelWorldEngine::Animation::DefaultProcessUnit(float timePos, KeyFrame lastFrame, KeyFrame nextFrame) -> KeyFrame
@@ -31,23 +29,28 @@ auto PixelWorldEngine::Animation::DefaultProcessUnit(float timePos, KeyFrame las
 	return lastFrame;
 }
 
-PixelWorldEngine::Animation::Animation(std::string Name, std::vector<KeyFrame> KeyFrames)
+PixelWorldEngine::Animation::Animation(std::string Name)
 {
 	name = Name;
-
-	keyFrames = KeyFrames;
-
-	DebugLayer::Assert(keyFrames.size() < 2, Error::NeedMoreThanOneFrame, name);
-
-	std::sort(keyFrames.begin(), keyFrames.end(), KeyFrame::Compare);
 
 	frameProcessUnit = DefaultProcessUnit;
 }
 
-PixelWorldEngine::Animation::Animation(std::string Name, std::vector<KeyFrame> KeyFrames, FrameProcessUnit FrameProcessUnit)
-	:Animation(Name, KeyFrames)
+PixelWorldEngine::Animation::Animation(std::string Name, FrameProcessUnit FrameProcessUnit)
+	:Animation(Name)
 {
 	frameProcessUnit = FrameProcessUnit;
+}
+
+PixelWorldEngine::Animation::~Animation()
+{
+	for (size_t i = 0; i < keyFrames.size(); i++) 
+		keyFrames[i].Destory();
+}
+
+void PixelWorldEngine::Animation::Sort()
+{
+	std::sort(keyFrames.begin(), keyFrames.end());
 }
 
 void PixelWorldEngine::Animation::SetFrameProcessUnit(FrameProcessUnit FrameProcessUnit)
