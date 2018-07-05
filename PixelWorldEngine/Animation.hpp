@@ -79,7 +79,7 @@ namespace PixelWorldEngine {
 	typedef std::function<KeyFrame(float, KeyFrame, KeyFrame)> FrameProcessUnit;
 
 	/**
-	 * @brief 动画类型，请使用指针构建，且请保证在运行动画的时候至少有两个关键帧
+	 * @brief 动画类型，请使用指针构建，且请保证在运行动画的时候至少有两个关键帧，注意当前时间点没有比它小的关键帧
 	 */
 	class Animation {
 	private:
