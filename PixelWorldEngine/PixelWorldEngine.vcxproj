@@ -41,6 +41,7 @@
     <ClInclude Include="ShaderResource.hpp" />
     <ClInclude Include="StaticSampler.hpp" />
     <ClInclude Include="Timer.hpp" />
+    <ClInclude Include="UIObject.hpp" />
     <ClInclude Include="Utility.hpp" />
     <ClInclude Include="WorldMap.hpp" />
     <ClInclude Include="PixelObject.hpp" />
@@ -64,6 +65,7 @@
     <ClCompile Include="ShaderResource.cpp" />
     <ClCompile Include="StaticSampler.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="UIObject.cpp" />
     <ClCompile Include="Utility.cpp" />
     <ClCompile Include="WorldMap.cpp" />
   </ItemGroup>

@@ -12,6 +12,8 @@
 #include "Utility.hpp"
 #include "Camera.hpp"
 
+#include "UIObject.hpp"
+
 namespace PixelWorldEngine {
 
 	/**
@@ -68,8 +70,10 @@ namespace PixelWorldEngine {
 	
 		std::map<std::string, WorldMap*> worldMaps; //存储世界的地图
 		std::map<std::string, PixelObject*> pixelObjects; //存储世界的物体
+		std::map<std::string, UIObject*> UIObjects; //存储UI物体
 		
 		std::multiset<PixelObject*, PixelObjectCompare> pixelObjectLayer;//存储不同层的PixelObject
+		std::multiset<UIObject*, UIObjectCompare> UIObjectLayer; //存储不同层的UIObject
 
 		friend class PixelObject;
 		friend class Application;
@@ -79,6 +83,21 @@ namespace PixelWorldEngine {
 		 * @param[in] deltaTime 距离上一次更新的时间
 		 */
 		void OnUpdate(float deltaTime);
+
+		/**
+		 * @brief 渲染世界的地图，作为GetCurrentWorld的子部分
+		 */
+		void RenderWorldMap();
+
+		/**
+		 * @brief 渲染像素物体，作为GetCurrentWorld的子部分
+		 */
+		void RenderPixelObjects();
+
+		/**
+		 * @brief 渲染UI物体，作为GetCurrentWorld的子部分
+		 */
+		void RenderUIObjects();
 	public:
 		/**
 		 * @brief 构造函数
@@ -162,7 +181,6 @@ namespace PixelWorldEngine {
 		 */
 		void RegisterPixelObject(PixelObject* pixelObject);
 
-
 		/**
 		 * @brief 取消注册物体，物体将会从世界中移除
 		 * @param[in] pixelObject 要被取消注册的物体
@@ -174,6 +192,24 @@ namespace PixelWorldEngine {
 		 * @param[in] objectName 要被取消注册的物体的名字
 		 */
 		void UnRegisterPixelObject(std::string objectName);
+
+		/**
+		 * @brief 注册UI物体，可以注册进入到多个世界
+		 * @param[in] object 物体
+		 */
+		void RegisterUIObject(UIObject* object);
+
+		/**
+		 * @brief 取消注册物体
+		 * @param[in] object 物体
+		 */
+		void UnRegisterUIObject(UIObject* object);
+
+		/**
+		 * @brief 取消注册物体
+		 * @param[in] object 物体的名字
+		 */
+		void UnRegisterUIObject(std::string name);
 
 		/**
 		 * @brief 获取当前的世界地图

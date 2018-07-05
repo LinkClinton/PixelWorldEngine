@@ -137,20 +137,9 @@ void OnUpdate(void* sender) {
 
 int main() {
 	auto texture = dataManager.RegisterTexture("T.jpg");
+	auto texture1 = dataManager.RegisterTexture("P.png");
 
-	std::vector<KeyFrame> keyFrames;
-
-	Animation* animation = new Animation("Animation");
-	animation->SetKeyFrame(1, 0);
-	animation->SetKeyFrame(2, 1);
-	animation->SetKeyFrame(2, 2);
-
-	animation->Sort();
-
-	animator.AddAnimation(&pixelObject, SetRenderObjectID, animation, 0);
-	animator.EnableRepeat(true);
-
-	animator.Run();
+	pixelWorld.RegisterRenderObjectID(-1, texture1);
 
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 8; j++) {
@@ -175,7 +164,7 @@ int main() {
 	camera.SetFocus(pixelObject.GetPositionX(), pixelObject.GetPositionY(),
 		PixelWorldEngine::RectangleF(640, 360, 640, 360));
 
-	pixelObject.SetRenderObjectID(23);
+	pixelObject.SetRenderObjectID(-1);
 	pixelObject.Collide.push_back(OnCollide);
 	pixelObject.Enter.push_back(OnEnter);
 	pixelObject.Leave.push_back(OnLeave);

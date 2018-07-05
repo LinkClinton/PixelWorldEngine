@@ -147,27 +147,31 @@ void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(std::string objectName)
 	pixelObjects.erase(objectName);
 }
 
+void PixelWorldEngine::PixelWorld::RegisterUIObject(UIObject * object)
+{
+	UIObjects[object->name] = object;
+	UIObjectLayer.insert(object);
+}
+
+void PixelWorldEngine::PixelWorld::UnRegisterUIObject(UIObject * object)
+{
+	UIObjects.erase(object->name);
+	UIObjectLayer.erase(object);
+}
+
+void PixelWorldEngine::PixelWorld::UnRegisterUIObject(std::string name)
+{
+	UIObjectLayer.erase(UIObjects[name]);
+	UIObjects.erase(name);
+}
+
 auto PixelWorldEngine::PixelWorld::GetWorldMap() -> WorldMap *
 {
 	return worldMap;
 }
 
-auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
+void PixelWorldEngine::PixelWorld::RenderWorldMap()
 {
-	renderTarget->Clear(backGroundColor[0], backGroundColor[1], backGroundColor[2], backGroundColor[3]);
-
-	graphics->ClearState();
-
-	graphics->SetRenderTarget(renderTarget);
-
-	graphics->SetViewPort(RectangleF(0.f, 0.f, (float)resolutionWidth, (float)resolutionHeight));
-
-	graphics->SetShader(shader);
-
-	graphics->SetVertexBuffer(renderObject->GetVertexBuffer());
-	graphics->SetIndexBuffer(renderObject->GetIndexBuffer());
-
-
 	auto viewRect = camera->GetRectangle();
 	auto renderObjectRect = Rectangle();
 	auto matrix = camera->GetMatrix();
@@ -217,7 +221,10 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 			}
 		}
 	}
+}
 
+void PixelWorldEngine::PixelWorld::RenderPixelObjects()
+{
 	memset(renderConfig.currentRenderObjectID, 0, sizeof(renderConfig.currentRenderObjectID));
 	renderConfig.renderOpacity = 1.0f;
 
@@ -244,6 +251,40 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 
 		graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount());
 	}
+}
+
+void PixelWorldEngine::PixelWorld::RenderUIObjects()
+{
+	memset(renderConfig.currentRenderObjectID, 0, sizeof(renderConfig.currentRenderObjectID));
+	renderConfig.renderOpacity = 1.0f;
+
+	for (auto it = UIObjectLayer.begin(); it != UIObjectLayer.end(); it++) {
+		auto UIObject = *it;
+
+
+	}
+}
+
+auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
+{
+	renderTarget->Clear(backGroundColor[0], backGroundColor[1], backGroundColor[2], backGroundColor[3]);
+
+	graphics->ClearState();
+
+	graphics->SetRenderTarget(renderTarget);
+
+	graphics->SetViewPort(RectangleF(0.f, 0.f, (float)resolutionWidth, (float)resolutionHeight));
+
+	graphics->SetShader(shader);
+
+	graphics->SetVertexBuffer(renderObject->GetVertexBuffer());
+	graphics->SetIndexBuffer(renderObject->GetIndexBuffer());
+
+	RenderWorldMap();
+
+	RenderPixelObjects();
+
+	RenderUIObjects();
 
 	return renderBuffer;
 }
