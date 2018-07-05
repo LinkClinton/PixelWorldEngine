@@ -35,6 +35,8 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 	worldMap = nullptr;
 
 	SetShader();
+
+	SetBackGroundColor(0, 0, 0, 1);
 }
 
 PixelWorldEngine::PixelWorld::~PixelWorld()
@@ -65,6 +67,14 @@ void PixelWorldEngine::PixelWorld::SetResolution(int width, int height)
 	renderTarget = new Graphics::RenderTarget(graphics, renderBuffer);
 
 	renderCanvas = new Graphics::RectangleF(0, 0, (float)width, (float)height, graphics);
+}
+
+void PixelWorldEngine::PixelWorld::SetBackGroundColor(float red, float green, float blue, float alpha)
+{
+	backGroundColor[0] = red;
+	backGroundColor[1] = green;
+	backGroundColor[2] = blue;
+	backGroundColor[3] = alpha;
 }
 
 void PixelWorldEngine::PixelWorld::SetCamera(Camera* Camera)
@@ -144,7 +154,7 @@ auto PixelWorldEngine::PixelWorld::GetWorldMap() -> WorldMap *
 
 auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 {
-	renderTarget->Clear(0, 0, 0);
+	renderTarget->Clear(backGroundColor[0], backGroundColor[1], backGroundColor[2], backGroundColor[3]);
 
 	graphics->ClearState();
 
@@ -167,6 +177,8 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 	graphics->SetStaticSampler(defaultSampler, 0);
 	graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
 
+	graphics->SetBlendState(true);
+
 	if (worldMap != nullptr) {
 		auto mapBlockSize = worldMap->GetMapBlockSize();
 
@@ -188,6 +200,7 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 				auto mapData = worldMap->GetMapData(x, y);
 
 				memcpy(renderConfig.currentRenderObjectID, mapData->RenderObjectID, sizeof(mapData->RenderObjectID));
+				renderConfig.renderOpacity = mapData->Opacity;
 
 				buffers[(int)BufferIndex::TransformBuffer]->Update(&matrix);
 				buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
@@ -206,6 +219,7 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 	}
 
 	memset(renderConfig.currentRenderObjectID, 0, sizeof(renderConfig.currentRenderObjectID));
+	renderConfig.renderOpacity = 1.0f;
 
 	for (auto it = pixelObjectLayer.begin(); it != pixelObjectLayer.end(); it++) {
 		auto pixelObject = *it;
@@ -218,6 +232,7 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 		matrix = glm::scale(matrix, glm::vec3(pixelObject->width, pixelObject->height, 1.f));
 
 		renderConfig.currentRenderObjectID[0] = pixelObject->renderObjectID;
+		renderConfig.renderOpacity = pixelObject->opacity;
 
 		buffers[(int)BufferIndex::TransformBuffer]->Update(&matrix);
 		buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);

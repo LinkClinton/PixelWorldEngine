@@ -26,7 +26,9 @@ namespace PixelWorldEngine {
 
 	struct PixelWorldRenderConfig {
 		int currentRenderObjectID[MAX_RENDER_OBJECT];
-		glm::vec4 unused[3];
+		float renderOpacity;
+		glm::vec3 unused0;
+		glm::vec4 unused1[2];
 	};
 
 	/**
@@ -42,6 +44,8 @@ namespace PixelWorldEngine {
 		PixelWorldRenderConfig renderConfig; //渲染设置数据
 
 		Camera* camera; //摄像机
+
+		float backGroundColor[4]; //背景颜色
 
 		Graphics::Graphics* graphics; //...
 
@@ -94,6 +98,15 @@ namespace PixelWorldEngine {
 		 * @param[in] height 分辨率的高度
 		 */
 		void SetResolution(int width, int height);
+
+		/**
+		 * @brief 设置背景颜色
+		 * @param[in] red 分量
+		 * @param[in] green 分量
+		 * @param[in] blue 分量
+		 * @param[in] alpha 分量
+		 */
+		void SetBackGroundColor(float red, float green, float blue, float alpha);
 
 		/**
 		 * @brief 设置我们使用的摄像机

@@ -52,6 +52,8 @@ namespace PixelWorldEngine {
 		float halfWidth; //物体宽度的一半，默认为0.5f
 		float halfHeight; //物体高度的一半，默认为0.5f
 
+		float opacity; //不透明度
+
 		int renderObjectID; //渲染物体的ID，默认为0，即不渲染
 		int depthLayer; //物体的所在的深度层，默认为0，深度较大的会覆盖深度较小的
 
@@ -146,6 +148,12 @@ namespace PixelWorldEngine {
 		void SetDepthLayer(int depthLayer);
 
 		/**
+		 * @brief 设置不透明度
+		 * @param[in] opacity 不透明度
+		 */
+		void SetOpacity(float opacity);
+
+		/**
 		 * @brief 是否允许物理碰撞，true则为开启，false则代表关闭
 		 * @param[in] enable 是否允许
 		 */
@@ -192,6 +200,12 @@ namespace PixelWorldEngine {
 		 * @return 深度层
 		 */
 		auto GetDepthLayer() -> int;
+
+		/**
+		 * @brief 获取不透明度
+		 * @return 不透明度
+		 */
+		auto GetOpacity() -> float;
 
 		/**
 		 * @brief 获取物体的名字

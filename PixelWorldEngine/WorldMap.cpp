@@ -1,5 +1,14 @@
 #include "WorldMap.hpp"
 
+PixelWorldEngine::MapData::MapData()
+{
+	memset(RenderObjectID, 0, sizeof(RenderObjectID));
+
+	MoveEnable = true;
+
+	Opacity = 1.f;
+}
+
 PixelWorldEngine::WorldMap::WorldMap(std::string name, int Width, int Height, float MapBlockSize, MapData ** data)
 {
 	mapName = name;

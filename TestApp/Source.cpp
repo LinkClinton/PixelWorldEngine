@@ -53,10 +53,10 @@ void OnCollide(PixelObject* pixelObject) {
 	
 }
 void OnEnter(PixelObject* pixelObject){
-
+	pixelObject->SetOpacity(0.5f);
 }
 void OnLeave(PixelObject* pixelObject) {
-
+	pixelObject->SetOpacity(1.f);
 }
 
 void SetRenderObjectID(void* Which, void* Data) {
@@ -166,6 +166,7 @@ int main() {
 			auto mapData = new MapData();
 			mapData->MoveEnable = true;
 			mapData->RenderObjectID[0] = 18;
+			mapData->Opacity = 1.f;
 			worldMap.SetMapData(i, j, mapData);
 		}
 

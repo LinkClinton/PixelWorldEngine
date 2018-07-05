@@ -163,7 +163,7 @@ void PixelWorldEngine::Graphics::Graphics::SetShaderResources(std::vector<Shader
 
 	std::vector<ID3D11ShaderResourceView*> resourceViews(shaderResource.size());
 
-	for (size_t i = 0; i < shaderResource.size(); i++) 
+	for (size_t i = 0; i < shaderResource.size(); i++)
 		resourceViews[i] = shaderResource[i]->resourceView;
 
 	deviceContext->VSSetShaderResources(startID, shaderResource.size(), &resourceViews[0]);
@@ -204,8 +204,6 @@ void PixelWorldEngine::Graphics::Graphics::SetRenderTarget(RenderTarget* renderT
 
 void PixelWorldEngine::Graphics::Graphics::SetFillMode(FillMode FillMode)
 {
-	if (fillMode == FillMode) return;
-
 	fillMode = FillMode;
 
 #ifdef _WIN32
@@ -222,8 +220,6 @@ void PixelWorldEngine::Graphics::Graphics::SetFillMode(FillMode FillMode)
 
 void PixelWorldEngine::Graphics::Graphics::SetBlendState(bool state)
 {
-	if (blendEnable == state) return;
-	
 	blendEnable = state;
 
 #ifdef _WIN32

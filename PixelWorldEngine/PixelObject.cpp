@@ -181,6 +181,8 @@ PixelWorldEngine::PixelObject::PixelObject(std::string Name, float PositionX, fl
 	halfHeight = height * 0.5f;
 	
 	renderObjectID = 0;
+	depthLayer = 0;
+	opacity = 1.0f;
 
 	collider.SetArea(positionX - halfWidth, positionY - halfHeight, positionX + halfWidth, positionY + halfHeight);
 }
@@ -287,6 +289,11 @@ void PixelWorldEngine::PixelObject::SetDepthLayer(int DepthLayer)
 	depthLayer = DepthLayer;
 }
 
+void PixelWorldEngine::PixelObject::SetOpacity(float Opacity)
+{
+	opacity = Opacity;
+}
+
 void PixelWorldEngine::PixelObject::EnablePhysicsCollision(bool enable)
 {
 	collider.EnablePhysics(enable);
@@ -325,6 +332,11 @@ auto PixelWorldEngine::PixelObject::GetRenderObjectID() -> int
 auto PixelWorldEngine::PixelObject::GetDepthLayer() -> int
 {
 	return depthLayer;
+}
+
+auto PixelWorldEngine::PixelObject::GetOpacity() -> float
+{
+	return opacity;
 }
 
 auto PixelWorldEngine::PixelObject::GetName() -> std::string
