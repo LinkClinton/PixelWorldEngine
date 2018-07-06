@@ -19,6 +19,12 @@ namespace PixelWorldEngine {
 			u0 = u;
 			v0 = v;
 		}
+
+		Vertex() {
+			x = y = z = 0;
+			red = green = blue = alpha = 0;
+			u0 = v0 = 0;
+		}
 	};
 
 	struct RectangleF {

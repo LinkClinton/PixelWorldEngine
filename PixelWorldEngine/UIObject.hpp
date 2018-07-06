@@ -21,8 +21,8 @@ namespace PixelWorldEngine {
 
 		float opacity; //不透明度，默认为1
 
-		float borderWidth; //边界宽度，注意其总宽度不会变，因此除非宽度为0，否则真实纹理渲染范围会比真实范围小，默认为1
-		float borderColor[4]; //边界颜色，默认为 (0, 0, 0, 1)
+		float borderWidth; //边界宽度，注意其总宽度不会变，因此除非宽度为0，否则真实纹理渲染范围会比真实范围小，默认为0
+		float borderColor[3]; //边界颜色，默认为 (0, 0, 0)
 
 		int renderObjectID; //渲染ID，默认为0
 		int depthLayer; //深度层，默认为0
@@ -50,7 +50,7 @@ namespace PixelWorldEngine {
 		 * @param[in] blue 蓝色分量
 		 * @param[in] alpha alpha分量
 		 */
-		void SetBorderColor(float red = 0.0f, float green = 0.0f, float blue = 0.0f, float alpha = 1.0f);
+		void SetBorderColor(float red = 0.0f, float green = 0.0f, float blue = 0.0f);
 
 		/**
 		 * @brief 设置位置
@@ -98,7 +98,7 @@ namespace PixelWorldEngine {
 
 		/**
 		 * @brief 设置边界宽度
-		 * @param[in] width 边界宽度，默认为1
+		 * @param[in] width 边界宽度，默认为0
 		 */
 		void SetBorderWidth(float width);
 

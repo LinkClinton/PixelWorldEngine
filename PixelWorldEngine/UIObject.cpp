@@ -12,18 +12,17 @@ PixelWorldEngine::UIObject::UIObject(std::string Name, float PositionX, float Po
 
 	opacity = 1.0f;
 
-	borderWidth = 1.0f;
+	borderWidth = 0;
 
 	renderObjectID = 0;
 	depthLayer = 0;
 }
 
-void PixelWorldEngine::UIObject::SetBorderColor(float red, float green, float blue, float alpha)
+void PixelWorldEngine::UIObject::SetBorderColor(float red, float green, float blue)
 {
 	borderColor[0] = red;
 	borderColor[1] = green;
 	borderColor[2] = blue;
-	borderColor[3] = alpha;
 }
 
 void PixelWorldEngine::UIObject::SetPosition(float PositionX, float PositionY)

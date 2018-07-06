@@ -47,6 +47,8 @@ DataManager dataManager = DataManager(&application);
 WorldMap worldMap = WorldMap("Map1", 100, 100);
 Camera camera = Camera(PixelWorldEngine::RectangleF(-640, -360, 640, 360));
 PixelObject pixelObject = PixelObject("Player", 16, 16, 32, 32);
+UIObject object = UIObject("UIObject", 100, 100, 1280, 720);
+UIObject object2 = UIObject("UIObject2", 100, 100, 100, 100);
 Animator animator = Animator("Animator");
 
 void OnCollide(PixelObject* pixelObject) {
@@ -113,7 +115,7 @@ void OnUpdate(void* sender) {
 		}
 	}
 
-	float speed = 100 * deltaTime;
+	float speed = 200 * deltaTime;
 	bool isKeyDown = false;
 
 	glm::vec2 transform(0, 0);
@@ -169,12 +171,23 @@ int main() {
 	pixelObject.Enter.push_back(OnEnter);
 	pixelObject.Leave.push_back(OnLeave);
 
+	object.SetBorderColor(1, 0, 0);
+	object.SetBorderWidth(1);
+
+	object2.SetBorderColor(0, 1, 0);
+	object2.SetBorderWidth(1);
+
+	object.RegisterUIObject(&object2);
+
 	pixelWorld.SetResolution(1920, 1080);
 	pixelWorld.SetCamera(&camera);
+
+	pixelWorld.RegisterUIObject(&object);
+
 	pixelWorld.RegisterPixelObject(&pixelObject);
 
 	for (int i = 5; i <= 15; i++) {
-		auto object = new PixelObject(IntToString(i), i * 50, i * 50, 50, 50);
+		auto object = new PixelObject(IntToString(i), i * 50.0f, i * 50.0f, 50, 50);
 		object->EnablePhysicsCollision(false);
 		object->SetDepthLayer(1);
 		object->SetRenderObjectID(20);

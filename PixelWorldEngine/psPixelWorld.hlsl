@@ -29,7 +29,7 @@ cbuffer Transform : register(b1)
 cbuffer RenderObjectID : register(b2)
 {
     int4 renderObjectID;
-    float1 renderOpacity;
+    float4 renderColor;
 };
 
 Texture2D Texture0 : register(t0);
@@ -41,13 +41,16 @@ SamplerState sampler0 : register(s0);
 
 float4 main(OutputData input) : SV_TARGET
 {
+    if (renderObjectID[0] == 0 && renderObjectID[1] == 0 && renderObjectID[2] == 0 && renderObjectID[3] == 0)
+        return renderColor;
+
     if (renderObjectID[0] != 0)
     {
         float4 result = Texture0.Sample(sampler0, input.tex0);
 
         if (result.a > 0)
         {
-            result.a = renderOpacity;
+            result.a = renderColor.a;
             return result;
         }
 
@@ -59,7 +62,7 @@ float4 main(OutputData input) : SV_TARGET
 
         if (result.a > 0)
         {
-            result.a = renderOpacity;
+            result.a = renderColor.a;
             return result;
         }
     }
@@ -70,7 +73,7 @@ float4 main(OutputData input) : SV_TARGET
 
         if (result.a > 0)
         {
-            result.a = renderOpacity;
+            result.a = renderColor.a;
             return result;
         }
     }
@@ -81,10 +84,10 @@ float4 main(OutputData input) : SV_TARGET
 
         if (result.a > 0)
         {
-            result.a = renderOpacity;
+            result.a = renderColor.a;
             return result;
         }
-    }   
+    }
     
     clip(-1);
 

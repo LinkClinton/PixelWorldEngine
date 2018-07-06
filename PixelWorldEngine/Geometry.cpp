@@ -52,4 +52,3 @@ PixelWorldEngine::Graphics::RectangleF::RectangleF(float left, float top, float 
 	vertexBuffer = new Buffer(graphics, vertics, sizeof(vertics), 4, BufferType::VertexBuffer);
 	indexBuffer = new Buffer(graphics, indices, sizeof(indices), 6, BufferType::IndexBuffer);
 }
-

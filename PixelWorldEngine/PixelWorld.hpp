@@ -27,9 +27,8 @@ namespace PixelWorldEngine {
 	};
 
 	struct PixelWorldRenderConfig {
-		int currentRenderObjectID[MAX_RENDER_OBJECT];
-		float renderOpacity;
-		glm::vec3 unused0;
+		int renderObjectID[MAX_RENDER_OBJECT];
+		glm::vec4 renderColor;
 		glm::vec4 unused1[2];
 	};
 
@@ -46,6 +45,7 @@ namespace PixelWorldEngine {
 		PixelWorldRenderConfig renderConfig; //渲染设置数据
 
 		Camera* camera; //摄像机
+		Camera UICamera; //UI摄像机
 
 		float backGroundColor[4]; //背景颜色
 
@@ -93,6 +93,8 @@ namespace PixelWorldEngine {
 		 * @brief 渲染像素物体，作为GetCurrentWorld的子部分
 		 */
 		void RenderPixelObjects();
+
+		void RenderUIObject(glm::mat4x4 baseTranslation, UIObject* object);
 
 		/**
 		 * @brief 渲染UI物体，作为GetCurrentWorld的子部分
