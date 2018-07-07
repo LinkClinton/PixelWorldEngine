@@ -68,6 +68,9 @@ void PixelWorldEngine::Application::OnMouseMove(void * sender, PixelWorldEngine:
 	eventArg->y = mousePositionYRelative;
 
 	Events::DoEventHandlers(MouseMove, this, eventArg);
+
+	if (pixelWorld != nullptr)
+		pixelWorld->OnMouseMove(pixelWorld, eventArg);
 }
 
 void PixelWorldEngine::Application::OnMouseWheel(void * sender, PixelWorldEngine::Events::MouseWheelEvent * eventArg)
@@ -76,6 +79,9 @@ void PixelWorldEngine::Application::OnMouseWheel(void * sender, PixelWorldEngine
 	eventArg->y = mousePositionYRelative;
 
 	Events::DoEventHandlers(MouseWheel, this, eventArg);
+
+	if (pixelWorld != nullptr)
+		pixelWorld->OnMouseWheel(pixelWorld, eventArg);
 }
 
 void PixelWorldEngine::Application::OnMouseClick(void * sender, PixelWorldEngine::Events::MouseClickEvent * eventArg)
@@ -84,11 +90,17 @@ void PixelWorldEngine::Application::OnMouseClick(void * sender, PixelWorldEngine
 	eventArg->y = mousePositionYRelative;
 
 	Events::DoEventHandlers(MouseClick, this, eventArg);
+
+	if (pixelWorld != nullptr)
+		pixelWorld->OnMouseClick(pixelWorld, eventArg);
 }
 
 void PixelWorldEngine::Application::OnKeyClick(void * sender, PixelWorldEngine::Events::KeyClickEvent * eventArg)
 {
 	Events::DoEventHandlers(KeyClick, this, eventArg);
+
+	if (pixelWorld != nullptr)
+		pixelWorld->OnKeyClick(pixelWorld, eventArg);
 }
 
 void PixelWorldEngine::Application::OnSizeChange(void * sender, PixelWorldEngine::Events::SizeChangeEvent * eventArg)

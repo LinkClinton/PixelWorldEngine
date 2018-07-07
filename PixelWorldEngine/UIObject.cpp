@@ -1,6 +1,28 @@
 #include "UIObject.hpp"
 #include "PixelWorld.hpp"
 
+auto PixelWorldEngine::UIObject::CreateTransformMatrix(UIObject * object) -> glm::mat4x4
+{
+	glm::mat4x4 transformMatrix = glm::mat4(1);
+
+	transformMatrix = glm::translate(glm::mat4(1), glm::vec3(object->positionX + object->halfWidth, object->positionY + object->halfHeight, 0.0f));
+	transformMatrix = glm::rotate(transformMatrix, object->angle, glm::vec3(0.0f, 0.0f, 1.0f));
+	transformMatrix = glm::translate(transformMatrix, glm::vec3(-object->halfWidth, -object->halfHeight, 0.0f));
+
+	return transformMatrix;
+}
+
+auto PixelWorldEngine::UIObject::CreateTransformInvMatrix(UIObject * object) -> glm::mat4x4
+{
+	glm::mat4x4 invTransformMatrix = glm::mat4(1);
+
+	invTransformMatrix = glm::translate(invTransformMatrix, -glm::vec3(-object->halfWidth, -object->halfHeight, 0.0f));
+	invTransformMatrix = glm::rotate(invTransformMatrix, -object->angle, glm::vec3(0.0f, 0.0f, 1.0f));
+	invTransformMatrix = glm::translate(invTransformMatrix, -glm::vec3(object->positionX + object->halfWidth, object->positionY + object->halfHeight, 0.0f));
+
+	return invTransformMatrix;
+}
+
 void PixelWorldEngine::UIObject::UnRegisterFromParent(UIObject * object)
 {
 	if (object->parent == nullptr) return;
@@ -15,6 +37,75 @@ void PixelWorldEngine::UIObject::UnRegisterFromPixelWorld(UIObject * object)
 	object->pixelWorld->UnRegisterUIObject(object->name);
 }
 
+void PixelWorldEngine::UIObject::ProcessMouseMoveEvent(UIObject * object, Events::MouseMoveEvent * eventArg, glm::mat4x4 baseTransformMatrix)
+{
+	baseTransformMatrix = baseTransformMatrix * object->transformMatrix;
+
+	auto mousePosition = glm::inverse(baseTransformMatrix) * glm::vec4(eventArg->x, eventArg->y, 0, 1);
+
+	if (IsInUIObjectRect(object, mousePosition.x, mousePosition.y) == true) {
+		object->OnMouseMove(object, eventArg);
+
+		Events::DoEventHandlers(object->MouseMove, object, eventArg);
+
+		for (auto it = object->childrenLayer.begin(); it != object->childrenLayer.end(); it++)
+			ProcessMouseMoveEvent(*it, eventArg, baseTransformMatrix);
+	}
+}
+
+void PixelWorldEngine::UIObject::ProcessMouseClickEvent(UIObject * object, Events::MouseClickEvent * eventArg, glm::mat4x4 baseTransformMatrix)
+{
+	baseTransformMatrix = baseTransformMatrix * object->transformMatrix;
+	
+	auto mousePosition = glm::inverse(baseTransformMatrix) * glm::vec4(eventArg->x, eventArg->y, 0, 1);
+
+	if (IsInUIObjectRect(object, mousePosition.x, mousePosition.y) == true) {
+		object->OnMouseClick(object, eventArg);
+
+		Events::DoEventHandlers(object->MouseClick, object, eventArg);
+
+		for (auto it = object->childrenLayer.begin(); it != object->childrenLayer.end(); it++)
+			ProcessMouseClickEvent(*it, eventArg, baseTransformMatrix);
+	}
+}
+
+void PixelWorldEngine::UIObject::ProcessMouseWheelEvent(UIObject * object, Events::MouseWheelEvent * eventArg, glm::mat4x4 baseTransformMatrix)
+{
+	baseTransformMatrix = baseTransformMatrix * object->transformMatrix;
+
+	auto mousePosition = glm::inverse(baseTransformMatrix) * glm::vec4(eventArg->x, eventArg->y, 0, 1);
+
+	if (IsInUIObjectRect(object, mousePosition.x, mousePosition.y) == true) {
+		object->OnMouseWheel(object, eventArg);
+
+		Events::DoEventHandlers(object->MouseWheel, object, eventArg);
+
+		for (auto it = object->childrenLayer.begin(); it != object->childrenLayer.end(); it++)
+			ProcessMouseWheelEvent(*it, eventArg, baseTransformMatrix);
+	}
+}
+
+void PixelWorldEngine::UIObject::ProcessKeyClickEvent(UIObject * object, Events::KeyClickEvent * eventArg)
+{
+}
+
+void PixelWorldEngine::UIObject::OnMouseMove(void * sender, Events::MouseMoveEvent * eventArg)
+{
+}
+
+void PixelWorldEngine::UIObject::OnMouseClick(void * sender, Events::MouseClickEvent * eventArg)
+{
+}
+
+void PixelWorldEngine::UIObject::OnMouseWheel(void * sender, Events::MouseWheelEvent * eventArg)
+{
+}
+
+void PixelWorldEngine::UIObject::OnKeyClick(void * sender, Events::KeyClickEvent * eventArg)
+{
+}
+
+
 PixelWorldEngine::UIObject::UIObject(std::string Name, float PositionX, float PositionY, float Width, float Height)
 {
 	name = Name;
@@ -24,6 +115,9 @@ PixelWorldEngine::UIObject::UIObject(std::string Name, float PositionX, float Po
 
 	width = Width;
 	height = Height;
+
+	halfWidth = width * 0.5f;
+	halfHeight = height * 0.5f;
 
 	parent = nullptr;
 	pixelWorld = nullptr;
@@ -35,6 +129,8 @@ PixelWorldEngine::UIObject::UIObject(std::string Name, float PositionX, float Po
 
 	renderObjectID = 0;
 	depthLayer = 0;
+
+	transformMatrix = CreateTransformMatrix(this);
 }
 
 void PixelWorldEngine::UIObject::SetBorderColor(float red, float green, float blue)
@@ -46,17 +142,23 @@ void PixelWorldEngine::UIObject::SetBorderColor(float red, float green, float bl
 
 void PixelWorldEngine::UIObject::SetPosition(float PositionX, float PositionY)
 {
+	transformMatrix = glm::translate(glm::mat4(1), glm::vec3(PositionX - positionX, PositionY - positionY, 0.0f)) * transformMatrix;
+
 	positionX = PositionX;
 	positionY = PositionY;
 }
 
 void PixelWorldEngine::UIObject::SetPositionX(float PositionX)
 {
+	transformMatrix = glm::translate(glm::mat4(1), glm::vec3(PositionX - positionX, 0.0f, 0.0f)) * transformMatrix;
+
 	positionX = PositionX;
 }
 
 void PixelWorldEngine::UIObject::SetPositionY(float PositionY)
 {
+	transformMatrix = glm::translate(glm::mat4(1), glm::vec3(0.0f, PositionY - positionY, 0.0f)) * transformMatrix;
+
 	positionY = PositionY;
 }
 
@@ -64,16 +166,30 @@ void PixelWorldEngine::UIObject::SetSize(float Width, float Height)
 {
 	width = Width;
 	height = Height;
+
+	halfWidth = width * 0.5f;
+	halfHeight = height * 0.5f;
+
+	transformMatrix = CreateTransformMatrix(this);
 }
 
 void PixelWorldEngine::UIObject::SetWidth(float Width)
 {
 	width = Width;
+
+	halfWidth = width * 0.5f;
+
+	transformMatrix = CreateTransformMatrix(this);
 }
 
 void PixelWorldEngine::UIObject::SetHeight(float Height)
 {
 	height = Height;
+
+	halfHeight = height * 0.5f;
+
+
+	transformMatrix = CreateTransformMatrix(this);
 }
 
 void PixelWorldEngine::UIObject::SetOpacity(float Opacity)
@@ -84,6 +200,8 @@ void PixelWorldEngine::UIObject::SetOpacity(float Opacity)
 void PixelWorldEngine::UIObject::SetAngle(float Angle)
 {
 	angle = Angle;
+
+	transformMatrix = CreateTransformMatrix(this);
 }
 
 void PixelWorldEngine::UIObject::SetBorderWidth(float width)
@@ -196,6 +314,14 @@ auto PixelWorldEngine::UIObject::GetRenderObjectID() -> int
 auto PixelWorldEngine::UIObject::GetDepthLayer() -> int
 {
 	return depthLayer;
+}
+
+auto PixelWorldEngine::UIObject::IsInUIObjectRect(UIObject * object, float x, float y) -> bool
+{
+	if (x >= 0 && x < object->width &&
+		y >= 0 && y < object->height)
+		return true;
+	return false;
 }
 
 bool PixelWorldEngine::UIObjectCompare::operator()(UIObject * object1, UIObject * object2) const

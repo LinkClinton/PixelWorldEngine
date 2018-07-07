@@ -80,6 +80,34 @@ namespace PixelWorldEngine {
 		friend class Application;
 	private:
 		/**
+		* @brief 当鼠标移动的时候触发，注意鼠标必须在物体范围内
+		* @param[in] sender 谁触发了消息
+		* @param[in] eventArg 消息信息
+		*/
+		void OnMouseMove(void* sender, Events::MouseMoveEvent* eventArg);
+
+		/**
+		* @brief 当鼠标按下的时候触发，注意鼠标必须在物体范围内
+		* @param[in] sender 谁触发了消息
+		* @param[in] eventArg 消息信息
+		*/
+		void OnMouseClick(void* sender, Events::MouseClickEvent* eventArg);
+
+		/**
+		* @brief 当鼠标滑轮滚动的时候触发，注意鼠标必须在物体范围内
+		* @param[in] sender 谁触发了消息
+		* @param[in] eventArg 消息信息
+		*/
+		void OnMouseWheel(void* sender, Events::MouseWheelEvent* eventArg);
+
+		/**
+		* @brief 当键盘按键按下去的时候触发，注意必须获取了焦点
+		* @param[in] sender 谁触发了消息
+		* @param[in] eventArg 消息信息
+		*/
+		void OnKeyClick(void* sender, Events::KeyClickEvent* eventArg);
+
+		/**
 		 * @brief 更新世界，当应用程序更新的时候，世界也会更新
 		 * @param[in] deltaTime 距离上一次更新的时间
 		 */
@@ -100,7 +128,7 @@ namespace PixelWorldEngine {
 		 * @param[in] baseTransform 父亲的位移
 		 * @param[in] object 物体
 		 */
-		void RenderUIObject(glm::mat4x4 baseTransform, UIObject* object);
+		void RenderUIObject(glm::mat4x4 baseTransform, float baseOpacity, UIObject* object);
 
 		/**
 		 * @brief 渲染UI物体，作为GetCurrentWorld的子部分

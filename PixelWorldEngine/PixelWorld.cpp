@@ -3,6 +3,30 @@
 #include "Application.hpp"
 #include "EngineDefaultResource.hpp"
 
+void PixelWorldEngine::PixelWorld::OnMouseMove(void * sender, Events::MouseMoveEvent * eventArg)
+{
+	for (auto it = UIObjectLayer.begin(); it != UIObjectLayer.end(); it++)
+		(*it)->ProcessMouseMoveEvent(*it, eventArg, glm::mat4(1));
+}
+
+void PixelWorldEngine::PixelWorld::OnMouseClick(void * sender, Events::MouseClickEvent * eventArg)
+{
+	for (auto it = UIObjectLayer.begin(); it != UIObjectLayer.end(); it++)
+		(*it)->ProcessMouseClickEvent(*it, eventArg, glm::mat4(1));
+}
+
+void PixelWorldEngine::PixelWorld::OnMouseWheel(void * sender, Events::MouseWheelEvent * eventArg)
+{
+	for (auto it = UIObjectLayer.begin(); it != UIObjectLayer.end(); it++)
+		(*it)->ProcessMouseWheelEvent(*it, eventArg, glm::mat4(1));
+}
+
+void PixelWorldEngine::PixelWorld::OnKeyClick(void * sender, Events::KeyClickEvent * eventArg)
+{
+	for (auto it = UIObjectLayer.begin(); it != UIObjectLayer.end(); it++)
+		(*it)->ProcessKeyClickEvent(*it, eventArg);
+}
+
 void PixelWorldEngine::PixelWorld::OnUpdate(float deltaTime)
 {
 	for (auto it = pixelObjects.begin(); it != pixelObjects.end(); it++) {
@@ -266,18 +290,16 @@ void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 	}
 }
 
-void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, UIObject* object)
+void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, float baseOpacity, UIObject* object)
 {
 	auto halfWidth = object->width * 0.5f;
 	auto halfHeight = object->height * 0.5f;
 	auto twoBorderWidth = object->borderWidth * 2.0f;
 
-	glm::mat4x4 translationMatrix;
+	auto opacity = baseOpacity * object->opacity;
 	
-	translationMatrix = glm::translate(baseTransform, glm::vec3(object->positionX + halfWidth, object->positionY + halfHeight, 0.0f));
-	translationMatrix = glm::rotate(translationMatrix, object->angle, glm::vec3(0.0f, 0.0f, 1.0f));
-	translationMatrix = glm::translate(translationMatrix, glm::vec3(-halfWidth, -halfHeight, 0.0f));
-	
+	glm::mat4x4 translationMatrix = baseTransform * object->transformMatrix;
+
 	if (object->borderWidth != 0.0f) {
 		auto widthScaleMatrix = glm::scale(glm::mat4(1), glm::vec3(object->width, object->borderWidth, 1.0f));
 		auto heightScaleMatrix = glm::scale(glm::mat4(1), glm::vec3(object->borderWidth, object->height, 1.0f));
@@ -293,7 +315,7 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, UIO
 		borderMatrix[3] = glm::translate(translationMatrix, glm::vec3(object->width - object->borderWidth - 1, 0.0f, 0.0f)) * heightScaleMatrix;
 
 		renderConfig.renderObjectID[0] = 0;
-		renderConfig.renderColor = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], object->opacity);
+		renderConfig.renderColor = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], opacity);
 
 		buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
 
@@ -301,13 +323,13 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, UIO
 
 		for (int i = 0; i < 4; i++) {
 			buffers[(int)BufferIndex::TransformBuffer]->Update(&borderMatrix[i]);
-			
+
 			graphics->SetConstantBuffer(buffers[(int)BufferIndex::TransformBuffer], (int)BufferIndex::TransformBuffer);
 
 			graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount(), 0, 0);
 		}
 	}
-	
+
 	if (object->renderObjectID != 0) {
 		glm::mat4 matrix = glm::mat4(1);
 
@@ -328,7 +350,7 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, UIO
 	}
 
 	for (auto it = object->childrenLayer.begin(); it != object->childrenLayer.end(); it++)
-		RenderUIObject(translationMatrix, *it);
+		RenderUIObject(translationMatrix, opacity, *it);
 }
 
 void PixelWorldEngine::PixelWorld::RenderUIObjects()
@@ -345,7 +367,7 @@ void PixelWorldEngine::PixelWorld::RenderUIObjects()
 	for (auto it = UIObjectLayer.begin(); it != UIObjectLayer.end(); it++) {
 		auto object = *it;
 
-		RenderUIObject(glm::mat4(1), object);
+		RenderUIObject(glm::mat4(1), 1.0f, object);
 	}
 }
 
