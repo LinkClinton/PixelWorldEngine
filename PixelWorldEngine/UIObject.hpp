@@ -5,12 +5,21 @@
 namespace PixelWorldEngine {
 
 	class PixelWorld;
+	class UIObject;
+
+	class UIObjectCompare {
+	public:
+		bool operator() (UIObject* object1, UIObject* object2)const;
+	};
 
 	/**
 	 * @brief UI物体，主要是用于呈现UI等各种和游戏世界无关的东西
 	 */
 	class UIObject {
 	private:
+		PixelWorld* pixelWorld; //父亲
+		UIObject* parent; //父亲
+
 		std::string name; //名字
 
 		float positionX; //左上角X位置，默认为0
@@ -21,6 +30,8 @@ namespace PixelWorldEngine {
 
 		float opacity; //不透明度，默认为1
 
+		float angle; //角度，旋转中心为物体中心，默认为0
+
 		float borderWidth; //边界宽度，注意其总宽度不会变，因此除非宽度为0，否则真实纹理渲染范围会比真实范围小，默认为0
 		float borderColor[3]; //边界颜色，默认为 (0, 0, 0)
 
@@ -28,9 +39,22 @@ namespace PixelWorldEngine {
 		int depthLayer; //深度层，默认为0
 
 		std::map<std::string, UIObject*> children; //子物体，一个物体可以做多个物体的子物体
+		std::set<UIObject*, UIObjectCompare> childrenLayer; //子物体层
 		
 		friend class PixelWorld;
 		friend class UIObjectCompare;
+	private:
+		/**
+		 * @brief 将一个物体从它的父亲的儿子中移除
+		 * @param[in] object 物体
+		 */
+		static void UnRegisterFromParent(UIObject* object);
+
+		/**
+		 * @brief 将一个物体从PixelWolrd中移除
+		 * @param[in] object 物体
+		 */
+		static void UnRegisterFromPixelWorld(UIObject* object);
 	public:
 		/**
 		 * @brief 构造函数
@@ -95,6 +119,12 @@ namespace PixelWorldEngine {
 		 * @param[in] opacity 不透明度，默认为1
 		 */
 		void SetOpacity(float opacity);
+
+		/**
+		 * @brief 设置旋转角度，旋转中心为物体中心，默认为0
+		 * @param[in] angle 角度
+		 */
+		void SetAngle(float angle);
 
 		/**
 		 * @brief 设置边界宽度
@@ -169,6 +199,12 @@ namespace PixelWorldEngine {
 		auto GetOpacity() -> float;
 
 		/**
+		 * @brief 获取旋转角度
+		 * @return 旋转角度
+		 */
+		auto GetAngle() -> float;
+
+		/**
 		 * @brief 获取边界宽度
 		 * @return 边界宽度
 		 */
@@ -187,10 +223,4 @@ namespace PixelWorldEngine {
 		auto GetDepthLayer() -> int;
 	};
 
-	class UIObjectCompare {
-	public:
-		bool operator() (UIObject* object1, UIObject* object2)const {
-			return object1->depthLayer < object2->depthLayer;
-		}
-	};
 }

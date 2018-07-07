@@ -1,4 +1,19 @@
 #include "UIObject.hpp"
+#include "PixelWorld.hpp"
+
+void PixelWorldEngine::UIObject::UnRegisterFromParent(UIObject * object)
+{
+	if (object->parent == nullptr) return;
+
+	object->parent->UnRegisterUIObject(object->name);
+}
+
+void PixelWorldEngine::UIObject::UnRegisterFromPixelWorld(UIObject * object)
+{
+	if (object->pixelWorld == nullptr) return;
+
+	object->pixelWorld->UnRegisterUIObject(object->name);
+}
 
 PixelWorldEngine::UIObject::UIObject(std::string Name, float PositionX, float PositionY, float Width, float Height)
 {
@@ -10,7 +25,11 @@ PixelWorldEngine::UIObject::UIObject(std::string Name, float PositionX, float Po
 	width = Width;
 	height = Height;
 
+	parent = nullptr;
+	pixelWorld = nullptr;
+
 	opacity = 1.0f;
+	angle = 0;
 
 	borderWidth = 0;
 
@@ -62,6 +81,11 @@ void PixelWorldEngine::UIObject::SetOpacity(float Opacity)
 	opacity = Opacity;
 }
 
+void PixelWorldEngine::UIObject::SetAngle(float Angle)
+{
+	angle = Angle;
+}
+
 void PixelWorldEngine::UIObject::SetBorderWidth(float width)
 {
 	borderWidth = width;
@@ -74,22 +98,54 @@ void PixelWorldEngine::UIObject::SetRenderObjectID(int id)
 
 void PixelWorldEngine::UIObject::SetDepthLayer(int DepthLayer)
 {
+	if (depthLayer != DepthLayer && parent != nullptr) {
+		depthLayer = DepthLayer;
+
+		parent->childrenLayer.erase(this);
+		parent->childrenLayer.insert(this);
+
+		return;
+	}
+
+	if (depthLayer != DepthLayer && pixelWorld != nullptr) {
+		depthLayer = DepthLayer;
+
+		pixelWorld->UIObjectLayer.erase(this);
+		pixelWorld->UIObjectLayer.insert(this);
+
+		return;
+	}
+
 	depthLayer = DepthLayer;
 }
 
 void PixelWorldEngine::UIObject::RegisterUIObject(UIObject * object)
 {
+	UnRegisterFromParent(object);
+	UnRegisterFromPixelWorld(object);
+
 	children[object->name] = object;
+	childrenLayer.insert(object);
+
+	object->parent = this;
 }
 
 void PixelWorldEngine::UIObject::UnRegisterUIObject(UIObject * object)
 {
 	children.erase(object->name);
+	childrenLayer.erase(object);
+
+	object->parent = nullptr;
 }
 
 void PixelWorldEngine::UIObject::UnRegisterUIObject(std::string name)
 {
+	auto object = children[name];
+
 	children.erase(name);
+	childrenLayer.erase(object);
+	
+	object->parent = nullptr;
 }
 
 auto PixelWorldEngine::UIObject::GetBorderColor() -> float *
@@ -122,6 +178,11 @@ auto PixelWorldEngine::UIObject::GetOpacity() -> float
 	return opacity;
 }
 
+auto PixelWorldEngine::UIObject::GetAngle() -> float
+{
+	return angle;
+}
+
 auto PixelWorldEngine::UIObject::GetBorderWidth() -> float
 {
 	return borderWidth;
@@ -135,4 +196,9 @@ auto PixelWorldEngine::UIObject::GetRenderObjectID() -> int
 auto PixelWorldEngine::UIObject::GetDepthLayer() -> int
 {
 	return depthLayer;
+}
+
+bool PixelWorldEngine::UIObjectCompare::operator()(UIObject * object1, UIObject * object2) const
+{
+	return object1->depthLayer < object2->depthLayer;
 }

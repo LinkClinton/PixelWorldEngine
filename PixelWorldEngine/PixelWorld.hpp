@@ -75,6 +75,7 @@ namespace PixelWorldEngine {
 		std::multiset<PixelObject*, PixelObjectCompare> pixelObjectLayer;//存储不同层的PixelObject
 		std::multiset<UIObject*, UIObjectCompare> UIObjectLayer; //存储不同层的UIObject
 
+		friend class UIObject;
 		friend class PixelObject;
 		friend class Application;
 	private:
@@ -94,7 +95,12 @@ namespace PixelWorldEngine {
 		 */
 		void RenderPixelObjects();
 
-		void RenderUIObject(glm::mat4x4 baseTranslation, UIObject* object);
+		/**
+		 * @brief 渲染UI物体
+		 * @param[in] baseTransform 父亲的位移
+		 * @param[in] object 物体
+		 */
+		void RenderUIObject(glm::mat4x4 baseTransform, UIObject* object);
 
 		/**
 		 * @brief 渲染UI物体，作为GetCurrentWorld的子部分

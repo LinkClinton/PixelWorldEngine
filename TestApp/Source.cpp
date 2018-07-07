@@ -47,8 +47,9 @@ DataManager dataManager = DataManager(&application);
 WorldMap worldMap = WorldMap("Map1", 100, 100);
 Camera camera = Camera(PixelWorldEngine::RectangleF(-640, -360, 640, 360));
 PixelObject pixelObject = PixelObject("Player", 16, 16, 32, 32);
-UIObject object = UIObject("UIObject", 100, 100, 1280, 720);
+UIObject object = UIObject("UIObject", 0, 0, 720, 720);
 UIObject object2 = UIObject("UIObject2", 100, 100, 100, 100);
+UIObject object3 = UIObject("UIObject3", 100, 100, 100, 100);
 Animator animator = Animator("Animator");
 
 void OnCollide(PixelObject* pixelObject) {
@@ -172,10 +173,15 @@ int main() {
 	pixelObject.Leave.push_back(OnLeave);
 
 	object.SetBorderColor(1, 0, 0);
-	object.SetBorderWidth(1);
-
+	object.SetBorderWidth(4);
+	object.SetRenderObjectID(1);
+	//object.SetAngle(glm::pi<float>());
+	
 	object2.SetBorderColor(0, 1, 0);
 	object2.SetBorderWidth(1);
+	object2.SetAngle(glm::pi<float>()*0.25f);
+
+	
 
 	object.RegisterUIObject(&object2);
 
@@ -183,6 +189,7 @@ int main() {
 	pixelWorld.SetCamera(&camera);
 
 	pixelWorld.RegisterUIObject(&object);
+
 
 	pixelWorld.RegisterPixelObject(&pixelObject);
 

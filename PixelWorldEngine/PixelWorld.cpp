@@ -16,7 +16,7 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 	worldName = WorldName;
 	graphics = Application->GetGraphics();
 
-	renderObject = new Graphics::RectangleF(-0.5f, -0.5f, 0.5f, 0.5f, graphics);
+	renderObject = new Graphics::RectangleF(0, 0, 1, 1, graphics);
 	
 	buffers.resize((int)BufferIndex::Count);
 
@@ -143,28 +143,41 @@ void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(PixelObject * pixelObje
 
 void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(std::string objectName)
 {
-	pixelObjects[objectName]->pixelWorld = nullptr;
+	auto pixelObject = pixelObjects[objectName];
 
-	pixelObjectLayer.erase(pixelObjects[objectName]);
 	pixelObjects.erase(objectName);
+	pixelObjectLayer.erase(pixelObject);
+
+	pixelObject->pixelWorld = nullptr;
 }
 
 void PixelWorldEngine::PixelWorld::RegisterUIObject(UIObject * object)
 {
+	UIObject::UnRegisterFromParent(object);
+	UIObject::UnRegisterFromPixelWorld(object);
+
 	UIObjects[object->name] = object;
 	UIObjectLayer.insert(object);
+
+	object->pixelWorld = this;
 }
 
 void PixelWorldEngine::PixelWorld::UnRegisterUIObject(UIObject * object)
 {
 	UIObjects.erase(object->name);
 	UIObjectLayer.erase(object);
+
+	object->pixelWorld = nullptr;
 }
 
 void PixelWorldEngine::PixelWorld::UnRegisterUIObject(std::string name)
 {
-	UIObjectLayer.erase(UIObjects[name]);
+	auto object = UIObjects[name];
+
 	UIObjects.erase(name);
+	UIObjectLayer.erase(object);
+
+	object->pixelWorld = nullptr;
 }
 
 auto PixelWorldEngine::PixelWorld::GetWorldMap() -> WorldMap *
@@ -174,13 +187,18 @@ auto PixelWorldEngine::PixelWorld::GetWorldMap() -> WorldMap *
 
 void PixelWorldEngine::PixelWorld::RenderWorldMap()
 {
+	auto matrix = camera->GetMatrix();
 	auto viewRect = camera->GetRectangle();
 	auto renderObjectRect = Rectangle();
 
+
+	buffers[(int)BufferIndex::CameraBuffer]->Update(&matrix);
+
+	graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
+
 	if (worldMap != nullptr) {
 		auto mapBlockSize = worldMap->GetMapBlockSize();
-		auto halfMapBlockSize = mapBlockSize * 0.5f;
-
+		
 		renderObjectRect.left = Utility::Max((int)(viewRect.left / mapBlockSize), 0);
 		renderObjectRect.top = Utility::Max((int)(viewRect.top / mapBlockSize), 0);
 		renderObjectRect.right = Utility::Min((int)(viewRect.right / mapBlockSize) + 1, worldMap->GetHeight() - 1);
@@ -193,8 +211,8 @@ void PixelWorldEngine::PixelWorld::RenderWorldMap()
 			for (int y = renderObjectRect.top; y <= renderObjectRect.bottom; y++) {
 				if (worldMap->GetMapData(x, y) == nullptr) continue;
 
-				auto matrix = glm::translate(glm::mat4(1), glm::vec3(x * mapBlockSize + halfMapBlockSize,
-					y * mapBlockSize + halfMapBlockSize, 0.f)) * scaleMatrix;
+				auto matrix = glm::translate(glm::mat4(1), glm::vec3(x * mapBlockSize,
+					y * mapBlockSize, 0.f)) * scaleMatrix;
 
 				auto mapData = worldMap->GetMapData(x, y);
 
@@ -228,8 +246,8 @@ void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 
 		if (pixelObject->renderObjectID == 0) continue;
 
-		auto matrix = glm::translate(glm::mat4(1), glm::vec3(pixelObject->positionX,
-			pixelObject->positionY, 0.f));
+		auto matrix = glm::translate(glm::mat4(1), glm::vec3(pixelObject->positionX - pixelObject->halfWidth,
+			pixelObject->positionY - pixelObject->halfHeight, 0.f));
 
 		matrix = glm::scale(matrix, glm::vec3(pixelObject->width, pixelObject->height, 1.f));
 
@@ -248,57 +266,55 @@ void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 	}
 }
 
-void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTranslation, UIObject* object)
+void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, UIObject* object)
 {
 	auto halfWidth = object->width * 0.5f;
 	auto halfHeight = object->height * 0.5f;
+	auto twoBorderWidth = object->borderWidth * 2.0f;
 
-	auto positionX = object->positionX + halfWidth;
-	auto positionY = object->positionY + halfHeight;
-
-	auto halfBorderWidth = object->borderWidth * 0.5f;
-
+	glm::mat4x4 translationMatrix;
+	
+	translationMatrix = glm::translate(baseTransform, glm::vec3(object->positionX + halfWidth, object->positionY + halfHeight, 0.0f));
+	translationMatrix = glm::rotate(translationMatrix, object->angle, glm::vec3(0.0f, 0.0f, 1.0f));
+	translationMatrix = glm::translate(translationMatrix, glm::vec3(-halfWidth, -halfHeight, 0.0f));
+	
 	if (object->borderWidth != 0.0f) {
+		auto widthScaleMatrix = glm::scale(glm::mat4(1), glm::vec3(object->width, object->borderWidth, 1.0f));
+		auto heightScaleMatrix = glm::scale(glm::mat4(1), glm::vec3(object->borderWidth, object->height, 1.0f));
 
-		renderConfig.renderColor.r = object->borderColor[0];
-		renderConfig.renderColor.g = object->borderColor[1];
-		renderConfig.renderColor.b = object->borderColor[2];
-		renderConfig.renderColor.a = object->opacity;
+		auto beforeRotateMatrix = glm::translate(glm::mat4(1), glm::vec3(-halfWidth, -halfHeight, 0.0f));
+		auto afterRotateMatrix = glm::translate(glm::mat4(1), glm::vec3(halfWidth, halfHeight, 0.0f));
+
+		glm::mat4x4 borderMatrix[4];
+
+		borderMatrix[0] = translationMatrix * widthScaleMatrix;
+		borderMatrix[1] = glm::translate(translationMatrix, glm::vec3(0.0f, object->height - object->borderWidth - 1, 0.0f)) * widthScaleMatrix;
+		borderMatrix[2] = translationMatrix * heightScaleMatrix;
+		borderMatrix[3] = glm::translate(translationMatrix, glm::vec3(object->width - object->borderWidth - 1, 0.0f, 0.0f)) * heightScaleMatrix;
+
 		renderConfig.renderObjectID[0] = 0;
+		renderConfig.renderColor = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], object->opacity);
 
 		buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
 
 		graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
 
-		auto widthScaleMatrix = glm::scale(glm::mat4(1), glm::vec3(object->width, object->borderWidth, 1.0f));
-		auto heightScaleMatrix = glm::scale(glm::mat4(1), glm::vec3(object->borderWidth, object->height, 1.0f));
-
-		glm::mat4x4 borderMatrix[4];
-
-		borderMatrix[0] = glm::translate(baseTranslation, glm::vec3(positionX, object->positionY + halfBorderWidth , 0))
-			* widthScaleMatrix;
-		borderMatrix[1] = glm::translate(baseTranslation, glm::vec3(object->positionX + halfBorderWidth, positionY, 0))
-			* heightScaleMatrix;
-		borderMatrix[2] = glm::translate(baseTranslation, glm::vec3(positionX, object->positionY - halfBorderWidth + object->height + 1 , 0))
-			* widthScaleMatrix;
-		borderMatrix[3] = glm::translate(baseTranslation, glm::vec3(object->positionX - halfBorderWidth + object->width + 1 , positionY, 0))
-			* heightScaleMatrix;
-
 		for (int i = 0; i < 4; i++) {
 			buffers[(int)BufferIndex::TransformBuffer]->Update(&borderMatrix[i]);
-
+			
 			graphics->SetConstantBuffer(buffers[(int)BufferIndex::TransformBuffer], (int)BufferIndex::TransformBuffer);
 
 			graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount(), 0, 0);
 		}
 	}
-
+	
 	if (object->renderObjectID != 0) {
+		glm::mat4 matrix = glm::mat4(1);
+
+		matrix = glm::translate(translationMatrix, glm::vec3(object->borderWidth, object->borderWidth, 0.0f));
+		matrix = glm::scale(matrix, glm::vec3(object->width - twoBorderWidth, object->height - twoBorderWidth, 1.0f));
 
 		renderConfig.renderObjectID[0] = object->renderObjectID;
-
-		auto matrix = glm::translate(baseTranslation, glm::vec3(positionX + object->borderWidth, positionY + object->borderWidth, 0));
-		matrix = glm::scale(matrix, glm::vec3(object->width - object->borderWidth * 2.0f, object->height - object->borderWidth * 2.0f, 1.0f));
 
 		buffers[(int)BufferIndex::TransformBuffer]->Update(&matrix);
 		buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
@@ -306,11 +322,13 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTranslation, U
 		graphics->SetConstantBuffer(buffers[(int)BufferIndex::TransformBuffer], (int)BufferIndex::TransformBuffer);
 		graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
 
+		graphics->SetShaderResource(renderObjectIDGroup[object->renderObjectID], 0);
+
 		graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount(), 0, 0);
 	}
 
-	for (auto it = object->children.begin(); it != object->children.end(); it++)
-		RenderUIObject(glm::translate(baseTranslation, glm::vec3(object->positionX, object->positionY, 0.0f)), it->second);
+	for (auto it = object->childrenLayer.begin(); it != object->childrenLayer.end(); it++)
+		RenderUIObject(translationMatrix, *it);
 }
 
 void PixelWorldEngine::PixelWorld::RenderUIObjects()
@@ -346,12 +364,7 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 	graphics->SetVertexBuffer(renderObject->GetVertexBuffer());
 	graphics->SetIndexBuffer(renderObject->GetIndexBuffer());
 	
-	auto matrix = camera->GetMatrix();
-
-	buffers[(int)BufferIndex::CameraBuffer]->Update(&matrix);
-
 	graphics->SetStaticSampler(defaultSampler, 0);
-	graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
 
 	graphics->SetBlendState(true);
 
