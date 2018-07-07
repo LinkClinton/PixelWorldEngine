@@ -18,7 +18,7 @@ namespace PixelWorldEngine {
 	 */
 	class UIObject {
 	private:
-		PixelWorld* pixelWorld; //父亲
+		PixelWorld* pixelWorld; //所在的世界
 		UIObject* parent; //父亲
 
 		std::string name; //名字
@@ -39,6 +39,8 @@ namespace PixelWorldEngine {
 		float borderWidth; //边界宽度，注意其总宽度不会变，因此除非宽度为0，否则真实纹理渲染范围会比真实范围小，默认为0
 		float borderColor[3]; //边界颜色，默认为 (0, 0, 0)
 
+		bool isFocused; //是否得到了焦点
+
 		int renderObjectID; //渲染ID，默认为0
 		int depthLayer; //深度层，默认为0
 
@@ -58,7 +60,19 @@ namespace PixelWorldEngine {
 		 */
 		static auto CreateTransformMatrix(UIObject* object) -> glm::mat4x4;
 
-		static auto CreateTransformInvMatrix(UIObject* object) -> glm::mat4x4;
+		/**
+		 * @brief 设置这个物体以及他的儿子所在的世界
+		 * @param[in] object 物体
+		 * @param[in] pixelWorld 物体所在的世界
+		 */
+		static void SetPixelWorld(UIObject* object, PixelWorld* pixelWorld);
+
+		/**
+		 * @brief 设置这个物体的焦点
+		 * @param[in] object 物体
+		 * @param[in] isFocused 是否获取了焦点
+		 */
+		static void SetFocus(UIObject* object, bool isFocused);
 
 		/**
 		 * @brief 将一个物体从它的父亲的儿子中移除
@@ -301,6 +315,12 @@ namespace PixelWorldEngine {
 		 * @return 深度层
 		 */
 		auto GetDepthLayer() -> int;
+
+		/**
+		 * @brief 获取物体所在的世界，如果不存在返回为nullptr
+		 * @return 物体所在的世界
+		 */
+		auto GetPixelWorld() -> PixelWorld*;
 
 		/**
 		 * @brief 返回这个点是否在物体内部，注意这里不考虑父亲节点的影响以及旋转的影响

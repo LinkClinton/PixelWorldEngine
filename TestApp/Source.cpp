@@ -173,7 +173,6 @@ int main() {
 	pixelObject.Leave.push_back(OnLeave);
 
 	object.SetBorderColor(1, 0, 0);
-	object.SetBorderWidth(4);
 	object.SetRenderObjectID(1);
 	object.SetOpacity(0.5f);
 	object.SetAngle(glm::pi<float>());

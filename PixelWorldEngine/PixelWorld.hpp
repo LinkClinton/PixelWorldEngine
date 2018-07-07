@@ -75,6 +75,8 @@ namespace PixelWorldEngine {
 		std::multiset<PixelObject*, PixelObjectCompare> pixelObjectLayer;//存储不同层的PixelObject
 		std::multiset<UIObject*, UIObjectCompare> UIObjectLayer; //存储不同层的UIObject
 
+		UIObject* focusUIObject; //得到焦点的UIObject
+
 		friend class UIObject;
 		friend class PixelObject;
 		friend class Application;

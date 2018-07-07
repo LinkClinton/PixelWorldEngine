@@ -12,15 +12,19 @@ auto PixelWorldEngine::UIObject::CreateTransformMatrix(UIObject * object) -> glm
 	return transformMatrix;
 }
 
-auto PixelWorldEngine::UIObject::CreateTransformInvMatrix(UIObject * object) -> glm::mat4x4
+void PixelWorldEngine::UIObject::SetPixelWorld(UIObject * object, PixelWorld * pixelWorld)
 {
-	glm::mat4x4 invTransformMatrix = glm::mat4(1);
+	object->pixelWorld = pixelWorld;
 
-	invTransformMatrix = glm::translate(invTransformMatrix, -glm::vec3(-object->halfWidth, -object->halfHeight, 0.0f));
-	invTransformMatrix = glm::rotate(invTransformMatrix, -object->angle, glm::vec3(0.0f, 0.0f, 1.0f));
-	invTransformMatrix = glm::translate(invTransformMatrix, -glm::vec3(object->positionX + object->halfWidth, object->positionY + object->halfHeight, 0.0f));
+	for (auto it = object->childrenLayer.begin(); it != object->childrenLayer.end(); it++)
+		SetPixelWorld(*it, pixelWorld);
+}
 
-	return invTransformMatrix;
+void PixelWorldEngine::UIObject::SetFocus(UIObject * object, bool isFocused)
+{
+	if (object == nullptr) return;
+
+	object->isFocused = isFocused;
 }
 
 void PixelWorldEngine::UIObject::UnRegisterFromParent(UIObject * object)
@@ -32,7 +36,7 @@ void PixelWorldEngine::UIObject::UnRegisterFromParent(UIObject * object)
 
 void PixelWorldEngine::UIObject::UnRegisterFromPixelWorld(UIObject * object)
 {
-	if (object->pixelWorld == nullptr) return;
+	if (object->pixelWorld == nullptr || object->parent != nullptr) return;
 
 	object->pixelWorld->UnRegisterUIObject(object->name);
 }
@@ -64,6 +68,14 @@ void PixelWorldEngine::UIObject::ProcessMouseClickEvent(UIObject * object, Event
 
 		Events::DoEventHandlers(object->MouseClick, object, eventArg);
 
+		if (eventArg->isDown == true && eventArg->button == Events::MouseButton::Left) {
+			SetFocus(object->pixelWorld->focusUIObject, false);
+
+			object->pixelWorld->focusUIObject = object;
+
+			SetFocus(object->pixelWorld->focusUIObject, true);
+		}
+
 		for (auto it = object->childrenLayer.begin(); it != object->childrenLayer.end(); it++)
 			ProcessMouseClickEvent(*it, eventArg, baseTransformMatrix);
 	}
@@ -87,6 +99,14 @@ void PixelWorldEngine::UIObject::ProcessMouseWheelEvent(UIObject * object, Event
 
 void PixelWorldEngine::UIObject::ProcessKeyClickEvent(UIObject * object, Events::KeyClickEvent * eventArg)
 {
+	if (object->isFocused == true) {
+		object->OnKeyClick(object, eventArg);
+
+		Events::DoEventHandlers(object->KeyClick, object, eventArg);
+	}
+
+	for (auto it = object->childrenLayer.begin(); it != object->childrenLayer.end(); it++)
+		ProcessKeyClickEvent(*it, eventArg);
 }
 
 void PixelWorldEngine::UIObject::OnMouseMove(void * sender, Events::MouseMoveEvent * eventArg)
@@ -129,6 +149,8 @@ PixelWorldEngine::UIObject::UIObject(std::string Name, float PositionX, float Po
 
 	renderObjectID = 0;
 	depthLayer = 0;
+
+	isFocused = false;
 
 	transformMatrix = CreateTransformMatrix(this);
 }
@@ -188,7 +210,6 @@ void PixelWorldEngine::UIObject::SetHeight(float Height)
 
 	halfHeight = height * 0.5f;
 
-
 	transformMatrix = CreateTransformMatrix(this);
 }
 
@@ -225,7 +246,9 @@ void PixelWorldEngine::UIObject::SetDepthLayer(int DepthLayer)
 		return;
 	}
 
-	if (depthLayer != DepthLayer && pixelWorld != nullptr) {
+	if (depthLayer != DepthLayer && pixelWorld != nullptr &&
+		parent == nullptr) {
+
 		depthLayer = DepthLayer;
 
 		pixelWorld->UIObjectLayer.erase(this);
@@ -246,6 +269,8 @@ void PixelWorldEngine::UIObject::RegisterUIObject(UIObject * object)
 	childrenLayer.insert(object);
 
 	object->parent = this;
+	
+	SetPixelWorld(object, pixelWorld);
 }
 
 void PixelWorldEngine::UIObject::UnRegisterUIObject(UIObject * object)
@@ -254,6 +279,9 @@ void PixelWorldEngine::UIObject::UnRegisterUIObject(UIObject * object)
 	childrenLayer.erase(object);
 
 	object->parent = nullptr;
+	object->isFocused = false;
+
+	SetPixelWorld(object, nullptr);
 }
 
 void PixelWorldEngine::UIObject::UnRegisterUIObject(std::string name)
@@ -264,6 +292,9 @@ void PixelWorldEngine::UIObject::UnRegisterUIObject(std::string name)
 	childrenLayer.erase(object);
 	
 	object->parent = nullptr;
+	object->isFocused = false;
+
+	SetPixelWorld(object, nullptr);
 }
 
 auto PixelWorldEngine::UIObject::GetBorderColor() -> float *
@@ -314,6 +345,11 @@ auto PixelWorldEngine::UIObject::GetRenderObjectID() -> int
 auto PixelWorldEngine::UIObject::GetDepthLayer() -> int
 {
 	return depthLayer;
+}
+
+auto PixelWorldEngine::UIObject::GetPixelWorld() -> PixelWorld *
+{
+	return pixelWorld;
 }
 
 auto PixelWorldEngine::UIObject::IsInUIObjectRect(UIObject * object, float x, float y) -> bool

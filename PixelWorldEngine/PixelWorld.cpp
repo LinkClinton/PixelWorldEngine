@@ -58,6 +58,8 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 
 	worldMap = nullptr;
 
+	focusUIObject = nullptr;
+
 	SetShader();
 
 	SetBackGroundColor(0, 0, 0, 1);
@@ -183,7 +185,7 @@ void PixelWorldEngine::PixelWorld::RegisterUIObject(UIObject * object)
 	UIObjects[object->name] = object;
 	UIObjectLayer.insert(object);
 
-	object->pixelWorld = this;
+	UIObject::SetPixelWorld(object, this);
 }
 
 void PixelWorldEngine::PixelWorld::UnRegisterUIObject(UIObject * object)
@@ -191,7 +193,9 @@ void PixelWorldEngine::PixelWorld::UnRegisterUIObject(UIObject * object)
 	UIObjects.erase(object->name);
 	UIObjectLayer.erase(object);
 
-	object->pixelWorld = nullptr;
+	object->isFocused = false;
+
+	UIObject::SetPixelWorld(object, nullptr);
 }
 
 void PixelWorldEngine::PixelWorld::UnRegisterUIObject(std::string name)
@@ -201,7 +205,9 @@ void PixelWorldEngine::PixelWorld::UnRegisterUIObject(std::string name)
 	UIObjects.erase(name);
 	UIObjectLayer.erase(object);
 
-	object->pixelWorld = nullptr;
+	object->isFocused = false;
+
+	UIObject::SetPixelWorld(object, nullptr);
 }
 
 auto PixelWorldEngine::PixelWorld::GetWorldMap() -> WorldMap *
@@ -300,6 +306,8 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, flo
 	
 	glm::mat4x4 translationMatrix = baseTransform * object->transformMatrix;
 
+	renderConfig.renderColor = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], opacity);
+
 	if (object->borderWidth != 0.0f) {
 		auto widthScaleMatrix = glm::scale(glm::mat4(1), glm::vec3(object->width, object->borderWidth, 1.0f));
 		auto heightScaleMatrix = glm::scale(glm::mat4(1), glm::vec3(object->borderWidth, object->height, 1.0f));
@@ -315,7 +323,6 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, flo
 		borderMatrix[3] = glm::translate(translationMatrix, glm::vec3(object->width - object->borderWidth - 1, 0.0f, 0.0f)) * heightScaleMatrix;
 
 		renderConfig.renderObjectID[0] = 0;
-		renderConfig.renderColor = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], opacity);
 
 		buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
 
