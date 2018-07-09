@@ -17,6 +17,8 @@ namespace PixelWorldEngine {
 		NeedMoreThanOneFrame,
 		//We can not add the animation (%s) into animator (%s) when the animator is running.
 		CanNotAddAnimationWhenAnimatorRun,
+		//We do not have this child object called %s in %s 
+		NoChildObject,
 		Count
 	};
 
@@ -26,7 +28,8 @@ namespace PixelWorldEngine {
 		"The shader was compiled failed. Code : %s",
 		"The file (%s) format is not supported.",
 		"The animation (%s) need two frames at least.",
-		"We can not add the animation (%s) into animator (%s) when the animator is running."
+		"We can not add the animation (%s) into animator (%s) when the animator is running.",
+		"We do not have this child object called %s in %s."
 	};
 
 	class DebugLayer {

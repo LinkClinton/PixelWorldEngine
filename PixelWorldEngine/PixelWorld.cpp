@@ -161,6 +161,8 @@ void PixelWorldEngine::PixelWorld::RegisterPixelObject(PixelObject * pixelObject
 
 void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(PixelObject * pixelObject)
 {
+	DebugLayer::Assert(pixelObjects.count(pixelObject->name) == 0, Error::NoChildObject, pixelObject->name, worldName);
+
 	pixelObjects.erase(pixelObject->name);
 	pixelObjectLayer.erase(pixelObject);
 
@@ -169,6 +171,8 @@ void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(PixelObject * pixelObje
 
 void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(std::string objectName)
 {
+	DebugLayer::Assert(pixelObjects.count(objectName) == 0, Error::NoChildObject, objectName, worldName);
+
 	auto pixelObject = pixelObjects[objectName];
 
 	pixelObjects.erase(objectName);
@@ -190,6 +194,8 @@ void PixelWorldEngine::PixelWorld::RegisterUIObject(UIObject * object)
 
 void PixelWorldEngine::PixelWorld::UnRegisterUIObject(UIObject * object)
 {
+	DebugLayer::Assert(UIObjects.count(object->name) == 0, Error::NoChildObject, object->name, worldName);
+
 	UIObjects.erase(object->name);
 	UIObjectLayer.erase(object);
 
@@ -200,6 +206,8 @@ void PixelWorldEngine::PixelWorld::UnRegisterUIObject(UIObject * object)
 
 void PixelWorldEngine::PixelWorld::UnRegisterUIObject(std::string name)
 {
+	DebugLayer::Assert(UIObjects.count(name) == 0, Error::NoChildObject, name, worldName);
+
 	auto object = UIObjects[name];
 
 	UIObjects.erase(name);

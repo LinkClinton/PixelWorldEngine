@@ -264,7 +264,7 @@ void PixelWorldEngine::UIObject::RegisterUIObject(UIObject * object)
 {
 	UnRegisterFromParent(object);
 	UnRegisterFromPixelWorld(object);
-
+	
 	children[object->name] = object;
 	childrenLayer.insert(object);
 
@@ -275,6 +275,8 @@ void PixelWorldEngine::UIObject::RegisterUIObject(UIObject * object)
 
 void PixelWorldEngine::UIObject::UnRegisterUIObject(UIObject * object)
 {
+	DebugLayer::Assert(children.count(object->name) == 0, Error::NoChildObject, object->name, name);
+
 	children.erase(object->name);
 	childrenLayer.erase(object);
 
@@ -284,11 +286,13 @@ void PixelWorldEngine::UIObject::UnRegisterUIObject(UIObject * object)
 	SetPixelWorld(object, nullptr);
 }
 
-void PixelWorldEngine::UIObject::UnRegisterUIObject(std::string name)
+void PixelWorldEngine::UIObject::UnRegisterUIObject(std::string Name)
 {
-	auto object = children[name];
+	DebugLayer::Assert(children.count(Name) == 0, Error::NoChildObject, Name, name);
 
-	children.erase(name);
+	auto object = children[Name];
+
+	children.erase(Name);
 	childrenLayer.erase(object);
 	
 	object->parent = nullptr;

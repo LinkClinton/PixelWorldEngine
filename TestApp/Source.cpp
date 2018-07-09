@@ -49,7 +49,6 @@ Camera camera = Camera(PixelWorldEngine::RectangleF(-640, -360, 640, 360));
 PixelObject pixelObject = PixelObject("Player", 16, 16, 32, 32);
 UIObject object = UIObject("UIObject", 100, 100, 720, 720);
 UIObject object2 = UIObject("UIObject2", 100, 100, 100, 100);
-UIObject object3 = UIObject("UIObject3", 100, 100, 100, 100);
 Animator animator = Animator("Animator");
 
 void OnCollide(PixelObject* pixelObject) {
@@ -88,6 +87,8 @@ auto IntToString(int Int) -> std::string {
 }
 
 void OnMouseClick(void* sender, Events::MouseClickEvent* eventArg) {
+	auto object = (UIObject*)sender;
+
 	
 }
 
@@ -151,7 +152,7 @@ int main() {
 		}
 	}
 
-	std::uniform_int_distribution<> dis(1, textures.size());
+	std::uniform_int_distribution<> dis(1, textures.size()); 
 
 	for (int i = 0; i < worldMap.GetWidth(); i++)
 		for (int j = 0; j < worldMap.GetHeight(); j++) {
@@ -172,7 +173,9 @@ int main() {
 	pixelObject.Enter.push_back(OnEnter);
 	pixelObject.Leave.push_back(OnLeave);
 
+	object.SetPosition(0, 0);
 	object.SetBorderColor(1, 0, 0);
+	object.SetBorderWidth(4);
 	object.SetRenderObjectID(1);
 	object.SetOpacity(0.5f);
 	object.SetAngle(glm::pi<float>());
@@ -203,9 +206,7 @@ int main() {
 
 	pixelWorld.SetWorldMap(&worldMap);
 	
-	application.KeyClick.push_back(OnKeyEvent);
 	application.Update.push_back(OnUpdate);
-	application.MouseClick.push_back(OnMouseClick);
 
 	application.RegisterAnimator(&animator);
 
