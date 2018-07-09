@@ -47,6 +47,8 @@ namespace PixelWorldEngine {
 
 			~Texture2D();
 
+			void CopyFromTexture2D(Texture2D* srcTexture, int dstPositionX, int dstPositionY, PixelWorldEngine::Rectangle srcRect);
+
 			void Update(void* data);
 
 			auto GetWidth() -> int;
@@ -58,6 +60,32 @@ namespace PixelWorldEngine {
 			auto GetMipLevels() -> int;
 
 			auto GetPixelFormat()->PixelFormat;
+		};
+
+		class BufferArray :public ShaderResource {
+		protected:
+			Graphics* graphics;
+
+			int size;
+			int count;
+
+#ifdef _WIN32
+		public:
+			D3D11_BUFFER_DESC desc;
+
+			ID3D11Buffer* buffer;
+#endif // _WIN32
+			
+		public:
+			BufferArray(Graphics* graphics, void* data, int dataSize, int dataCount = 1);
+
+			~BufferArray();
+
+			void Update(void* data);
+
+			auto GetSize() -> int;
+
+			auto GetCount() -> int;
 		};
 	}
 }

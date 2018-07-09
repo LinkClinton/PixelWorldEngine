@@ -81,6 +81,8 @@ namespace PixelWorldEngine {
 
 			void DrawIndexed(int indexCount, int startIndexLocation = 0, int baseVertexLocation = 0);
 
+			void DrawIndexedInstanced(int indexCount, int instanceCount = 1, int startIndexLocation = 0, int baseVertexLocation = 0);
+
 			~Graphics();
 		};
 	}

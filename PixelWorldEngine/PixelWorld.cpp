@@ -43,12 +43,16 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 	renderObject = new Graphics::RectangleF(0, 0, 1, 1, graphics);
 	
 	buffers.resize((int)BufferIndex::Count);
+	bufferArrays.resize((int)BufferArrayIndex::Count);
 
 	auto matrix = glm::mat4(1);
 
 	buffers[(int)BufferIndex::CameraBuffer] = new Graphics::Buffer(graphics, &matrix , sizeof(glm::mat4x4));
-	buffers[(int)BufferIndex::TransformBuffer] = new Graphics::Buffer(graphics, &matrix, sizeof(glm::mat4x4));
 	buffers[(int)BufferIndex::RenderConfig] = new Graphics::Buffer(graphics, &renderConfig, sizeof(PixelWorldRenderConfig));
+
+	bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData] = new Graphics::BufferArray(graphics, nullptr, sizeof(InstanceData));
+	bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData] = new Graphics::BufferArray(graphics, nullptr, sizeof(InstanceData));
+	bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData] = new Graphics::BufferArray(graphics, nullptr, sizeof(InstanceData));
 
 	defaultShader = new Graphics::GraphicsShader(graphics, 
 		Utility::CharArrayToVector((char*)vsPixelWorldDefaultShaderCode),
@@ -57,6 +61,7 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 	defaultSampler = new Graphics::StaticSampler(graphics);
 
 	worldMap = nullptr;
+	textureManager = nullptr;
 
 	focusUIObject = nullptr;
 
@@ -133,14 +138,9 @@ void PixelWorldEngine::PixelWorld::SetWorldMap(WorldMap * WorldMap)
 	worldMap = WorldMap;
 }
 
-void PixelWorldEngine::PixelWorld::RegisterRenderObjectID(int id, Graphics::Texture2D* texture)
+void PixelWorldEngine::PixelWorld::SetTextureManager(TextureManager * TextureManager)
 {
-	renderObjectIDGroup.insert(std::pair<int, Graphics::Texture2D*>(id, texture));
-}
-
-void PixelWorldEngine::PixelWorld::UnRegisterRenderObjectID(int id)
-{
-	renderObjectIDGroup.erase(id);
+	textureManager = TextureManager;
 }
 
 void PixelWorldEngine::PixelWorld::RegisterWorldMap(WorldMap * worldMap)
@@ -229,7 +229,6 @@ void PixelWorldEngine::PixelWorld::RenderWorldMap()
 	auto viewRect = camera->GetRectangle();
 	auto renderObjectRect = Rectangle();
 
-
 	buffers[(int)BufferIndex::CameraBuffer]->Update(&matrix);
 
 	graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
@@ -244,43 +243,50 @@ void PixelWorldEngine::PixelWorld::RenderWorldMap()
 
 		auto scaleMatrix = glm::scale(glm::mat4(1), glm::vec3(mapBlockSize, mapBlockSize, 1.f));
 
+		std::vector<InstanceData> instanceData;
+
 		for (int x = renderObjectRect.left; x <= renderObjectRect.right; x++) {
 
 			for (int y = renderObjectRect.top; y <= renderObjectRect.bottom; y++) {
 				if (worldMap->GetMapData(x, y) == nullptr) continue;
 
-				auto matrix = glm::translate(glm::mat4(1), glm::vec3(x * mapBlockSize,
-					y * mapBlockSize, 0.f)) * scaleMatrix;
+				InstanceData data;
 
 				auto mapData = worldMap->GetMapData(x, y);
 
-				memcpy(renderConfig.renderObjectID, mapData->RenderObjectID, sizeof(mapData->RenderObjectID));
-				renderConfig.renderColor = glm::vec4(backGroundColor[0], backGroundColor[1], backGroundColor[2], mapData->Opacity);
+				data.worldTransform = glm::translate(glm::mat4(1), glm::vec3(x * mapBlockSize, y * mapBlockSize, 0.f)) * scaleMatrix;
+				memcpy(data.renderObjectID, mapData->RenderObjectID, sizeof(mapData->RenderObjectID));
+				data.renderCoor = glm::vec4(backGroundColor[0], backGroundColor[1], backGroundColor[2], mapData->Opacity);
 
-				buffers[(int)BufferIndex::TransformBuffer]->Update(&matrix);
-				buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
-
-				graphics->SetConstantBuffer(buffers[(int)BufferIndex::TransformBuffer], (int)BufferIndex::TransformBuffer);
-				graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
-
-				for (int id = 0; id < MAX_RENDER_OBJECT; id++) {
-					if (mapData->RenderObjectID[id] == 0) continue;
-					graphics->SetShaderResource(renderObjectIDGroup[mapData->RenderObjectID[id]], id);
-				}
-
-				graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount(), 0, 0);
+				instanceData.push_back(data);
 			}
+		}
+
+		if (instanceData.size() != 0) {
+
+			if (bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData]->GetCount() != instanceData.size()) {
+
+				Utility::Delete(bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData]);
+
+				bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData] =
+					new Graphics::BufferArray(graphics, &instanceData[0], sizeof(InstanceData) * instanceData.size(), instanceData.size());
+			}
+			else bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData]->Update(&instanceData[0]);
+
+			graphics->SetShaderResource(bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData], 1);
+
+			graphics->DrawIndexedInstanced(renderObject->GetIndexBuffer()->GetCount(), instanceData.size(), 0, 0);
 		}
 	}
 }
 
 void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 {
-	memset(renderConfig.renderObjectID, 0, sizeof(renderConfig.renderObjectID));
-	renderConfig.renderColor = glm::vec4(backGroundColor[0], backGroundColor[1], backGroundColor[2], 1);
+	std::vector<InstanceData> instanceData;
 
 	for (auto it = pixelObjectLayer.begin(); it != pixelObjectLayer.end(); it++) {
 		auto pixelObject = *it;
+		InstanceData data;
 
 		if (pixelObject->renderObjectID == 0) continue;
 
@@ -289,22 +295,30 @@ void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 
 		matrix = glm::scale(matrix, glm::vec3(pixelObject->width, pixelObject->height, 1.f));
 
-		renderConfig.renderObjectID[0] = pixelObject->renderObjectID;
-		renderConfig.renderColor.a = pixelObject->opacity;
+		data.renderCoor = glm::vec4(0, 0, 0, pixelObject->opacity);
+		data.renderObjectID[0] = pixelObject->renderObjectID;
+		data.worldTransform = matrix;
 
-		buffers[(int)BufferIndex::TransformBuffer]->Update(&matrix);
-		buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
+		instanceData.push_back(data);
+	}
 
-		graphics->SetConstantBuffer(buffers[(int)BufferIndex::TransformBuffer], (int)BufferIndex::TransformBuffer);
-		graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
+	if (instanceData.size() != 0) {
 
-		graphics->SetShaderResource(renderObjectIDGroup[pixelObject->renderObjectID], 0);
+		if (bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData]->GetCount() != instanceData.size()) {
+			Utility::Delete(bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData]);
 
-		graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount(), 0, 0);
+			bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData] =
+				new Graphics::BufferArray(graphics, &instanceData[0], sizeof(InstanceData) * instanceData.size(), instanceData.size());
+		}
+		else bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData]->Update(&instanceData[0]);
+
+		graphics->SetShaderResource(bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData], 1);
+
+		graphics->DrawIndexedInstanced(renderObject->GetIndexBuffer()->GetCount(), instanceData.size(), 0, 0);
 	}
 }
 
-void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, float baseOpacity, UIObject* object)
+void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, float baseOpacity, UIObject* object, std::vector<InstanceData>* instanceData)
 {
 	auto halfWidth = object->width * 0.5f;
 	auto halfHeight = object->height * 0.5f;
@@ -314,8 +328,6 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, flo
 	
 	glm::mat4x4 translationMatrix = baseTransform * object->transformMatrix;
 
-	renderConfig.renderColor = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], opacity);
-
 	if (object->borderWidth != 0.0f) {
 		auto widthScaleMatrix = glm::scale(glm::mat4(1), glm::vec3(object->width, object->borderWidth, 1.0f));
 		auto heightScaleMatrix = glm::scale(glm::mat4(1), glm::vec3(object->borderWidth, object->height, 1.0f));
@@ -323,26 +335,22 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, flo
 		auto beforeRotateMatrix = glm::translate(glm::mat4(1), glm::vec3(-halfWidth, -halfHeight, 0.0f));
 		auto afterRotateMatrix = glm::translate(glm::mat4(1), glm::vec3(halfWidth, halfHeight, 0.0f));
 
-		glm::mat4x4 borderMatrix[4];
+		InstanceData data[4];
 
-		borderMatrix[0] = translationMatrix * widthScaleMatrix;
-		borderMatrix[1] = glm::translate(translationMatrix, glm::vec3(0.0f, object->height - object->borderWidth - 1, 0.0f)) * widthScaleMatrix;
-		borderMatrix[2] = translationMatrix * heightScaleMatrix;
-		borderMatrix[3] = glm::translate(translationMatrix, glm::vec3(object->width - object->borderWidth - 1, 0.0f, 0.0f)) * heightScaleMatrix;
+		data[0].worldTransform = translationMatrix * widthScaleMatrix;
+		data[1].worldTransform = glm::translate(translationMatrix, glm::vec3(0.0f, object->height - object->borderWidth - 1, 0.0f)) * widthScaleMatrix;
+		data[2].worldTransform = translationMatrix * heightScaleMatrix;
+		data[3].worldTransform = glm::translate(translationMatrix, glm::vec3(object->width - object->borderWidth - 1, 0.0f, 0.0f)) * heightScaleMatrix;
 
-		renderConfig.renderObjectID[0] = 0;
+		auto color = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], object->opacity);
 
-		buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
+		data[0].renderCoor = color;
+		data[1].renderCoor = color;
+		data[2].renderCoor = color;
+		data[3].renderCoor = color;
 
-		graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
-
-		for (int i = 0; i < 4; i++) {
-			buffers[(int)BufferIndex::TransformBuffer]->Update(&borderMatrix[i]);
-
-			graphics->SetConstantBuffer(buffers[(int)BufferIndex::TransformBuffer], (int)BufferIndex::TransformBuffer);
-
-			graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount(), 0, 0);
-		}
+		for (int i = 0; i < 4; i++)
+			instanceData[i].push_back(data[i]);
 	}
 
 	if (object->renderObjectID != 0) {
@@ -351,21 +359,17 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, flo
 		matrix = glm::translate(translationMatrix, glm::vec3(object->borderWidth, object->borderWidth, 0.0f));
 		matrix = glm::scale(matrix, glm::vec3(object->width - twoBorderWidth, object->height - twoBorderWidth, 1.0f));
 
-		renderConfig.renderObjectID[0] = object->renderObjectID;
+		InstanceData data;
 
-		buffers[(int)BufferIndex::TransformBuffer]->Update(&matrix);
-		buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
+		data.renderCoor = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], object->opacity);
+		data.renderObjectID[0] = object->renderObjectID;
+		data.worldTransform = matrix;
 
-		graphics->SetConstantBuffer(buffers[(int)BufferIndex::TransformBuffer], (int)BufferIndex::TransformBuffer);
-		graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
-
-		graphics->SetShaderResource(renderObjectIDGroup[object->renderObjectID], 0);
-
-		graphics->DrawIndexed(renderObject->GetIndexBuffer()->GetCount(), 0, 0);
+		instanceData[4].push_back(data);
 	}
 
 	for (auto it = object->childrenLayer.begin(); it != object->childrenLayer.end(); it++)
-		RenderUIObject(translationMatrix, opacity, *it);
+		RenderUIObject(translationMatrix, opacity, *it, instanceData);
 }
 
 void PixelWorldEngine::PixelWorld::RenderUIObjects()
@@ -376,13 +380,29 @@ void PixelWorldEngine::PixelWorld::RenderUIObjects()
 
 	graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
 
-	memset(renderConfig.renderObjectID, 0, sizeof(renderConfig.renderObjectID));
-	renderConfig.renderColor = glm::vec4(backGroundColor[0], backGroundColor[1], backGroundColor[2], 1);
+	std::vector<InstanceData> instanceData[5];
 
 	for (auto it = UIObjectLayer.begin(); it != UIObjectLayer.end(); it++) {
 		auto object = *it;
 
-		RenderUIObject(glm::mat4(1), 1.0f, object);
+		RenderUIObject(glm::mat4(1), 1.0f, object, instanceData);
+	}
+
+	for (int i = 0; i < 5; i++) {
+		if (instanceData[i].size() != 0) {
+
+			if (bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData]->GetCount() != instanceData[i].size()) {
+				Utility::Delete(bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData]);
+
+				bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData] =
+					new Graphics::BufferArray(graphics, &instanceData[i][0], sizeof(InstanceData) * instanceData[i].size(), instanceData[i].size());
+			}
+			else bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData]->Update(&instanceData[i][0]);
+
+			graphics->SetShaderResource(bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData], 1);
+
+			graphics->DrawIndexedInstanced(renderObject->GetIndexBuffer()->GetCount(), instanceData[i].size(), 0, 0);
+		}
 	}
 }
 
@@ -400,10 +420,20 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 
 	graphics->SetVertexBuffer(renderObject->GetVertexBuffer());
 	graphics->SetIndexBuffer(renderObject->GetIndexBuffer());
-	
-	graphics->SetStaticSampler(defaultSampler, 0);
 
 	graphics->SetBlendState(true);
+
+	graphics->SetStaticSampler(defaultSampler, 0);
+
+	if (textureManager != nullptr) {
+		graphics->SetShaderResource(textureManager->finalTexture, 0);
+		renderConfig.maxRenderObjectID[0] = textureManager->maxRenderObjectID;
+	}
+	else renderConfig.maxRenderObjectID[0] = 0;
+
+	buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
+	
+	graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
 
 	RenderWorldMap();
 
@@ -414,6 +444,9 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 	return renderBuffer;
 }
 
-
-
-
+PixelWorldEngine::InstanceData::InstanceData()
+{
+	memset(renderObjectID, 0, sizeof(renderObjectID));
+	worldTransform = glm::mat4(1);
+	renderCoor = glm::vec4(0, 0, 0, 0);
+}

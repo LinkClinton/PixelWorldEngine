@@ -274,6 +274,19 @@ void PixelWorldEngine::Graphics::Graphics::DrawIndexed(int indexCount, int start
 
 }
 
+void PixelWorldEngine::Graphics::Graphics::DrawIndexedInstanced(int indexCount, int instanceCount, int startIndexLocation, int baseVertexLocation)
+{
+
+#ifdef _WIN32
+
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	deviceContext->IASetInputLayout(inputLayout);
+	deviceContext->DrawIndexedInstanced(indexCount, instanceCount, startIndexLocation, baseVertexLocation, 0);
+
+#endif // _WIN32
+
+}
+
 PixelWorldEngine::Graphics::Graphics::~Graphics()
 {
 #ifdef _WIN32

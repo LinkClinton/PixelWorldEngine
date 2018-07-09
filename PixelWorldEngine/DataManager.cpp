@@ -102,6 +102,8 @@ auto PixelWorldEngine::DataManager::RegisterTexture(std::string fileName) -> Gra
 	auto texture = new Graphics::Texture2D(graphics, SDL_resultImage->pixels, SDL_resultImage->w, SDL_resultImage->h,
 		Graphics::PixelFormat::R8G8B8A8);
 	
+	SDL_Color* color = (SDL_Color*)SDL_resultImage->pixels;
+
 	textures[fileName] = texture;
 
 	SDL_FreeSurface(SDL_image);

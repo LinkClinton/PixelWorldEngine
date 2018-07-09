@@ -19,6 +19,10 @@ namespace PixelWorldEngine {
 		CanNotAddAnimationWhenAnimatorRun,
 		//We do not have this child object called %s in %s 
 		NoChildObject,
+		//The texture's width or height is not matched.
+		ErrorTextureWidthOrHeight,
+		//The Pixel Format is not matched.
+		ErrorPixelFormat,
 		Count
 	};
 
@@ -29,7 +33,9 @@ namespace PixelWorldEngine {
 		"The file (%s) format is not supported.",
 		"The animation (%s) need two frames at least.",
 		"We can not add the animation (%s) into animator (%s) when the animator is running.",
-		"We do not have this child object called %s in %s."
+		"We do not have this child object called %s in %s.",
+		"The texture's width or height is not matched.",
+		"The Pixel Format is not matched."
 	};
 
 	class DebugLayer {

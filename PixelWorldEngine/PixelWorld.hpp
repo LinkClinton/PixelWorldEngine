@@ -2,6 +2,7 @@
 
 #include "pch.hpp"
 
+#include "TextureManager.hpp"
 #include "DataManager.hpp"
 #include "Graphics.hpp"
 #include "Events.hpp"
@@ -21,15 +22,28 @@ namespace PixelWorldEngine {
 	 */
 	enum class BufferIndex : int {
 		CameraBuffer, //摄像机矩阵缓冲
-		TransformBuffer, //变换矩阵缓冲
 		RenderConfig, //记录当前渲染的时候的设置
 		Count
 	};
 
+	enum class BufferArrayIndex :int {
+		WorldMapInstanceData, //渲染地图实例数据
+		PixelObjectInstanceData, //渲染PixelObject实例数据
+		UIObjectInstanceData, //渲染UIObject实例数据
+		Count
+	};
+
 	struct PixelWorldRenderConfig {
+		int maxRenderObjectID[4];
+		glm::vec4 unused[3];
+	};
+
+	struct InstanceData {
 		int renderObjectID[MAX_RENDER_OBJECT];
-		glm::vec4 renderColor;
-		glm::vec4 unused1[2];
+		glm::mat4x4 worldTransform;
+		glm::vec4 renderCoor;
+
+		InstanceData();
 	};
 
 	/**
@@ -58,16 +72,17 @@ namespace PixelWorldEngine {
 		Graphics::GraphicsShader* shader; //使用的着色器
 
 		std::vector<Graphics::Buffer*> buffers; //缓冲数组
+		std::vector<Graphics::BufferArray*> bufferArrays; //缓冲数组
 
 		Graphics::RectangleF* renderObject; //正方形
 		Graphics::RectangleF* renderCanvas; //画布
 
 		Graphics::StaticSampler* defaultSampler; //默认的采样器
 
+		TextureManager* textureManager; //纹理管理
+
 		WorldMap* worldMap; //当前使用的地图，默认为空
 
-		std::map<int, Graphics::Texture2D*> renderObjectIDGroup; //用于存储纹理，不同的ID对应不同的纹理
-	
 		std::map<std::string, WorldMap*> worldMaps; //存储世界的地图
 		std::map<std::string, PixelObject*> pixelObjects; //存储世界的物体
 		std::map<std::string, UIObject*> UIObjects; //存储UI物体
@@ -130,7 +145,7 @@ namespace PixelWorldEngine {
 		 * @param[in] baseTransform 父亲的位移
 		 * @param[in] object 物体
 		 */
-		void RenderUIObject(glm::mat4x4 baseTransform, float baseOpacity, UIObject* object);
+		void RenderUIObject(glm::mat4x4 baseTransform, float baseOpacity, UIObject* object, std::vector<InstanceData>* instanceData);
 
 		/**
 		 * @brief 渲染UI物体，作为GetCurrentWorld的子部分
@@ -195,17 +210,10 @@ namespace PixelWorldEngine {
 		void SetWorldMap(WorldMap* worldMap);
 
 		/**
-		 * @brief 注册一个渲染物体，请注意保持纹理的生命周期
-		 * @param[in] id 我们注册的渲染物体的ID，注意不能为0
-		 * @param[in] fileData 渲染物体的数据信息，注意数据必须是数据格式R8G8B8A8
+		 * @brief 设置纹理管理器，用于管理不同的渲染ID使用的纹理
+		 * @param[in] textureManager 纹理管理器
 		 */
-		void RegisterRenderObjectID(int id, Graphics::Texture2D* texture);
-
-		/**
-		 * @brief 释放我们注册过的渲染物体
-		 * @param[in] id 我们要释放的渲染物体的ID
-		 */
-		void UnRegisterRenderObjectID(int id);
+		void SetTextureManager(TextureManager* textureManager);
 
 		/**
 		 * @brief 注册世界的地图

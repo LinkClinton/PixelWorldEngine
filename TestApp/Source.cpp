@@ -41,12 +41,16 @@ public:
 		:PixelObject(Name, PositionX, PositionY, Width, Height){}
 };
 
+int cameraWidth = 1920;
+int cameraHeight = 1080;
+
 Application application = Application("Application");
 PixelWorld pixelWorld = PixelWorld("PixelWorld", &application);
 DataManager dataManager = DataManager(&application);
+TextureManager textureManager = TextureManager(&application, 64, 64);
 WorldMap worldMap = WorldMap("Map1", 100, 100);
-Camera camera = Camera(PixelWorldEngine::RectangleF(-640, -360, 640, 360));
-PixelObject pixelObject = PixelObject("Player", 16, 16, 32, 32);
+Camera camera = Camera(PixelWorldEngine::RectangleF(-cameraWidth * 0.5f, -cameraHeight * 0.5f, cameraWidth * 0.5f, cameraHeight * 0.5f));
+PixelObject pixelObject = PixelObject("Player", 32, 32, 64, 64);
 UIObject object = UIObject("UIObject", 100, 100, 720, 720);
 UIObject object2 = UIObject("UIObject2", 100, 100, 100, 100);
 Animator animator = Animator("Animator");
@@ -134,7 +138,7 @@ void OnUpdate(void* sender) {
 	if (isKeyDown == true) {
 		pixelObject.Move(transform.x, transform.y);
 		camera.SetFocus(pixelObject.GetPositionX(), pixelObject.GetPositionY(),
-			PixelWorldEngine::RectangleF(640, 360, 640, 360));
+			PixelWorldEngine::RectangleF(cameraWidth * 0.5f, cameraHeight * 0.5f, cameraWidth * 0.5f, cameraHeight * 0.5f));
 
 	}
 }
@@ -143,14 +147,17 @@ int main() {
 	auto texture = dataManager.RegisterTexture("T.jpg");
 	auto texture1 = dataManager.RegisterTexture("P.png");
 
-	pixelWorld.RegisterRenderObjectID(-1, texture1);
-
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 8; j++) {
 			textures.push_back(new Texture2D(texture, PixelWorldEngine::Rectangle(j * 64, i * 64, j * 64 + 64, i * 64 + 64)));
-			pixelWorld.RegisterRenderObjectID(textures.size(), textures[textures.size() - 1]);
+
+			textureManager.AddTexture(textures.size(), textures[textures.size() - 1]);
 		}
 	}
+
+	textureManager.AddTexture(33, texture1);
+
+	textureManager.MergeTextures();
 
 	std::uniform_int_distribution<> dis(1, textures.size()); 
 
@@ -166,9 +173,9 @@ int main() {
 	worldMap.SetMapBlockSize(64);
 
 	camera.SetFocus(pixelObject.GetPositionX(), pixelObject.GetPositionY(),
-		PixelWorldEngine::RectangleF(640, 360, 640, 360));
+		PixelWorldEngine::RectangleF(cameraWidth * 0.5f, cameraHeight * 0.5f, cameraWidth * 0.5f, cameraHeight * 0.5f));
 
-	pixelObject.SetRenderObjectID(-1);
+	pixelObject.SetRenderObjectID(33);
 	pixelObject.Collide.push_back(OnCollide);
 	pixelObject.Enter.push_back(OnEnter);
 	pixelObject.Leave.push_back(OnLeave);
@@ -184,9 +191,9 @@ int main() {
 	object2.SetBorderWidth(1);
 	object2.SetAngle(glm::pi<float>()*0.25f);
 
-	
-
 	object.RegisterUIObject(&object2);
+
+	pixelWorld.SetTextureManager(&textureManager);
 
 	pixelWorld.SetResolution(1920, 1080);
 	pixelWorld.SetCamera(&camera);
@@ -199,7 +206,7 @@ int main() {
 	for (int i = 5; i <= 15; i++) {
 		auto object = new PixelObject(IntToString(i), i * 50.0f, i * 50.0f, 50, 50);
 		object->EnablePhysicsCollision(false);
-		object->SetDepthLayer(1);
+		object->SetDepthLayer(0);
 		object->SetRenderObjectID(20);
 		pixelWorld.RegisterPixelObject(object);
 	}

@@ -145,6 +145,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="p.png" />
     <Image Include="T.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
