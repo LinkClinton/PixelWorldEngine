@@ -290,8 +290,8 @@ void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 
 		if (pixelObject->renderObjectID == 0) continue;
 
-		auto matrix = glm::translate(glm::mat4(1), glm::vec3(pixelObject->positionX - pixelObject->halfWidth,
-			pixelObject->positionY - pixelObject->halfHeight, 0.f));
+		auto matrix = glm::translate(glm::mat4(1), glm::vec3(pixelObject->positionX,
+			pixelObject->positionY, 0.f));
 
 		matrix = glm::scale(matrix, glm::vec3(pixelObject->width, pixelObject->height, 1.f));
 

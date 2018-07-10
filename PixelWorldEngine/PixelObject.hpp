@@ -43,14 +43,11 @@ namespace PixelWorldEngine {
 	private:
 		std::string name; //物体的名称
 
-		float positionX; //物体中心点的X坐标，默认为0
-		float positionY; //物体中心点的Y坐标，默认为0
+		float positionX; //物体左上角的X坐标，默认为0
+		float positionY; //物体左上角的Y坐标，默认为0
 
 		float width; //物体宽度，默认为1
 		float height; //物体高度，默认为1
-
-		float halfWidth; //物体宽度的一半，默认为0.5f
-		float halfHeight; //物体高度的一半，默认为0.5f
 
 		float opacity; //不透明度
 
