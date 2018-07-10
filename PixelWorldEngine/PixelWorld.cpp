@@ -60,6 +60,8 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 	
 	defaultSampler = new Graphics::StaticSampler(graphics);
 
+	textureManager = new TextureManager(Application);
+
 	worldMap = nullptr;
 	textureManager = nullptr;
 
@@ -253,9 +255,14 @@ void PixelWorldEngine::PixelWorld::RenderWorldMap()
 				InstanceData data;
 
 				auto mapData = worldMap->GetMapData(x, y);
+				auto whichID = textureManager->GetWhich(mapData->RenderObjectID);
+
+				if (whichID == MAX_MERGETEXTURE_COUNT) continue;
 
 				data.worldTransform = glm::translate(glm::mat4(1), glm::vec3(x * mapBlockSize, y * mapBlockSize, 0.f)) * scaleMatrix;
-				memcpy(data.renderObjectID, mapData->RenderObjectID, sizeof(mapData->RenderObjectID));
+				data.texcoordTransform = textureManager->mergeTextures[whichID]->GetTexCoordTransform(mapData->RenderObjectID);
+				data.setting[0] = mapData->RenderObjectID;
+				data.setting[1] = whichID;
 				data.renderCoor = glm::vec4(backGroundColor[0], backGroundColor[1], backGroundColor[2], mapData->Opacity);
 
 				instanceData.push_back(data);
@@ -273,7 +280,7 @@ void PixelWorldEngine::PixelWorld::RenderWorldMap()
 			}
 			else bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData]->Update(&instanceData[0]);
 
-			graphics->SetShaderResource(bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData], 1);
+			graphics->SetShaderResource(bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData], 0);
 
 			graphics->DrawIndexedInstanced(renderObject->GetIndexBuffer()->GetCount(), instanceData.size(), 0, 0);
 		}
@@ -292,12 +299,17 @@ void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 
 		auto matrix = glm::translate(glm::mat4(1), glm::vec3(pixelObject->positionX,
 			pixelObject->positionY, 0.f));
+		auto whichID = textureManager->GetWhich(pixelObject->renderObjectID);
+
+		if (whichID == MAX_MERGETEXTURE_COUNT) continue;
 
 		matrix = glm::scale(matrix, glm::vec3(pixelObject->width, pixelObject->height, 1.f));
 
 		data.renderCoor = glm::vec4(0, 0, 0, pixelObject->opacity);
-		data.renderObjectID[0] = pixelObject->renderObjectID;
+		data.setting[0] = pixelObject->renderObjectID;
+		data.setting[1] = whichID;
 		data.worldTransform = matrix;
+		data.texcoordTransform = textureManager->mergeTextures[whichID]->GetTexCoordTransform(pixelObject->renderObjectID);
 
 		instanceData.push_back(data);
 	}
@@ -312,7 +324,7 @@ void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 		}
 		else bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData]->Update(&instanceData[0]);
 
-		graphics->SetShaderResource(bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData], 1);
+		graphics->SetShaderResource(bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData], 0);
 
 		graphics->DrawIndexedInstanced(renderObject->GetIndexBuffer()->GetCount(), instanceData.size(), 0, 0);
 	}
@@ -361,11 +373,18 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, flo
 
 		InstanceData data;
 
-		data.renderCoor = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], object->opacity);
-		data.renderObjectID[0] = object->renderObjectID;
-		data.worldTransform = matrix;
+		int whichID = textureManager->GetWhich(object->renderObjectID);
 
-		instanceData[4].push_back(data);
+		if (whichID != MAX_MERGETEXTURE_COUNT) {
+
+			data.renderCoor = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], object->opacity);
+			data.setting[0] = object->renderObjectID;
+			data.setting[1] = whichID;
+			data.worldTransform = matrix;
+			data.texcoordTransform = textureManager->mergeTextures[whichID]->GetTexCoordTransform(object->renderObjectID);
+
+			instanceData[4].push_back(data);
+		}
 	}
 
 	for (auto it = object->childrenLayer.begin(); it != object->childrenLayer.end(); it++)
@@ -399,7 +418,7 @@ void PixelWorldEngine::PixelWorld::RenderUIObjects()
 			}
 			else bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData]->Update(&instanceData[i][0]);
 
-			graphics->SetShaderResource(bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData], 1);
+			graphics->SetShaderResource(bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData], 0);
 
 			graphics->DrawIndexedInstanced(renderObject->GetIndexBuffer()->GetCount(), instanceData[i].size(), 0, 0);
 		}
@@ -425,12 +444,12 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 
 	graphics->SetStaticSampler(defaultSampler, 0);
 
-	if (textureManager != nullptr) {
-		graphics->SetShaderResource(textureManager->finalTexture, 0);
-		renderConfig.maxRenderObjectID[0] = textureManager->maxRenderObjectID;
-	}
-	else renderConfig.maxRenderObjectID[0] = 0;
+	for (int i = 0; i < MAX_MERGETEXTURE_COUNT; i++) {
+		if (textureManager->mergeTextures[i] == nullptr) continue;
 
+		graphics->SetShaderResource(textureManager->mergeTextures[i]->GetFinalTexture(), i + 1);
+	}
+	
 	buffers[(int)BufferIndex::RenderConfig]->Update(&renderConfig);
 	
 	graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
@@ -446,7 +465,8 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 
 PixelWorldEngine::InstanceData::InstanceData()
 {
-	memset(renderObjectID, 0, sizeof(renderObjectID));
+	memset(setting, 0, sizeof(setting));
 	worldTransform = glm::mat4(1);
+	texcoordTransform = glm::mat4(1);
 	renderCoor = glm::vec4(0, 0, 0, 0);
 }

@@ -17,8 +17,9 @@ struct OutputData
 
 struct InstanceData
 {
-    int4 renderObjectID;
+    int4 setting;
     matrix worldTransform;
+    matrix texcoordTransform;
     float4 renderColor;
 };
 
@@ -29,13 +30,16 @@ cbuffer Camera : register(b0)
 
 cbuffer RenderConfig : register(b1)
 {
-    int4 maxRenderObjectID;
-    float4 unused[3];
+    float4 unused[4];
 };
 
-Texture2D Texture0 : register(t0);
+StructuredBuffer<InstanceData> instanceData : register(t0);
 
-StructuredBuffer<InstanceData> instanceData : register(t1);
+Texture2D Texture0 : register(t1);
+Texture2D Texture1 : register(t2);
+Texture2D Texture2 : register(t3);
+Texture2D Texture3 : register(t4);
+
 
 SamplerState sampler0 : register(s0);
 
@@ -47,7 +51,7 @@ OutputData main(InputData input, uint id : SV_INSTANCEID)
     result.positionH = mul(result.positionH, project);
 
     result.color = input.color;
-    result.tex0 = input.tex0;
+    result.tex0 = mul(float4(input.tex0, 0, 1), instanceData[id].texcoordTransform).xy;
     result.id = id;
 
     return result;

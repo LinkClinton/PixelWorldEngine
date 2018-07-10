@@ -2,7 +2,7 @@
 
 PixelWorldEngine::MapData::MapData()
 {
-	memset(RenderObjectID, 0, sizeof(RenderObjectID));
+	RenderObjectID = 0;
 
 	MoveEnable = true;
 

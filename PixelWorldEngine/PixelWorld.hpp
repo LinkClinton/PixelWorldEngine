@@ -18,7 +18,7 @@
 namespace PixelWorldEngine {
 
 	/**
-	 * 用来表述用途不同的缓冲的在着色器以及数组的ID
+	 * @brief 用来表述用途不同的缓冲的在着色器以及数组的ID
 	 */
 	enum class BufferIndex : int {
 		CameraBuffer, //摄像机矩阵缓冲
@@ -26,6 +26,9 @@ namespace PixelWorldEngine {
 		Count
 	};
 
+	/**
+	 * @brief 用来表述不同用途的缓冲数组的索引
+	 */
 	enum class BufferArrayIndex :int {
 		WorldMapInstanceData, //渲染地图实例数据
 		PixelObjectInstanceData, //渲染PixelObject实例数据
@@ -33,15 +36,21 @@ namespace PixelWorldEngine {
 		Count
 	};
 
+	/**
+	 * @brief 全局渲染设置，目前不使用
+	 */
 	struct PixelWorldRenderConfig {
-		int maxRenderObjectID[4];
-		glm::vec4 unused[3];
+		glm::vec4 unused[4];
 	};
 
+	/**
+	 * @brief 实例数据
+	 */
 	struct InstanceData {
-		int renderObjectID[MAX_RENDER_OBJECT];
-		glm::mat4x4 worldTransform;
-		glm::vec4 renderCoor;
+		int setting[4]; //设置，第一个元素是使用的渲染ID 
+		glm::mat4x4 worldTransform; //世界变换矩阵
+		glm::mat4x4 texcoordTransform; //纹理变换矩阵
+		glm::vec4 renderCoor; //渲染的颜色，第四个分量是不透明度
 
 		InstanceData();
 	};

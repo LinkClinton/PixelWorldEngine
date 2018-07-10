@@ -35,6 +35,7 @@
     <ClInclude Include="GraphicsRenderTarget.hpp" />
     <ClInclude Include="Input.hpp" />
     <ClInclude Include="KeyCode.hpp" />
+    <ClInclude Include="MergeTexture.hpp" />
     <ClInclude Include="PixelWorld.hpp" />
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="GraphicsShader.hpp" />
@@ -61,6 +62,7 @@
     <ClCompile Include="GraphicsRenderTarget.cpp" />
     <ClCompile Include="GraphicsShader.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="MergeTexture.cpp" />
     <ClCompile Include="PixelObject.cpp" />
     <ClCompile Include="PixelWorld.cpp" />
     <ClCompile Include="ShaderResource.cpp" />

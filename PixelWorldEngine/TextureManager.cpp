@@ -3,68 +3,32 @@
 #include "Application.hpp"
 #include "Utility.hpp"
 
-PixelWorldEngine::TextureManager::TextureManager(Application * application, int WidthRequirement, int HeightRequirement)
+PixelWorldEngine::TextureManager::TextureManager(Application * application)
 {
 	graphics = application->GetGraphics();
 
-	widthRequirement = WidthRequirement;
-	heightRequirement = HeightRequirement;
-
-	maxRenderObjectID = 0;
-
-	finalTexture = nullptr;
+	memset(mergeTextures, 0, sizeof(mergeTextures));
 }
 
-void PixelWorldEngine::TextureManager::AddTexture(int id, Graphics::Texture2D * texture)
+void PixelWorldEngine::TextureManager::AddMergeTexture(int id, MergeTexture * mergeTexture)
 {
-	DebugLayer::Assert(texture->GetWidth() != widthRequirement ||
-		texture->GetHeight() != heightRequirement, Error::ErrorTextureWidthOrHeight);
+	if (id >= MAX_MERGETEXTURE_COUNT) return;
 
-	DebugLayer::Assert(texture->GetPixelFormat() != Graphics::PixelFormat::R8G8B8A8, Error::ErrorPixelFormat);
-
-	if (id <= 0) return;
-
-	textures[id] = texture;
-
-	maxRenderObjectID = Utility::Max(maxRenderObjectID, id);
+	mergeTextures[id] = mergeTexture;
 }
 
-void PixelWorldEngine::TextureManager::RemoveTexture(int id)
+void PixelWorldEngine::TextureManager::RemoveMergeTexture(int id)
 {
-	if (textures.count(id) != 0)
-		textures.erase(id);
+	mergeTextures[id] = nullptr;
 }
 
-void PixelWorldEngine::TextureManager::MergeTextures()
+auto PixelWorldEngine::TextureManager::GetWhich(int renderObjectID) -> int
 {
-	Utility::Delete(finalTexture);
+	for (int i = 0; i < MAX_MERGETEXTURE_COUNT; i++) {
+		if (mergeTextures[i] == nullptr) continue;
 
-	finalTexture = new Graphics::Texture2D(graphics, nullptr, widthRequirement * maxRenderObjectID, heightRequirement,
-		Graphics::PixelFormat::R8G8B8A8);
-
-	for (auto it = textures.begin(); it != textures.end(); it++) {
-
-		finalTexture->CopyFromTexture2D(it->second, (it->first - 1) * widthRequirement, 0,
-			PixelWorldEngine::Rectangle(0, 0, widthRequirement, heightRequirement));
+		if (mergeTextures[i]->IsExistID(renderObjectID) == true) return i;
 	}
-}
 
-auto PixelWorldEngine::TextureManager::GetFinalTexture() -> Graphics::Texture2D *
-{
-	return finalTexture;
-}
-
-auto PixelWorldEngine::TextureManager::GetWidthRequirement() -> int
-{
-	return widthRequirement;
-}
-
-auto PixelWorldEngine::TextureManager::GetHeightRequirement() -> int
-{
-	return heightRequirement;
-}
-
-auto PixelWorldEngine::TextureManager::GetMaxRenderObjectID() -> int
-{
-	return maxRenderObjectID;
+	return MAX_MERGETEXTURE_COUNT;
 }

@@ -47,7 +47,9 @@ int cameraHeight = 720;
 Application application = Application("Application");
 PixelWorld pixelWorld = PixelWorld("PixelWorld", &application);
 DataManager dataManager = DataManager(&application);
-TextureManager textureManager = TextureManager(&application, 64, 64);
+TextureManager textureManager = TextureManager(&application);
+MergeTexture mergeTexture = MergeTexture(&application, 640, 640);
+MergeTexture mergeTexture1 = MergeTexture(&application, 640, 640);
 WorldMap worldMap = WorldMap("Map1", 100, 100);
 Camera camera = Camera(PixelWorldEngine::RectangleF(-cameraWidth * 0.5f, -cameraHeight * 0.5f, cameraWidth * 0.5f, cameraHeight * 0.5f));
 PixelObject pixelObject = PixelObject("Player", 0, 0, 64, 64);
@@ -117,7 +119,7 @@ void OnUpdate(void* sender) {
 
 		if (mapData != nullptr) {
 			mapData->MoveEnable = false;
-			mapData->RenderObjectID[0] = 22;
+			mapData->RenderObjectID = 22;
 		}
 	}
 
@@ -151,13 +153,14 @@ int main() {
 		for (int j = 0; j < 8; j++) {
 			textures.push_back(new Texture2D(texture, PixelWorldEngine::Rectangle(j * 64, i * 64, j * 64 + 64, i * 64 + 64)));
 
-			textureManager.AddTexture(textures.size(), textures[textures.size() - 1]);
+			mergeTexture.AddTexture(textures.size(), j * 64, i * 64, textures[textures.size() - 1]);
 		}
 	}
 
-	textureManager.AddTexture(33, texture1);
-
-	textureManager.MergeTextures();
+	mergeTexture1.AddTexture(33, 9 * 64, 9 * 64, texture1);
+	
+	textureManager.AddMergeTexture(0, &mergeTexture);
+	textureManager.AddMergeTexture(1, &mergeTexture1);
 
 	std::uniform_int_distribution<> dis(1, textures.size()); 
 
@@ -165,7 +168,7 @@ int main() {
 		for (int j = 0; j < worldMap.GetHeight(); j++) {
 			auto mapData = new MapData();
 			mapData->MoveEnable = true;
-			mapData->RenderObjectID[0] = 18;
+			mapData->RenderObjectID = 18;
 			mapData->Opacity = 1.f;
 			worldMap.SetMapData(i, j, mapData);
 		}
