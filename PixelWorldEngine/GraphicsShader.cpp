@@ -31,8 +31,15 @@ PixelWorldEngine::Graphics::GraphicsShader::GraphicsShader(Graphics * Graphics,
 		UINT flag = D3DCOMPILE_OPTIMIZATION_LEVEL2;
 #endif // DEBUG
 
+		std::string vsVersion = "vs_4_0";
+		std::string psVersion = "ps_4_0";
+
+		if (graphics->feature == D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_0)
+			vsVersion = "vs_5_0",
+			psVersion = "ps_5_0";
+
 		D3DCompile(&VertexShaderCode[0], VertexShaderCode.size(), nullptr, nullptr,
-			D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", flag, 0,
+			D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", &vsVersion[0], flag, 0,
 			&result, &error);
 
 		if (error != nullptr)
@@ -48,7 +55,7 @@ PixelWorldEngine::Graphics::GraphicsShader::GraphicsShader(Graphics * Graphics,
 		Utility::Dispose(error);
 
 		D3DCompile(&PixelShaderCode[0], PixelShaderCode.size(), nullptr, nullptr,
-			D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", flag, 0,
+			D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", &psVersion[0], flag, 0,
 			&result, &error);
 
 		if (error != nullptr)

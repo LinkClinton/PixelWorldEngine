@@ -149,7 +149,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)ThirdParty;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)ThirdParty\SDL2\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)ThirdParty\freetype\win32;$(SolutionDir)ThirdParty\SDL2\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)ThirdParty;$(IncludePath)</IncludePath>
@@ -168,6 +168,7 @@
     </ProjectReference>
     <PreBuildEvent>
       <Command>xcopy /e /r /y "$(SolutionDir)ThirdParty/SDL2/x86" "$(OutDir)"
+xcopy /e /r /y "$(SolutionDir)ThirdParty/freetype\win32" "$(OutDir)"
 py "$(ProjectDir)ShaderToString.py"</Command>
     </PreBuildEvent>
     <PostBuildEvent>

@@ -41,8 +41,8 @@ public:
 		:PixelObject(Name, PositionX, PositionY, Width, Height){}
 };
 
-int cameraWidth = 1920;
-int cameraHeight = 1080;
+int cameraWidth = 1280;
+int cameraHeight = 720;
 
 Application application = Application("Application");
 PixelWorld pixelWorld = PixelWorld("PixelWorld", &application);
