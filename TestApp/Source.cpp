@@ -26,13 +26,13 @@ std::default_random_engine randomEngine(0);
 class Player :public PixelObject {
 protected:
 	virtual void OnCollide(PixelObject* pixelObject)override {
-		std::cout << "Collidde Object: " + pixelObject->GetName() << std::endl;
+		std::cout << u8"Collidde Object: " + pixelObject->GetName() << std::endl;
 	}
 	virtual void OnEnter(PixelObject* pixelObject)override {
-		std::cout << "Enter Object: " + pixelObject->GetName() << std::endl;
+		std::cout << u8"Enter Object: " + pixelObject->GetName() << std::endl;
 	}
 	virtual void OnLeave(PixelObject* pixelObject)override {
-		std::cout << "Leave Object: " + pixelObject->GetName() << std::endl;
+		std::cout << u8"Leave Object: " + pixelObject->GetName() << std::endl;
 	}
 	virtual void OnUpdate(float deltaTime)override {
 
@@ -45,18 +45,18 @@ public:
 int cameraWidth = 1920;
 int cameraHeight = 1080;
 
-Application application = Application("Application");
-PixelWorld pixelWorld = PixelWorld("PixelWorld", &application);
+Application application = Application(u8"Application");
+PixelWorld pixelWorld = PixelWorld(u8"PixelWorld", &application);
 DataManager dataManager = DataManager(&application);
 TextureManager textureManager = TextureManager(&application);
 MergeTexture mergeTexture = MergeTexture(&application, 640, 640);
 MergeTexture mergeTexture1 = MergeTexture(&application, 640, 640);
-WorldMap worldMap = WorldMap("Map1", 100, 100);
+WorldMap worldMap = WorldMap(u8"Map1", 100, 100);
 Camera camera = Camera(PixelWorldEngine::RectangleF(-cameraWidth * 0.5f, -cameraHeight * 0.5f, cameraWidth * 0.5f, cameraHeight * 0.5f));
-PixelObject pixelObject = PixelObject("Player", 0, 0, 64, 64);
-UIObject object = UIObject("UIObject", 100, 100, 720, 720);
-UIObject object2 = UIObject("UIObject2", 100, 100, 100, 100);
-Animator animator = Animator("Animator");
+PixelObject pixelObject = PixelObject(u8"Player", 0, 0, 64, 64);
+UIObject object = UIObject(u8"UIObject", 100, 100, 720, 720);
+UIObject object2 = UIObject(u8"UIObject2", 100, 100, 100, 100);
+Animator animator = Animator(u8"Animator");
 
 void OnCollide(PixelObject* pixelObject) {
 	
@@ -81,7 +81,7 @@ int resolutionY = 1080;
 std::vector<Texture2D*> textures;
 
 auto IntToString(int Int) -> std::string {
-	std::string result = "";
+	std::string result = u8"";
 	
 	while (Int > 0) {
 		char c = (Int % 10) + '0';
@@ -108,7 +108,7 @@ void OnUpdate(void* sender) {
 
 	float deltaTime = app->GetDeltaTime();
 
-	app->SetWindow((std::string)"TestApp Fps:" + IntToString(app->GetFramePerSecond()), 1920, 1080);
+	app->SetWindow((std::string)u8"TestApp Fps:" + IntToString(app->GetFramePerSecond()), 1920, 1080);
 
 	if (Input::GetMouseButtonDown(Events::MouseButton::Left) == true) {
 		auto rect = camera.GetRectangle();
@@ -147,14 +147,9 @@ void OnUpdate(void* sender) {
 }
 
 int main() {
-	auto utf16 = PixelWorldEngine::Encoding::ToUTF16String("ÄàºÃ°¡");
-	std::wstring str;
-	
-	for (size_t i = 0; i < utf16.size(); i++)
-		str.push_back(utf16[i]);
 
-	auto texture = dataManager.RegisterTexture("T.jpg");
-	auto texture1 = dataManager.RegisterTexture("P.png");
+	auto texture = dataManager.RegisterTexture(u8"T.jpg");
+	auto texture1 = dataManager.RegisterTexture(u8"P.png");
 
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 8; j++) {
@@ -227,7 +222,7 @@ int main() {
 
 	application.RegisterAnimator(&animator);
 
-	application.MakeWindow("TestApp", 1920, 1080);
+	application.MakeWindow(u8"TestApp", 1920, 1080);
 	application.SetWorld(&pixelWorld);
 	application.ShowWindow();
 	application.RunLoop();

@@ -1,5 +1,7 @@
 ﻿#include "Application.hpp"
 
+#include "Encoding.hpp"
+
 #include "EngineDefaultResource.hpp"
 
 #ifdef _WIN32
@@ -172,11 +174,6 @@ void PixelWorldEngine::Application::OnRender(void * sender)
 	auto result = swapChain->Present(0, 0);
 
 #endif // _WIN32
-
-#ifdef LIUNX
-	//交换后台缓冲
-#endif // LIUNX
-
 
 }
 
@@ -399,9 +396,6 @@ PixelWorldEngine::Application::Application(std::string ApplicationName)
 	ImmDisableIME(0);
 #endif // _WIN32
 
-#ifdef LIUNX
-	//禁用输入法
-#endif // LIUNX
 }
 
 PixelWorldEngine::Application::~Application()
@@ -426,6 +420,9 @@ void PixelWorldEngine::Application::MakeWindow(std::string WindowName, int Width
 
 #ifdef _WIN32
 
+	wideWindowName = Encoding::ToWideChar(windowName);
+	wideIconName = Encoding::ToWideChar(iconName);
+
 	auto hInstance = GetModuleHandle(0);
 
 	WNDCLASS appInfo;
@@ -435,11 +432,11 @@ void PixelWorldEngine::Application::MakeWindow(std::string WindowName, int Width
 	appInfo.cbClsExtra = 0;
 	appInfo.cbWndExtra = 0;
 	appInfo.hInstance = hInstance;
-	appInfo.hIcon = (HICON)LoadImage(0, &iconName[0], IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+	appInfo.hIcon = (HICON)LoadImage(0, &wideIconName[0], IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
 	appInfo.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	appInfo.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
 	appInfo.lpszMenuName = NULL;
-	appInfo.lpszClassName = &windowName[0];
+	appInfo.lpszClassName = &wideWindowName[0];
 
 	RegisterClass(&appInfo);
 
@@ -452,7 +449,7 @@ void PixelWorldEngine::Application::MakeWindow(std::string WindowName, int Width
 
 	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 
-	hwnd = CreateWindow(&windowName[0], &windowName[0], WS_OVERLAPPEDWINDOW ^
+	hwnd = CreateWindow(&wideWindowName[0], &wideWindowName[0], WS_OVERLAPPEDWINDOW ^
 		WS_SIZEBOX ^ WS_MAXIMIZEBOX, CW_USEDEFAULT, CW_USEDEFAULT,
 		rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, hInstance, nullptr);
 
@@ -489,11 +486,6 @@ void PixelWorldEngine::Application::MakeWindow(std::string WindowName, int Width
 	self = this;
 #endif // _WIN32
 
-#ifdef LIUNX
-	//创建了一个窗口，请禁用放大以及使用鼠标改变其大小。窗口默认不显示
-	//创建了交换链，请注意不使用多重采样，且后台缓冲格式是R8G8B8A8。
-#endif // LIUNX
-
 	renderTarget = new Graphics::RenderTarget(graphics, this);
 
 	isWindowCreated = true;
@@ -505,7 +497,9 @@ void PixelWorldEngine::Application::SetWindow(std::string WindowName, int Width,
 	windowName = WindowName;
 
 #ifdef _WIN32
-	SetWindowText(hwnd, &windowName[0]);
+	wideWindowName = Encoding::ToWideChar(windowName);
+
+	SetWindowText(hwnd, &wideWindowName[0]);
 #endif
 
 	if (windowWidth != Width || windowHeight != Height) {
@@ -551,10 +545,6 @@ void PixelWorldEngine::Application::ShowWindow()
 
 #endif // _WIN32
 
-#ifdef LIUNX
-	//显示窗口
-#endif // LIUNX
-
 }
 
 void PixelWorldEngine::Application::HideWindow()
@@ -566,9 +556,6 @@ void PixelWorldEngine::Application::HideWindow()
 
 #endif // _WIN32
 
-#ifdef LIUNX
-	//隐藏窗口
-#endif // LIUNX
 
 
 }
@@ -590,11 +577,6 @@ void PixelWorldEngine::Application::RunLoop()
 
 		if (message.message == WM_QUIT) isWindowCreated = false;
 #endif // _WIN32
-
-#ifdef LIUNX
-		//处理消息循环
-#endif // LIUNX
-
 
 		OnUpdate(this);
 	}

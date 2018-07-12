@@ -53,6 +53,9 @@ namespace PixelWorldEngine {
 #ifdef _WIN32
 		HWND hwnd = nullptr;
 
+		std::wstring wideWindowName;
+		std::wstring wideIconName;
+
 		static LRESULT CALLBACK DefaultWindowProc(HWND hWnd, UINT message,
 			WPARAM wParam, LPARAM lParam);
 #endif // _WIN32
