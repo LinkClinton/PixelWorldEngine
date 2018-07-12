@@ -54,6 +54,8 @@ PixelWorldEngine::Graphics::Graphics::Graphics()
 	deviceContext->OMSetBlendState(blendState, nullptr, 0xffffffff);
 
 #endif // _WIN32
+
+	FT_Init_FreeType(&fontLibrary);
 }
 
 void PixelWorldEngine::Graphics::Graphics::SetShader(GraphicsShader* shader)
@@ -293,4 +295,6 @@ PixelWorldEngine::Graphics::Graphics::~Graphics()
 	Utility::Dispose(device);
 	Utility::Dispose(deviceContext);
 #endif // _WIN32
+	
+	FT_Done_FreeType(fontLibrary);
 }

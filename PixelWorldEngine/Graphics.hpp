@@ -27,6 +27,10 @@ namespace PixelWorldEngine {
 
 			FillMode fillMode;
 			bool blendEnable;
+
+			FT_Library fontLibrary;
+
+			friend class Font;
 		public:
 
 #ifdef _WIN32
@@ -47,7 +51,7 @@ namespace PixelWorldEngine {
 
 		public:
 			Graphics();
-			
+
 			void SetShader(GraphicsShader* shader);
 
 			void SetVertexBuffer(Buffer* buffer);

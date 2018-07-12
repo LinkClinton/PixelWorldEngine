@@ -3,6 +3,7 @@
 #include "..\PixelWorldEngine\PixelWorld.hpp"
 #include "..\PixelWorldEngine\Input.hpp"
 #include "..\PixelWorldEngine\Animation.hpp"
+#include "..\PixelWorldEngine\Encoding.hpp"
 
 #include <iostream>
 #include <random>
@@ -41,8 +42,8 @@ public:
 		:PixelObject(Name, PositionX, PositionY, Width, Height){}
 };
 
-int cameraWidth = 1280;
-int cameraHeight = 720;
+int cameraWidth = 1920;
+int cameraHeight = 1080;
 
 Application application = Application("Application");
 PixelWorld pixelWorld = PixelWorld("PixelWorld", &application);
@@ -146,6 +147,12 @@ void OnUpdate(void* sender) {
 }
 
 int main() {
+	auto utf16 = PixelWorldEngine::Encoding::ToUTF16String("ÄàºÃ°¡");
+	std::wstring str;
+	
+	for (size_t i = 0; i < utf16.size(); i++)
+		str.push_back(utf16[i]);
+
 	auto texture = dataManager.RegisterTexture("T.jpg");
 	auto texture1 = dataManager.RegisterTexture("P.png");
 

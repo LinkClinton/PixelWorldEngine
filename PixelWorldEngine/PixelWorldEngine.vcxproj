@@ -25,6 +25,7 @@
     <ClInclude Include="BufferResource.hpp" />
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Collider.hpp" />
+    <ClInclude Include="Encoding.hpp" />
     <ClInclude Include="EngineDefaultResource.hpp" />
     <ClInclude Include="Geometry.hpp" />
     <ClInclude Include="DataManager.hpp" />
@@ -32,6 +33,7 @@
     <ClInclude Include="GraphicsEnum.hpp" />
     <ClInclude Include="Events.hpp" />
     <ClInclude Include="Graphics.hpp" />
+    <ClInclude Include="GraphicsFont.hpp" />
     <ClInclude Include="GraphicsRenderTarget.hpp" />
     <ClInclude Include="Input.hpp" />
     <ClInclude Include="KeyCode.hpp" />
@@ -41,6 +43,7 @@
     <ClInclude Include="GraphicsShader.hpp" />
     <ClInclude Include="ShaderResource.hpp" />
     <ClInclude Include="StaticSampler.hpp" />
+    <ClInclude Include="Text.hpp" />
     <ClInclude Include="TextureManager.hpp" />
     <ClInclude Include="Timer.hpp" />
     <ClInclude Include="UIObject.hpp" />
@@ -56,9 +59,11 @@
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="DebugLayer.cpp" />
+    <ClCompile Include="Encoding.cpp" />
     <ClCompile Include="Events.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="GraphicsFont.cpp" />
     <ClCompile Include="GraphicsRenderTarget.cpp" />
     <ClCompile Include="GraphicsShader.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -67,6 +72,7 @@
     <ClCompile Include="PixelWorld.cpp" />
     <ClCompile Include="ShaderResource.cpp" />
     <ClCompile Include="StaticSampler.cpp" />
+    <ClCompile Include="Text.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="UIObject.cpp" />
@@ -150,12 +156,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)ThirdParty;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)ThirdParty\freetype\include;$(SolutionDir)ThirdParty;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)ThirdParty\freetype\win32;$(SolutionDir)ThirdParty\SDL2\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)ThirdParty;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)ThirdParty\SDL2\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)ThirdParty;$(SolutionDir)ThirdParty\freetype\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)ThirdParty\SDL2\x86;$(SolutionDir)ThirdParty\freetype\win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -200,7 +206,9 @@ py "$(ProjectDir)ShaderToString.py"</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>xcopy /e /r /y "$(SolutionDir)ThirdParty/SDL2/x86" "$(OutDir)"</Command>
+      <Command>xcopy /e /r /y "$(SolutionDir)ThirdParty/SDL2/x86" "$(OutDir)"
+xcopy /e /r /y "$(SolutionDir)ThirdParty/freetype\win32" "$(OutDir)"
+py "$(ProjectDir)ShaderToString.py"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
