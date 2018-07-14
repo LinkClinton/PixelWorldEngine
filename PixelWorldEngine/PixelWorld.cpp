@@ -263,7 +263,7 @@ void PixelWorldEngine::PixelWorld::RenderWorldMap()
 				data.texcoordTransform = textureManager->mergeTextures[whichID]->GetTexCoordTransform(mapData->RenderObjectID);
 				data.setting[0] = mapData->RenderObjectID;
 				data.setting[1] = whichID;
-				data.renderCoor = glm::vec4(backGroundColor[0], backGroundColor[1], backGroundColor[2], mapData->Opacity);
+				data.renderCoor = glm::vec4(1.0f, 1.0f, 1.0f, mapData->Opacity);
 
 				instanceData.push_back(data);
 			}
@@ -305,7 +305,7 @@ void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 
 		matrix = glm::scale(matrix, glm::vec3(pixelObject->width, pixelObject->height, 1.f));
 
-		data.renderCoor = glm::vec4(0, 0, 0, pixelObject->opacity);
+		data.renderCoor = glm::vec4(pixelObject->effectColor[0], pixelObject->effectColor[1], pixelObject->effectColor[2], pixelObject->opacity);
 		data.setting[0] = pixelObject->renderObjectID;
 		data.setting[1] = whichID;
 		data.worldTransform = matrix;
@@ -377,7 +377,7 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, flo
 
 		if (whichID != MAX_MERGETEXTURE_COUNT) {
 
-			data.renderCoor = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], object->opacity);
+			data.renderCoor = glm::vec4(object->effectColor[0], object->effectColor[1], object->effectColor[2], object->opacity);
 			data.setting[0] = object->renderObjectID;
 			data.setting[1] = whichID;
 			data.worldTransform = matrix;
@@ -446,6 +446,8 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 
 	for (int i = 0; i < MAX_MERGETEXTURE_COUNT; i++) {
 		if (textureManager->mergeTextures[i] == nullptr) continue;
+		
+		renderConfig.mergeTextureFormat[i] = textureManager->mergeTextures[i]->GetPixelFormat();
 
 		graphics->SetShaderResource(textureManager->mergeTextures[i]->GetFinalTexture(), i + 1);
 	}

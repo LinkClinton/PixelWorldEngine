@@ -1,5 +1,8 @@
 #pragma pack_matrix(row_major) 
 
+#define PIXELFORMAT_R8G8B8A8 28
+#define PIXELFORMAT_A8 65
+
 struct InputData
 {
     float3 position : POSITION;
@@ -29,7 +32,8 @@ cbuffer Camera : register(b0)
 
 cbuffer RenderConfig : register(b1)
 {
-    float4 unused[4];
+    int4 mergeTextureFormat;
+    float4 unused[3];
 };
 
 StructuredBuffer<InstanceData> instanceData : register(t0);
@@ -39,7 +43,6 @@ Texture2D Texture1 : register(t2);
 Texture2D Texture2 : register(t3);
 Texture2D Texture3 : register(t4);
 
-
 SamplerState sampler0 : register(s0);
 
 float4 main(OutputData input, uint id : SV_INSTANCEID) : SV_TARGET
@@ -47,56 +50,42 @@ float4 main(OutputData input, uint id : SV_INSTANCEID) : SV_TARGET
     if (instanceData[id].setting[0] == 0)
         return instanceData[id].renderColor;
 
-    if (instanceData[id].setting[1] == 0)
+    int which = instanceData[id].setting[1];
+    int format = mergeTextureFormat[which];
+
+    float4 texColor = float4(0, 0, 0, 0);
+
+    if (which == 0)
     {
-        float4 result = Texture0.Sample(sampler0, input.tex0);
-
-        if (result.a > 0)
-        {
-            result.a = result.a * instanceData[id].renderColor.a;
-
-            return result;
-        }
+        if (format == PIXELFORMAT_A8)
+            texColor =  float4(1.0f, 1.0f, 1.0f, Texture0.Sample(sampler0, input.tex0).a);
+        else
+            texColor = Texture0.Sample(sampler0, input.tex0);
     }
 
-    if (instanceData[id].setting[1] == 1)
+    if (which == 1)
     {
-        float4 result = Texture1.Sample(sampler0, input.tex0);
-
-        if (result.a > 0)
-        {
-            result.a = result.a * instanceData[id].renderColor.a;
-
-            return result;
-        }
+        if (format == PIXELFORMAT_A8)
+            texColor = float4(1.0f, 1.0f, 1.0f, Texture1.Sample(sampler0, input.tex0).a);
+        else
+            texColor = Texture1.Sample(sampler0, input.tex0);
     }
 
-    if (instanceData[id].setting[1] == 2)
+    if (which == 2)
     {
-        float4 result = Texture2.Sample(sampler0, input.tex0);
-
-        if (result.a > 0)
-        {
-            result.a = result.a * instanceData[id].renderColor.a;
-
-            return result;
-        }
+        if (format == PIXELFORMAT_A8)
+            texColor = float4(1.0f, 1.0f, 1.0f, Texture2.Sample(sampler0, input.tex0).a);
+        else
+            texColor = Texture2.Sample(sampler0, input.tex0);
     }
 
-    if (instanceData[id].setting[1] == 3)
+    if (which == 3)
     {
-        float4 result = Texture3.Sample(sampler0, input.tex0);
-
-        if (result.a > 0)
-        {
-            result.a = result.a * instanceData[id].renderColor.a;
-
-            return result;
-        }
+        if (format == PIXELFORMAT_A8)
+            texColor = float4(1.0f, 1.0f, 1.0f, Texture3.Sample(sampler0, input.tex0).a);
+        else
+            texColor = Texture3.Sample(sampler0, input.tex0);
     }
-   
     
-    clip(-1);
-
-    return float4(0, 0, 0, 0);
+    return texColor * instanceData[id].renderColor;
 }

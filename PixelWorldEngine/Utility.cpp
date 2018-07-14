@@ -52,6 +52,8 @@ auto PixelWorldEngine::Utility::CountPixelFormatSize(Graphics::PixelFormat pixel
 		return 16;
 	case PixelWorldEngine::Graphics::PixelFormat::R8G8B8A8:
 		return 4;
+	case PixelWorldEngine::Graphics::PixelFormat::A8:
+		return 1;
 	default:
 		return 0;
 	}

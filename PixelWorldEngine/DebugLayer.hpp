@@ -23,6 +23,8 @@ namespace PixelWorldEngine {
 		ErrorTextureWidthOrHeight,
 		//The Pixel Format is not matched.
 		ErrorPixelFormat,
+		//The character code is not defined.
+		UndefinedCharacter,
 		Count
 	};
 
@@ -35,7 +37,8 @@ namespace PixelWorldEngine {
 		"We can not add the animation (%s) into animator (%s) when the animator is running.",
 		"We do not have this child object called %s in %s.",
 		"The texture's width or height is not matched.",
-		"The Pixel Format is not matched."
+		"The Pixel Format is not matched.",
+		"The character code is not defined."
 	};
 
 	class DebugLayer {

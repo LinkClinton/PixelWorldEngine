@@ -2,12 +2,12 @@
 
 #include "Application.hpp"
 
-PixelWorldEngine::MergeTexture::MergeTexture(Application * application, int width, int height)
+PixelWorldEngine::MergeTexture::MergeTexture(Application * application, int width, int height, Graphics::PixelFormat pixelFormat)
 {
 	graphics = application->GetGraphics();
 
 	finalTexture = new Graphics::Texture2D(graphics, nullptr, width, height,
-		Graphics::PixelFormat::R8G8B8A8);
+		pixelFormat);
 }
 
 PixelWorldEngine::MergeTexture::~MergeTexture()
@@ -17,6 +17,8 @@ PixelWorldEngine::MergeTexture::~MergeTexture()
 
 void PixelWorldEngine::MergeTexture::AddTexture(int id, int positionX, int positionY, Graphics::Texture2D * texture)
 {
+	DebugLayer::Assert(finalTexture->GetPixelFormat() != texture->GetPixelFormat(), Error::ErrorPixelFormat);
+
 	SubTexture subTexture;
 
 	subTexture.startPositionX = positionX;
@@ -62,6 +64,11 @@ auto PixelWorldEngine::MergeTexture::GetTexCoordTransform(int id) -> glm::mat4x4
 auto PixelWorldEngine::MergeTexture::GetFinalTexture() -> Graphics::Texture2D *
 {
 	return finalTexture;
+}
+
+auto PixelWorldEngine::MergeTexture::GetPixelFormat() -> Graphics::PixelFormat
+{
+	return finalTexture->GetPixelFormat();
 }
 
 auto PixelWorldEngine::MergeTexture::IsExistID(int id) -> bool

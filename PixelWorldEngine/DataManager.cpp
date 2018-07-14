@@ -71,7 +71,7 @@ auto PixelWorldEngine::DataManager::ReadFile(std::string fileName) -> FileData
 
 auto PixelWorldEngine::DataManager::RegisterTexture(std::string fileName) -> Graphics::Texture2D *
 {
-	if (textures[fileName] != nullptr) return textures[fileName];
+	if (textures.count(fileName) != 0) return textures[fileName];
 
 	auto file = ReadFile(fileName);
 	auto SDL_Rw = SDL_RWFromMem(file.GetData(), file.GetSize());
@@ -115,9 +115,29 @@ auto PixelWorldEngine::DataManager::RegisterTexture(std::string fileName) -> Gra
 	return texture;
 }
 
-auto PixelWorldEngine::DataManager::UnRegisterTexture(std::string fileName)
+auto PixelWorldEngine::DataManager::RegisterFont(std::string fileName, std::string fontName, int size) -> Graphics::Font *
 {
-	if (textures[fileName] == nullptr) return;
+	if (fonts.count(fontName) != 0) return fonts[fontName];
 
+	auto fontFile = ReadFile(fileName);
+
+	auto font = new Graphics::Font(graphics, &fontFile, size);
+
+	fonts.insert(std::pair<std::string, Graphics::Font*>(fontName, font));
+
+	return font;
+}
+
+void PixelWorldEngine::DataManager::UnRegisterTexture(std::string fileName)
+{
+	if (textures.count(fileName) == 0) return;
+	
 	Utility::Delete(textures[fileName]);
+}
+
+void PixelWorldEngine::DataManager::UnRegisterFont(std::string fontName)
+{
+	if (fonts.count(fontName) == 0) return;
+
+	Utility::Delete(fonts[fontName]);
 }

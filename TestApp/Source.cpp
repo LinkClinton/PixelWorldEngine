@@ -4,6 +4,8 @@
 #include "..\PixelWorldEngine\Input.hpp"
 #include "..\PixelWorldEngine\Animation.hpp"
 #include "..\PixelWorldEngine\Encoding.hpp"
+#include "..\PixelWorldEngine\GraphicsFont.hpp"
+#include "..\PixelWorldEngine\Text.hpp"
 
 #include <iostream>
 #include <random>
@@ -49,13 +51,14 @@ Application application = Application(u8"Application");
 PixelWorld pixelWorld = PixelWorld(u8"PixelWorld", &application);
 DataManager dataManager = DataManager(&application);
 TextureManager textureManager = TextureManager(&application);
-MergeTexture mergeTexture = MergeTexture(&application, 640, 640);
-MergeTexture mergeTexture1 = MergeTexture(&application, 640, 640);
+MergeTexture mergeTexture = MergeTexture(&application, 640, 640, PixelFormat::R8G8B8A8);
+MergeTexture mergeTexture1 = MergeTexture(&application, 640, 640, PixelFormat::A8);
 WorldMap worldMap = WorldMap(u8"Map1", 100, 100);
 Camera camera = Camera(PixelWorldEngine::RectangleF(-cameraWidth * 0.5f, -cameraHeight * 0.5f, cameraWidth * 0.5f, cameraHeight * 0.5f));
 PixelObject pixelObject = PixelObject(u8"Player", 0, 0, 64, 64);
 UIObject object = UIObject(u8"UIObject", 100, 100, 720, 720);
 UIObject object2 = UIObject(u8"UIObject2", 100, 100, 100, 100);
+UIObject object3 = UIObject(u8"UIObject3", 300, 100, 100, 100);
 Animator animator = Animator(u8"Animator");
 
 void OnCollide(PixelObject* pixelObject) {
@@ -147,10 +150,16 @@ void OnUpdate(void* sender) {
 }
 
 int main() {
-
 	auto texture = dataManager.RegisterTexture(u8"T.jpg");
 	auto texture1 = dataManager.RegisterTexture(u8"P.png");
+	auto font = dataManager.RegisterFont("msyh.ttc", "Consola32", 32);
 
+	auto text = new Text(u8"泥好呀，这是中文字体测试版本", font, 256, 0);
+	auto text1 = new Text(u8"中文字体旋转测试。", font, 100, 0);
+
+	auto charTexture1 = text->GetTexture();
+	auto charTexture2 = text1->GetTexture();
+	
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 8; j++) {
 			textures.push_back(new Texture2D(texture, PixelWorldEngine::Rectangle(j * 64, i * 64, j * 64 + 64, i * 64 + 64)));
@@ -159,8 +168,10 @@ int main() {
 		}
 	}
 
-	mergeTexture1.AddTexture(33, 9 * 64, 9 * 64, texture1);
-	
+	mergeTexture.AddTexture(33, 9 * 64, 9 * 64, texture1);
+	mergeTexture1.AddTexture(34, 0, 0, charTexture1);
+	mergeTexture1.AddTexture(35, 256, 0, charTexture2);
+
 	textureManager.AddMergeTexture(0, &mergeTexture);
 	textureManager.AddMergeTexture(1, &mergeTexture1);
 
@@ -179,8 +190,10 @@ int main() {
 
 	camera.SetFocus(pixelObject.GetPositionX(), pixelObject.GetPositionY(),
 		PixelWorldEngine::RectangleF(cameraWidth * 0.5f, cameraHeight * 0.5f, cameraWidth * 0.5f, cameraHeight * 0.5f));
-
-	pixelObject.SetRenderObjectID(33);
+	
+	pixelObject.SetEffectColor(1, 0, 0);
+	pixelObject.SetSize((float)charTexture1->GetWidth(), (float)charTexture1->GetHeight());
+	pixelObject.SetRenderObjectID(34);
 	pixelObject.Collide.push_back(OnCollide);
 	pixelObject.Enter.push_back(OnEnter);
 	pixelObject.Leave.push_back(OnLeave);
@@ -190,13 +203,19 @@ int main() {
 	object.SetBorderWidth(4);
 	object.SetRenderObjectID(1);
 	object.SetOpacity(0.5f);
-	object.SetAngle(glm::pi<float>());
+	object.SetAngle(glm::pi<float>() * 0);
 	
 	object2.SetBorderColor(0, 1, 0);
 	object2.SetBorderWidth(1);
 	object2.SetAngle(glm::pi<float>()*0.25f);
 
+	object3.SetRenderObjectID(35);
+	object3.SetAngle(glm::pi<float>()*0.25f);
+	object3.SetEffectColor(0.5f, 0.5f, 0.5f);
+	object3.SetSize((float)charTexture2->GetWidth(), (float)charTexture2->GetHeight());
+
 	object.RegisterUIObject(&object2);
+	object.RegisterUIObject(&object3);
 
 	pixelWorld.SetTextureManager(&textureManager);
 

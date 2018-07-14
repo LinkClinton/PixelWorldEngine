@@ -162,19 +162,8 @@ void PixelWorldEngine::PixelObject::OnLeave(PixelObject* pixelObject)
 }
 
 PixelWorldEngine::PixelObject::PixelObject(std::string Name, float PositionX, float PositionY, float Width, float Height)
-{
-	name = Name;
-
-	positionX = PositionX;
-	positionY = PositionY;
-
-	width = Width;
-	height = Height;
-
-	renderObjectID = 0;
-	depthLayer = 0;
-	opacity = 1.0f;
-
+	:Object(Name, PositionX, PositionY, Width, Height)
+{	
 	collider.SetArea(positionX, positionY, positionX + width, positionY + height);
 }
 
@@ -240,29 +229,6 @@ void PixelWorldEngine::PixelObject::Move(float translationX, float translationY)
 	OnMove(realTranslationX, realTranslationY);
 }
 
-void PixelWorldEngine::PixelObject::SetSize(float objectWidth, float objectHeight)
-{
-	width = objectWidth;
-	height = objectHeight;
-}
-
-void PixelWorldEngine::PixelObject::SetSize(float Size)
-{
-	width = Size;
-	height = Size;
-}
-
-void PixelWorldEngine::PixelObject::SetPosition(float x, float y)
-{
-	positionX = x;
-	positionY = y;
-}
-
-void PixelWorldEngine::PixelObject::SetRenderObjectID(int id)
-{
-	renderObjectID = id;
-}
-
 void PixelWorldEngine::PixelObject::SetDepthLayer(int DepthLayer)
 {
 	if (depthLayer != DepthLayer && pixelWorld != nullptr) {
@@ -274,57 +240,12 @@ void PixelWorldEngine::PixelObject::SetDepthLayer(int DepthLayer)
 	depthLayer = DepthLayer;
 }
 
-void PixelWorldEngine::PixelObject::SetOpacity(float Opacity)
-{
-	opacity = Opacity;
-}
-
 void PixelWorldEngine::PixelObject::EnablePhysicsCollision(bool enable)
 {
 	collider.EnablePhysics(enable);
 }
 
-auto PixelWorldEngine::PixelObject::GetWidth() -> float
-{
-	return width;
-}
-
 auto PixelWorldEngine::PixelObject::IsEnableCollider() -> bool
 {
 	return collider.IsEnablePhysics();
-}
-
-auto PixelWorldEngine::PixelObject::GetHeight() -> float
-{
-	return height;
-}
-
-auto PixelWorldEngine::PixelObject::GetPositionX() -> float
-{
-	return positionX;
-}
-
-auto PixelWorldEngine::PixelObject::GetPositionY() -> float
-{
-	return positionY;
-}
-
-auto PixelWorldEngine::PixelObject::GetRenderObjectID() -> int
-{
-	return renderObjectID;
-}
-
-auto PixelWorldEngine::PixelObject::GetDepthLayer() -> int
-{
-	return depthLayer;
-}
-
-auto PixelWorldEngine::PixelObject::GetOpacity() -> float
-{
-	return opacity;
-}
-
-auto PixelWorldEngine::PixelObject::GetName() -> std::string
-{
-	return name;
 }

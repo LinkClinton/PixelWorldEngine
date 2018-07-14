@@ -127,28 +127,16 @@ void PixelWorldEngine::UIObject::OnKeyClick(void * sender, Events::KeyClickEvent
 
 
 PixelWorldEngine::UIObject::UIObject(std::string Name, float PositionX, float PositionY, float Width, float Height)
+	:Object(Name, PositionX, PositionY, Width, Height)
 {
-	name = Name;
-
-	positionX = PositionX;
-	positionY = PositionY;
-
-	width = Width;
-	height = Height;
-
 	halfWidth = width * 0.5f;
 	halfHeight = height * 0.5f;
 
 	parent = nullptr;
-	pixelWorld = nullptr;
 
-	opacity = 1.0f;
 	angle = 0;
 
 	borderWidth = 0;
-
-	renderObjectID = 0;
-	depthLayer = 0;
 
 	isFocused = false;
 
@@ -213,11 +201,6 @@ void PixelWorldEngine::UIObject::SetHeight(float Height)
 	transformMatrix = CreateTransformMatrix(this);
 }
 
-void PixelWorldEngine::UIObject::SetOpacity(float Opacity)
-{
-	opacity = Opacity;
-}
-
 void PixelWorldEngine::UIObject::SetAngle(float Angle)
 {
 	angle = Angle;
@@ -228,11 +211,6 @@ void PixelWorldEngine::UIObject::SetAngle(float Angle)
 void PixelWorldEngine::UIObject::SetBorderWidth(float width)
 {
 	borderWidth = width;
-}
-
-void PixelWorldEngine::UIObject::SetRenderObjectID(int id)
-{
-	renderObjectID = id;
 }
 
 void PixelWorldEngine::UIObject::SetDepthLayer(int DepthLayer)
@@ -306,31 +284,6 @@ auto PixelWorldEngine::UIObject::GetBorderColor() -> float *
 	return borderColor;
 }
 
-auto PixelWorldEngine::UIObject::GetPositionX() -> float
-{
-	return positionX;
-}
-
-auto PixelWorldEngine::UIObject::GetPositionY() -> float
-{
-	return positionY;
-}
-
-auto PixelWorldEngine::UIObject::GetWidth() -> float
-{
-	return width;
-}
-
-auto PixelWorldEngine::UIObject::GetHeight() -> float
-{
-	return height;
-}
-
-auto PixelWorldEngine::UIObject::GetOpacity() -> float
-{
-	return opacity;
-}
-
 auto PixelWorldEngine::UIObject::GetAngle() -> float
 {
 	return angle;
@@ -339,16 +292,6 @@ auto PixelWorldEngine::UIObject::GetAngle() -> float
 auto PixelWorldEngine::UIObject::GetBorderWidth() -> float
 {
 	return borderWidth;
-}
-
-auto PixelWorldEngine::UIObject::GetRenderObjectID() -> int
-{
-	return renderObjectID;
-}
-
-auto PixelWorldEngine::UIObject::GetDepthLayer() -> int
-{
-	return depthLayer;
 }
 
 auto PixelWorldEngine::UIObject::GetPixelWorld() -> PixelWorld *

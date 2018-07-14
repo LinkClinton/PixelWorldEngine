@@ -2,6 +2,7 @@
 
 #include "pch.hpp"
 #include "Collider.hpp"
+#include "Object.hpp"
 
 namespace PixelWorldEngine {
 
@@ -25,10 +26,8 @@ namespace PixelWorldEngine {
 	/**
 	 * 世界中的物体
 	 */
-	class PixelObject {
+	class PixelObject : public Object {
 	private:
-		PixelWorld * pixelWorld; //所在的世界
-
 		/**
 		* @brief 移动物体，只有在物体被加载到世界中去后才有效，这里只对X轴方向进行位移，且只讨论物体和地图之间的关系
 		* @param[in] translation 物体在X方向的位移
@@ -41,19 +40,6 @@ namespace PixelWorldEngine {
 		*/
 		auto MoveAxisYMap(float translation) -> float;
 	private:
-		std::string name; //物体的名称
-
-		float positionX; //物体左上角的X坐标，默认为0
-		float positionY; //物体左上角的Y坐标，默认为0
-
-		float width; //物体宽度，默认为1
-		float height; //物体高度，默认为1
-
-		float opacity; //不透明度
-
-		int renderObjectID; //渲染物体的ID，默认为0，即不渲染
-		int depthLayer; //物体的所在的深度层，默认为0，深度较大的会覆盖深度较小的
-
 		Collider collider; //碰撞盒
 
 	protected:
@@ -113,42 +99,10 @@ namespace PixelWorldEngine {
 		void Move(float translationX, float translationY);
 
 		/**
-		 * @brief 设置物体的大小
-		 * @param[in] objectWidth 物体的宽度
-		 * @param[in] objectHeight 物体的高度
-		 */
-		void SetSize(float objectWidth, float objectHeight);
-
-		/**
-		 * @brief 设置物体的大小
-		 * @param[in] Size 物体的大小
-		 */
-		void SetSize(float Size);
-
-		/**
-		 * @brief 设置物体坐标，这里将不会考虑任何其他因素，因此可能导致一些其他问题概不负责
-		 * @param[in] x 物体的X坐标
-		 * @param[in] y 物体的Y坐标
-		 */
-		void SetPosition(float x, float y);
-
-		/**
-		 * @brief 设置物体的渲染ID
-		 * @param[in] id 物体的渲染ID
-		 */
-		void SetRenderObjectID(int id);
-
-		/**
 		 * @brief 设置深度层，深度较大的会覆盖深度较小的，如果深度相同那么结果未知
 		 * @param[in] depthLayer 深度层
 		 */
 		void SetDepthLayer(int depthLayer);
-
-		/**
-		 * @brief 设置不透明度
-		 * @param[in] opacity 不透明度
-		 */
-		void SetOpacity(float opacity);
 
 		/**
 		 * @brief 是否允许物理碰撞，true则为开启，false则代表关闭
@@ -157,58 +111,10 @@ namespace PixelWorldEngine {
 		void EnablePhysicsCollision(bool enable);
 
 		/**
-		 * @brief 获取物体的宽度
-		 * @return 物体的宽度
-		 */
-		auto GetWidth() -> float;
-
-		/**
-		 * @brief 获取物体的碰撞盒的状态，即是否开启
-		 * @return 放回碰撞盒的状态
-		 */
+		* @brief 获取物体的碰撞盒的状态，即是否开启
+		* @return 放回碰撞盒的状态
+		*/
 		auto IsEnableCollider() -> bool;
-
-		/**
-		 * @brief 获取物体的高度
-		 * @return 物体的高度
-		 */
-		auto GetHeight() -> float;
-
-		/**
-		 * @brief 获取物体(中心点)的X坐标
-		 * @return X坐标
-		 */
-		auto GetPositionX() -> float;
-
-		/**
-		 * @brief 获取物体(中心点)的Y坐标
-		 * @return Y坐标
-		 */
-		auto GetPositionY() -> float;
-
-		/**
-		 * @brief 获取物体的渲染ID
-		 * @return 渲染ID
-		 */
-		auto GetRenderObjectID() -> int;
-
-		/**
-		 * @brief 获取深度层
-		 * @return 深度层
-		 */
-		auto GetDepthLayer() -> int;
-
-		/**
-		 * @brief 获取不透明度
-		 * @return 不透明度
-		 */
-		auto GetOpacity() -> float;
-
-		/**
-		 * @brief 获取物体的名字
-		 * @return 物体的名字
-		 */
-		auto GetName() -> std::string;
 	};
 
 	class PixelObjectCompare {

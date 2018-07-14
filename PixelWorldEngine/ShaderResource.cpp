@@ -16,6 +16,7 @@ PixelWorldEngine::Graphics::Texture2D::Texture2D(Graphics* Graphics, void * Data
 	rowPitch = width * Utility::CountPixelFormatSize(pixelFormat);
 	size = rowPitch * height;
 
+	if (size == 0) return;
 #ifdef _WIN32
 
 	desc.ArraySize = 1;
@@ -105,6 +106,7 @@ PixelWorldEngine::Graphics::Texture2D::~Texture2D()
 
 void PixelWorldEngine::Graphics::Texture2D::CopyFromTexture2D(Texture2D * srcTexture, int dstPositionX, int dstPositionY, PixelWorldEngine::Rectangle srcRect)
 {
+	if (srcRect.right - srcRect.left == 0 || srcRect.bottom - srcRect.top == 0) return;
 
 #ifdef _WIN32
 

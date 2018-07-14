@@ -148,6 +148,12 @@
     <Image Include="p.png" />
     <Image Include="T.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <Font Include="consola.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="msyh.ttc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

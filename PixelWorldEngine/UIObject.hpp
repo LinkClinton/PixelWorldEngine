@@ -2,6 +2,7 @@
 
 #include "pch.hpp"
 #include "Events.hpp"
+#include "Object.hpp"
 
 namespace PixelWorldEngine {
 
@@ -16,23 +17,12 @@ namespace PixelWorldEngine {
 	/**
 	 * @brief UI物体，主要是用于呈现UI等各种和游戏世界无关的东西
 	 */
-	class UIObject {
+	class UIObject : public Object {
 	private:
-		PixelWorld* pixelWorld; //所在的世界
 		UIObject* parent; //父亲
-
-		std::string name; //名字
-
-		float positionX; //左上角X位置，默认为0
-		float positionY; //左上角Y位置，默认为0
-
-		float width; //宽度，默认为1
-		float height; //高度，默认为1
 
 		float halfWidth; //宽度的一半
 		float halfHeight; //高度的一半
-
-		float opacity; //不透明度，默认为1
 
 		float angle; //角度，旋转中心为物体中心，默认为0
 
@@ -41,11 +31,8 @@ namespace PixelWorldEngine {
 
 		bool isFocused; //是否得到了焦点
 
-		int renderObjectID; //渲染ID，默认为0
-		int depthLayer; //深度层，默认为0
-
 		std::map<std::string, UIObject*> children; //子物体，一个物体可以做多个物体的子物体
-		std::set<UIObject*, UIObjectCompare> childrenLayer; //子物体层
+		std::multiset<UIObject*, UIObjectCompare> childrenLayer; //子物体层
 
 		glm::mat4x4 transformMatrix; //变换矩阵
 		glm::mat4x4 invTransformMatrix; //逆变换矩阵
@@ -166,7 +153,6 @@ namespace PixelWorldEngine {
 		 * @param[in] red 红色分量
 		 * @param[in] green 绿色分量
 		 * @param[in] blue 蓝色分量
-		 * @param[in] alpha alpha分量
 		 */
 		void SetBorderColor(float red = 0.0f, float green = 0.0f, float blue = 0.0f);
 
@@ -175,7 +161,7 @@ namespace PixelWorldEngine {
 		 * @param[in] positionX 左上角X坐标，默认为0
 		 * @param[in] positionY 左上角Y坐标，默认为0
 		 */
-		void SetPosition(float positionX, float positionY);
+		void SetPosition(float positionX, float positionY)override;
 
 		/**
 		 * @brief 设置X轴位置
@@ -194,7 +180,7 @@ namespace PixelWorldEngine {
 		 * @param[in] width 宽度，默认为1
 		 * @param[in] height 高度，默认为1
 		 */
-		void SetSize(float width, float height);
+		void SetSize(float width, float height)override;
 
 		/**
 		 * @brief 设置宽度
@@ -209,12 +195,6 @@ namespace PixelWorldEngine {
 		void SetHeight(float height);
 
 		/**
-		 * @brief 设置不透明度
-		 * @param[in] opacity 不透明度，默认为1
-		 */
-		void SetOpacity(float opacity);
-
-		/**
 		 * @brief 设置旋转角度，旋转中心为物体中心，默认为0
 		 * @param[in] angle 角度
 		 */
@@ -225,12 +205,6 @@ namespace PixelWorldEngine {
 		 * @param[in] width 边界宽度，默认为0
 		 */
 		void SetBorderWidth(float width);
-
-		/**
-		 * @brief 设置渲染ID
-		 * @param[in] id 渲染ID，默认为0
-		 */
-		void SetRenderObjectID(int id);
 
 		/**
 		 * @brief 设置深度层
@@ -263,36 +237,6 @@ namespace PixelWorldEngine {
 		auto GetBorderColor() -> float*;
 
 		/**
-		 * @brief 获取左上角位置X坐标
-		 * @return 左上角位置X坐标
-		 */
-		auto GetPositionX() -> float;
-
-		/**
-		 * @brief 获取左上角位置Y坐标
-		 * @return 左上角位置Y坐标
-		 */
-		auto GetPositionY() -> float;
-
-		/**
-		 * @brief 获取宽度
-		 * @return 宽度
-		 */
-		auto GetWidth() -> float;
-
-		/**
-		 * @brief 获取高度
-		 * @return 高度
-		 */
-		auto GetHeight() -> float;
-
-		/**
-		 * @brief 获取不透明度
-		 * @return 不透明度
-		 */
-		auto GetOpacity() -> float;
-
-		/**
 		 * @brief 获取旋转角度
 		 * @return 旋转角度
 		 */
@@ -303,18 +247,6 @@ namespace PixelWorldEngine {
 		 * @return 边界宽度
 		 */
 		auto GetBorderWidth() -> float;
-
-		/**
-		 * @brief 获取渲染ID
-		 * @return 渲染ID
-		 */
-		auto GetRenderObjectID() -> int;
-
-		/**
-		 * @brief 获取深度层
-		 * @return 深度层
-		 */
-		auto GetDepthLayer() -> int;
 
 		/**
 		 * @brief 获取物体所在的世界，如果不存在返回为nullptr

@@ -8,6 +8,7 @@
 #include "GraphicsEnum.hpp"
 #include "StaticSampler.hpp"
 #include "GraphicsShader.hpp"
+#include "GraphicsFont.hpp"
 #include "BufferResource.hpp"
 #include "ShaderResource.hpp"
 #include "GraphicsRenderTarget.hpp"

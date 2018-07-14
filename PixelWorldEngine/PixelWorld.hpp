@@ -40,14 +40,15 @@ namespace PixelWorldEngine {
 	 * @brief 全局渲染设置，目前不使用
 	 */
 	struct PixelWorldRenderConfig {
-		glm::vec4 unused[4];
+		Graphics::PixelFormat mergeTextureFormat[MAX_MERGETEXTURE_COUNT];
+		glm::vec4 unused[3];
 	};
 
 	/**
 	 * @brief 实例数据
 	 */
 	struct InstanceData {
-		int setting[4]; //设置，第一个元素是使用的渲染ID 
+		int setting[4]; //设置，第一个元素是使用的渲染ID，第二个元素是使用的纹理页编号
 		glm::mat4x4 worldTransform; //世界变换矩阵
 		glm::mat4x4 texcoordTransform; //纹理变换矩阵
 		glm::vec4 renderCoor; //渲染的颜色，第四个分量是不透明度

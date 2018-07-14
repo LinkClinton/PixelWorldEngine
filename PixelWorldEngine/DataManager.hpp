@@ -50,6 +50,7 @@ namespace PixelWorldEngine {
 		Graphics::Graphics* graphics;
 
 		std::map<std::string, Graphics::Texture2D*> textures;
+		std::map<std::string, Graphics::Font*> fonts;
 	public:
 		/**
 		 * @breif 构造函数
@@ -77,10 +78,25 @@ namespace PixelWorldEngine {
 		auto RegisterTexture(std::string fileName) -> Graphics::Texture2D*;
 
 		/**
-		 * @brief 释放我们注册的纹理资源，如果一个纹理不需要使用的话建议释放以节约内存
-		 * @param[in] 文件名
+		 * @brief 注册字体资源，支持的字体文件请参阅FreeType2
+		 * @param[in] fileName 字体文件路径
+		 * @param[in] fontName 字体名字，注意不能重复
+		 * @param[in] size 字体大小
+		 * @return 字体
 		 */
-		auto UnRegisterTexture(std::string fileName);
+		auto RegisterFont(std::string fileName, std::string fontName, int size) -> Graphics::Font*;
+
+		/**
+		 * @brief 释放我们注册的纹理资源，如果一个纹理不需要使用的话建议释放以节约内存
+		 * @param[in] fileName 文件名
+		 */
+		void UnRegisterTexture(std::string fileName);
+
+		/**
+		 * @brief 释放我们注册的字体资源
+		 * @param[in] fontName 字体名字
+		 */
+		void UnRegisterFont(std::string fontName);
 
 		/**
 		 * @brief 写入文件

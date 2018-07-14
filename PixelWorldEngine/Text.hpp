@@ -7,39 +7,72 @@
 
 namespace PixelWorldEngine {
 
+	/**
+	 * @brief 文本生成类型，通过字体用于构造文本纹理
+	 */
 	class Text {
 	private:
-		std::vector<byte> textData;
+		Graphics::Graphics* graphics; //..
 
-		Graphics::Graphics* graphics;
+		Graphics::Texture2D* textTexture; //最后的文本纹理
+		Graphics::Font* font; //使用的字体
 
-		Graphics::Texture2D* textTexture;
-		Graphics::Font* font;
+		std::string text; //文本
 
-		std::string text;
+		int width; //文本纹理的宽度
+		int height; //文本纹理的高度
 
-		int width;
-		int height;
+		/**
+		 * @brief 计算文本纹理的高度
+		 * @param[in] text 文本
+		 * @param[in] font 使用的字体
+		 * @param[in] textWidth 文本宽度
+		 * @return 文本纹理的高度
+		 */
+		static auto CalculateHeight(std::string text, Graphics::Font* font, int textWidth) -> int;
 
-		float color[3];
-
-		void CreateTextTexture();
+		/**
+		 * @brief 根据文本数据将文字纹理创建到文本纹理中去
+		 * @param[in] text 文本
+		 */
+		static void CreateText(Text* text);
 	public:
-		Text(Graphics::Font* font, std::string text = "",
-			float red = 0.0f, float green = 0.0f , float blue = 0.0f);
+		/**
+		 * @brief 构造函数
+		 * @param[in] text 文本
+		 * @param[in] width 宽度
+		 * @param[in] height 高度，如果为0，那么自动生成
+		 */
+		Text(std::string text, Graphics::Font* font, int width, int height = 0);
 
-		void SetText(std::string text);
+		/**
+		 * @brief 获取宽度
+		 * @return 宽度
+		 */
+		auto GetWidth() -> int;
 
-		void SetFont(Graphics::Font* font);
+		/**
+		* @brief 获取高度
+		* @return 高度
+		*/
+		auto GetHeight() -> int;
 
-		void SetColor(float red = 0.0f, float green = 0.0f, float blue = 0.0f);
-
+		/**
+		 * @brief 获取文本
+		 * @return 文本
+		 */
 		auto GetText() -> std::string;
 
+		/**
+		 * @brief 获取字体
+		 * @return 字体
+		 */
 		auto GetFont() -> Graphics::Font*;
 
-		auto GetColor() -> float*;
-
+		/**
+		 * @brief 获取纹理
+		 * @return 纹理
+		 */
 		auto GetTexture() -> Graphics::Texture2D*; 
 	};
 

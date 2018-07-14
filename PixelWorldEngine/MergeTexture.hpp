@@ -37,7 +37,7 @@ namespace PixelWorldEngine {
 	};
 
 	/**
-	 * @brief 合并纹理类型，用于将纹理合并，注意纹理类型必须是R8G8B8A8
+	 * @brief 合并纹理类型，用于将纹理合并，注意纹理类型要求一致
 	 */
 	class MergeTexture {
 	private:
@@ -51,8 +51,9 @@ namespace PixelWorldEngine {
 		 * @brief 构造函数
 		 * @param[in] width 宽度
 		 * @param[in] height 高度
+		 * @param[in] pixelFormat MergeTexture纹理的类型，
 		 */
-		MergeTexture(Application* application, int width, int height);
+		MergeTexture(Application* application, int width, int height, Graphics::PixelFormat pixelFormat = Graphics::PixelFormat::R8G8B8A8);
 
 		/**
 		 * @brief 析构函数
@@ -86,6 +87,12 @@ namespace PixelWorldEngine {
 		 * @return 纹理数据
 		 */
 		auto GetFinalTexture() -> Graphics::Texture2D*;
+
+		/**
+		 * @brief 获取像素格式
+		 * @return 像素格式
+		 */
+		auto GetPixelFormat() -> Graphics::PixelFormat;
 
 		/**
 		 * @brief 检测这个ID是否已经被使用了

@@ -27,4 +27,14 @@
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <Font Include="consola.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="msyh.ttc">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

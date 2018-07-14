@@ -55,7 +55,7 @@ PixelWorldEngine::Graphics::Graphics::Graphics()
 
 #endif // _WIN32
 
-	FT_Init_FreeType(&fontLibrary);
+	auto error = FT_Init_FreeType(&fontLibrary);
 }
 
 void PixelWorldEngine::Graphics::Graphics::SetShader(GraphicsShader* shader)
