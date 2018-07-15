@@ -10,62 +10,52 @@ namespace PixelWorldEngine {
 
 	namespace Events {
 
-		enum class EventType :int {
-			EventOther,
-			EventMouseMove,
-			EventMouseClick,
-			EventMouseWheel,
-			EventBoardClick,
-			EventGetFocus,
-			EventLostFocus,
-			EventMouseLeave,
-			EventSizeChanged
-		};
-
-		//Base Event
+		//基础事件
 		struct EventBase {
 
 		};
 
 
-		//MouseMove Event
+		//鼠标移动事件
 		struct MouseMoveEvent :EventBase {
-			int x, y;
+			int x, y; //鼠标位置
 
 			MouseMoveEvent() = default;
 		};
 
-		//enum of mouse button
+		//鼠标按键枚举
 		enum MouseButton {
-			Left, Middle, Right
+			Left, //左键
+			Middle, //中键
+			Right //右键
 		};
 
-		//MouseClick Event
+		//鼠标按键事件
 		struct MouseClickEvent :EventBase {
-			int x, y;
-			bool isDown;
-			MouseButton button;
+			int x, y; //鼠标位置
+			bool isDown; //是否按下
+			MouseButton button; //哪个按键
 
 			MouseClickEvent() = default;
 		};
 
-		//MouseWheel Event
+		//鼠标滚轮事件
 		struct MouseWheelEvent :EventBase {
-			int x, y;
-			int offset; //the mouse wheel move + is up,- is down
+			int x, y; //鼠标位置
+			int offset; //滑动值，正数则是往上滑动，反之往下
 
 			MouseWheelEvent() = default;
 		};
 
-		//BoardClick Event
+		//键盘按键事件
 		struct KeyClickEvent :EventBase {
-			KeyCode keyCode;
-			bool isDown;
+			KeyCode keyCode; //按键虚拟码
+			bool isDown; //是否按下
 
 			KeyClickEvent() = default;
 		};
 
-		//SizeChange Event
+		
 		struct SizeChangeEvent :EventBase {
 			int width;
 			int height;

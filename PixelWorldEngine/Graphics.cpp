@@ -22,6 +22,10 @@ PixelWorldEngine::Graphics::Graphics::Graphics()
 	D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE::D3D_DRIVER_TYPE_HARDWARE,
 		0, createFlag, features, 3, D3D11_SDK_VERSION, &device, &feature, &deviceContext);
 
+	if (feature != D3D_FEATURE_LEVEL_11_0)
+		graphicsMode = GraphicsMode::High;
+	else graphicsMode = GraphicsMode::Low;
+
 	elementDesc[0] = { "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0, 0, D3D11_INPUT_PER_VERTEX_DATA,0 };
 	elementDesc[1] = { "COLOR",   0,DXGI_FORMAT_R32G32B32A32_FLOAT, 0,12, D3D11_INPUT_PER_VERTEX_DATA ,0 };
 	elementDesc[2] = { "TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,   0,28,D3D11_INPUT_PER_VERTEX_DATA,0 };
@@ -287,6 +291,11 @@ void PixelWorldEngine::Graphics::Graphics::DrawIndexedInstanced(int indexCount, 
 
 #endif // _WIN32
 
+}
+
+auto PixelWorldEngine::Graphics::Graphics::GetGraphicsMode() -> GraphicsMode
+{
+	return graphicsMode;
 }
 
 PixelWorldEngine::Graphics::Graphics::~Graphics()

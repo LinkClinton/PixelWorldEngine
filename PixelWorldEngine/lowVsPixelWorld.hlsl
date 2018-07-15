@@ -37,7 +37,10 @@ cbuffer RenderConfig : register(b1)
     float4 unused[3];
 };
 
-StructuredBuffer<InstanceData> instanceData : register(t0);
+cbuffer InstanceDatas : register(b2)
+{
+    InstanceData instanceData[100];
+}
 
 Texture2D Texture0 : register(t1);
 Texture2D Texture1 : register(t2);

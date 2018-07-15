@@ -28,6 +28,8 @@ result += "\t" + CreateCharArray("vsPixelWorld", ".hlsl") + "\n"
 result += "\t" + CreateCharArray("psPixelWorld", ".hlsl") + "\n"
 result += "\t" + CreateCharArray("vsApplication", ".hlsl") + "\n"
 result += "\t" + CreateCharArray("psApplication", ".hlsl") + "\n"
+result += "\t" + CreateCharArray("lowVsPixelWorld", ".hlsl") + "\n"
+result += "\t" + CreateCharArray("lowPsPixelWorld", ".hlsl") + "\n"
 
 result += "\n}"
 

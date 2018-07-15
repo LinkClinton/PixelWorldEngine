@@ -50,14 +50,28 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 	buffers[(int)BufferIndex::CameraBuffer] = new Graphics::Buffer(graphics, &matrix , sizeof(glm::mat4x4));
 	buffers[(int)BufferIndex::RenderConfig] = new Graphics::Buffer(graphics, &renderConfig, sizeof(PixelWorldRenderConfig));
 
-	bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData] = new Graphics::BufferArray(graphics, nullptr, sizeof(InstanceData));
-	bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData] = new Graphics::BufferArray(graphics, nullptr, sizeof(InstanceData));
-	bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData] = new Graphics::BufferArray(graphics, nullptr, sizeof(InstanceData));
-
-	defaultShader = new Graphics::GraphicsShader(graphics, 
-		Utility::CharArrayToVector((char*)vsPixelWorldDefaultShaderCode),
-		Utility::CharArrayToVector((char*)psPixelWorldDefaultShaderCode));
+	if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::Low)
+		buffers[(int)BufferIndex::LowInstanceData] = new Graphics::Buffer(graphics, nullptr, sizeof(InstanceData) * 100);
 	
+
+	if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::High) {
+		bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData] = new Graphics::BufferArray(graphics, nullptr, sizeof(InstanceData));
+		bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData] = new Graphics::BufferArray(graphics, nullptr, sizeof(InstanceData));
+		bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData] = new Graphics::BufferArray(graphics, nullptr, sizeof(InstanceData));
+	}
+
+
+	if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::High) {
+		defaultShader = new Graphics::GraphicsShader(graphics,
+			Utility::CharArrayToVector((char*)vsPixelWorldDefaultShaderCode),
+			Utility::CharArrayToVector((char*)psPixelWorldDefaultShaderCode));
+	}
+	else {
+		defaultShader = new Graphics::GraphicsShader(graphics,
+			Utility::CharArrayToVector((char*)lowVsPixelWorldDefaultShaderCode),
+			Utility::CharArrayToVector((char*)lowPsPixelWorldDefaultShaderCode));
+	}
+
 	defaultSampler = new Graphics::StaticSampler(graphics);
 
 	textureManager = new TextureManager(Application);
@@ -225,6 +239,49 @@ auto PixelWorldEngine::PixelWorld::GetWorldMap() -> WorldMap *
 	return worldMap;
 }
 
+void PixelWorldEngine::PixelWorld::LowDrawObject(std::vector<InstanceData>* instanceData)
+{
+	if (instanceData->size() == LOW_MAX_INSTANCE_DATA) {
+		buffers[(int)BufferIndex::LowInstanceData]->Update(&((*instanceData)[0]));
+
+		graphics->SetConstantBuffer(buffers[(int)BufferIndex::LowInstanceData], (int)BufferIndex::LowInstanceData);
+
+		graphics->DrawIndexedInstanced(renderObject->GetIndexBuffer()->GetCount(), instanceData->size(), 0, 0);
+	}
+	else {
+		std::vector<InstanceData> newInstanceData;
+		
+		newInstanceData.resize(LOW_MAX_INSTANCE_DATA);
+
+		for (size_t i = 0; i < instanceData->size(); i++)
+			newInstanceData[i] = (*instanceData)[i];
+
+		buffers[(int)BufferIndex::LowInstanceData]->Update(&newInstanceData[0]);
+
+		graphics->SetConstantBuffer(buffers[(int)BufferIndex::LowInstanceData], (int)BufferIndex::LowInstanceData);
+
+		graphics->DrawIndexedInstanced(renderObject->GetIndexBuffer()->GetCount(), newInstanceData.size(), 0, 0);
+	}
+
+	instanceData->clear();
+}
+
+void PixelWorldEngine::PixelWorld::HighDrawObject(std::vector<InstanceData>* instanceData, BufferArrayIndex arrayIndex)
+{
+	if (bufferArrays[(int)arrayIndex]->GetCount() != instanceData->size()) {
+
+		Utility::Delete(bufferArrays[(int)arrayIndex]);
+
+		bufferArrays[(int)arrayIndex] =
+			new Graphics::BufferArray(graphics, &((*instanceData)[0]), sizeof(InstanceData) * instanceData->size(), instanceData->size());
+	}
+	else bufferArrays[(int)arrayIndex]->Update(&((*instanceData)[0]));
+
+	graphics->SetShaderResource(bufferArrays[(int)arrayIndex], 0);
+
+	graphics->DrawIndexedInstanced(renderObject->GetIndexBuffer()->GetCount(), instanceData->size(), 0, 0);
+}
+
 void PixelWorldEngine::PixelWorld::RenderWorldMap()
 {
 	auto matrix = camera->GetMatrix();
@@ -266,23 +323,16 @@ void PixelWorldEngine::PixelWorld::RenderWorldMap()
 				data.renderCoor = glm::vec4(1.0f, 1.0f, 1.0f, mapData->Opacity);
 
 				instanceData.push_back(data);
+
+				if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::Low && instanceData.size() == LOW_MAX_INSTANCE_DATA)
+					LowDrawObject(&instanceData);
 			}
 		}
 
 		if (instanceData.size() != 0) {
-
-			if (bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData]->GetCount() != instanceData.size()) {
-
-				Utility::Delete(bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData]);
-
-				bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData] =
-					new Graphics::BufferArray(graphics, &instanceData[0], sizeof(InstanceData) * instanceData.size(), instanceData.size());
-			}
-			else bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData]->Update(&instanceData[0]);
-
-			graphics->SetShaderResource(bufferArrays[(int)BufferArrayIndex::WorldMapInstanceData], 0);
-
-			graphics->DrawIndexedInstanced(renderObject->GetIndexBuffer()->GetCount(), instanceData.size(), 0, 0);
+			if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::High)
+				HighDrawObject(&instanceData, BufferArrayIndex::WorldMapInstanceData);
+			else LowDrawObject(&instanceData);
 		}
 	}
 }
@@ -312,21 +362,15 @@ void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 		data.texcoordTransform = textureManager->mergeTextures[whichID]->GetTexCoordTransform(pixelObject->renderObjectID);
 
 		instanceData.push_back(data);
+
+		if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::Low && instanceData.size() == LOW_MAX_INSTANCE_DATA)
+			LowDrawObject(&instanceData);
 	}
 
 	if (instanceData.size() != 0) {
-
-		if (bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData]->GetCount() != instanceData.size()) {
-			Utility::Delete(bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData]);
-
-			bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData] =
-				new Graphics::BufferArray(graphics, &instanceData[0], sizeof(InstanceData) * instanceData.size(), instanceData.size());
-		}
-		else bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData]->Update(&instanceData[0]);
-
-		graphics->SetShaderResource(bufferArrays[(int)BufferArrayIndex::PixelObjectInstanceData], 0);
-
-		graphics->DrawIndexedInstanced(renderObject->GetIndexBuffer()->GetCount(), instanceData.size(), 0, 0);
+		if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::High)
+			HighDrawObject(&instanceData, BufferArrayIndex::PixelObjectInstanceData);
+		else LowDrawObject(&instanceData);
 	}
 }
 
@@ -361,8 +405,12 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, flo
 		data[2].renderCoor = color;
 		data[3].renderCoor = color;
 
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 4; i++) {
 			instanceData[i].push_back(data[i]);
+
+			if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::Low && instanceData[i].size() == LOW_MAX_INSTANCE_DATA)
+				LowDrawObject(&instanceData[i]);
+		}
 	}
 
 	if (object->renderObjectID != 0) {
@@ -384,6 +432,9 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, flo
 			data.texcoordTransform = textureManager->mergeTextures[whichID]->GetTexCoordTransform(object->renderObjectID);
 
 			instanceData[4].push_back(data);
+
+			if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::Low && instanceData[4].size() == LOW_MAX_INSTANCE_DATA)
+				LowDrawObject(&instanceData[4]);
 		}
 	}
 
@@ -410,17 +461,9 @@ void PixelWorldEngine::PixelWorld::RenderUIObjects()
 	for (int i = 0; i < 5; i++) {
 		if (instanceData[i].size() != 0) {
 
-			if (bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData]->GetCount() != instanceData[i].size()) {
-				Utility::Delete(bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData]);
-
-				bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData] =
-					new Graphics::BufferArray(graphics, &instanceData[i][0], sizeof(InstanceData) * instanceData[i].size(), instanceData[i].size());
-			}
-			else bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData]->Update(&instanceData[i][0]);
-
-			graphics->SetShaderResource(bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData], 0);
-
-			graphics->DrawIndexedInstanced(renderObject->GetIndexBuffer()->GetCount(), instanceData[i].size(), 0, 0);
+			if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::High)
+				HighDrawObject(&instanceData[i], BufferArrayIndex::UIObjectInstanceData);
+			else LowDrawObject(&instanceData[i]);
 		}
 	}
 }

@@ -2,6 +2,9 @@
 
 namespace PixelWorldEngine {
 
+	/**
+	 * @brief °´¼üĞéÄâÂë
+	 */
 	enum class KeyCode : int
 	{
 		//

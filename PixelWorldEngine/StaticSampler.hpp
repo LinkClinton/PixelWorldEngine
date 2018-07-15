@@ -8,6 +8,9 @@ namespace PixelWorldEngine {
 
 		class Graphics;
 
+		/**
+		 * @brief 采样地址模式
+		 */
 		enum class TextureAddressMode: int {
 			Wrap = 1,
 			Mirror = 2,
@@ -16,6 +19,9 @@ namespace PixelWorldEngine {
 			MirrorOnce = 5
 		};
 
+		/**
+		 * @brief 采样过滤
+		 */
 		enum class TextureFilter: int {
 			MinMagMipPoint = 0,
 			MinMagPointMipLinear = 1,
@@ -55,28 +61,48 @@ namespace PixelWorldEngine {
 			MaximumAnisotropic = 469
 		};
 
+		/**
+		 * @brief 纹理采样器
+		 */
 		class StaticSampler {
 		private:
-			Graphics* graphics;
+			Graphics* graphics; //..
 
-			TextureAddressMode AddressU;
-			TextureAddressMode AddressV;
-			TextureAddressMode AddressW;
+			TextureAddressMode AddressU; //U地址采样模式
+			TextureAddressMode AddressV; //V地址采样模式
+			TextureAddressMode AddressW; //W地址采样模式
 
-			TextureFilter Filter;
+			TextureFilter Filter; //过滤器
 
 #ifdef _WIN32
 		public:
-			ID3D11SamplerState* sampler;
+			ID3D11SamplerState* sampler; //Direct3D 接口
 #endif // _WIN32
 
 		public:
+			/**
+			 * @brief 构造函数
+			 * @param[in] graphics 图形接口
+			 * @param[in] addressU U地址采样模式
+			 * @param[in] addressV V地址采样模式
+			 * @param[in] addressW W地址采样模式
+			 * @param[in] filter 纹理过滤
+			 */
 			StaticSampler(Graphics* graphics, TextureAddressMode addressU, TextureAddressMode addressV,
 				TextureAddressMode addressW, TextureFilter filter = TextureFilter::MinMagMipLinear);
-
+			
+			/**
+			 * @brief 构造函数
+			 * @param[in] graphics 图形接口
+			 * @param[in] addressUVM UVM地址采样模式
+			 * @param[in] filter 纹理过滤
+			 */
 			StaticSampler(Graphics* graphics, TextureAddressMode addressUVW = TextureAddressMode::Clamp,
 				TextureFilter filter = TextureFilter::MinMagMipLinear);
 
+			/**
+			 * @brief 析构函数
+			 */
 			~StaticSampler();
 		};
 

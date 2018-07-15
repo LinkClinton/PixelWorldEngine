@@ -241,5 +241,11 @@
     <None Include="psApplication.hlsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="lowPsPixelWorld.hlsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="lowVsPixelWorld.hlsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

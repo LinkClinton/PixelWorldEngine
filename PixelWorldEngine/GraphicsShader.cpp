@@ -34,7 +34,7 @@ PixelWorldEngine::Graphics::GraphicsShader::GraphicsShader(Graphics * Graphics,
 		std::string vsVersion = "vs_4_0";
 		std::string psVersion = "ps_4_0";
 
-		if (graphics->feature == D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_0)
+		if (graphics->GetGraphicsMode() == GraphicsMode::High)
 			vsVersion = "vs_5_0",
 			psVersion = "ps_5_0";
 

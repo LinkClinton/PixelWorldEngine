@@ -17,12 +17,15 @@
 
 namespace PixelWorldEngine {
 
+#define LOW_MAX_INSTANCE_DATA 100
+
 	/**
 	 * @brief 用来表述用途不同的缓冲的在着色器以及数组的ID
 	 */
 	enum class BufferIndex : int {
 		CameraBuffer, //摄像机矩阵缓冲
 		RenderConfig, //记录当前渲染的时候的设置
+		LowInstanceData, //用于低版本的实例技术
 		Count
 	};
 
@@ -44,7 +47,7 @@ namespace PixelWorldEngine {
 		glm::vec4 unused[3];
 	};
 
-	/**
+	 /**
 	 * @brief 实例数据
 	 */
 	struct InstanceData {
@@ -139,6 +142,19 @@ namespace PixelWorldEngine {
 		 * @param[in] deltaTime 距离上一次更新的时间
 		 */
 		void OnUpdate(float deltaTime);
+
+		/**
+		 * @brief 用于低版本的渲染
+		 * @param[in] instanceData 实例数据
+		 */
+		void LowDrawObject(std::vector<InstanceData>* instanceData);
+
+		/**
+		 * @brief 用于高版本的渲染
+		 * @param[in] instanceData 实例数据
+		 * @param[in] arrayIndex 索引
+		 */
+		void HighDrawObject(std::vector<InstanceData>* instanceData, BufferArrayIndex arrayIndex);
 
 		/**
 		 * @brief 渲染世界的地图，作为GetCurrentWorld的子部分
