@@ -22,7 +22,7 @@ PixelWorldEngine::Graphics::Graphics::Graphics()
 	D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE::D3D_DRIVER_TYPE_HARDWARE,
 		0, createFlag, features, 3, D3D11_SDK_VERSION, &device, &feature, &deviceContext);
 
-	if (feature != D3D_FEATURE_LEVEL_11_0)
+	if (feature == D3D_FEATURE_LEVEL_11_0)
 		graphicsMode = GraphicsMode::High;
 	else graphicsMode = GraphicsMode::Low;
 
