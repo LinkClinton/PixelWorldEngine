@@ -488,6 +488,8 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 	graphics->SetStaticSampler(defaultSampler, 0);
 
 	for (int i = 0; i < MAX_MERGETEXTURE_COUNT; i++) {
+		if (textureManager == nullptr) break;
+
 		if (textureManager->mergeTextures[i] == nullptr) continue;
 		
 		renderConfig.mergeTextureFormat[i] = textureManager->mergeTextures[i]->GetPixelFormat();

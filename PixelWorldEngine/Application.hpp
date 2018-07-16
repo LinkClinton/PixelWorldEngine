@@ -22,8 +22,8 @@ namespace PixelWorldEngine {
 	private:
 		std::string applicationName; //应用程序的名字
 
-		int windowWidth = 0; //窗口的宽度
-		int windowHeight = 0; //窗口的高度
+		int width = 0; //窗口的宽度
+		int height = 0; //窗口的高度
 
 		std::string windowName; //窗口的名字
 		std::string iconName; //窗口使用的图标文件路径
@@ -145,7 +145,7 @@ namespace PixelWorldEngine {
 		 * @param[in] resolutionHeight 分辨率高度
 		 * @return 返回可视范围
 		 */
-		static auto ComputeViewPort(int windowWidth, int windowHeight, int resolutionWidth, int resolutionHeight) -> RectangleF;
+		static auto ComputeViewPort(int width, int height, int resolutionWidth, int resolutionHeight) -> RectangleF;
 
 		/**
 		* @brief 计算鼠标位置转移到当前世界使用的分辨率下的位置

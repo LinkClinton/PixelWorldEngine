@@ -47,6 +47,15 @@ PixelWorldEngine::DataManager::DataManager(Application* application)
 PixelWorldEngine::DataManager::~DataManager()
 {
 	IMG_Quit();
+
+	for (auto it = textures.begin(); it != textures.end(); it++)
+		Utility::Delete(it->second);
+
+	for (auto it = fonts.begin(); it != fonts.end(); it++)
+		Utility::Delete(it->second);
+
+	textures.clear();
+	fonts.clear();
 }
 
 auto PixelWorldEngine::DataManager::ReadFile(std::string fileName) -> FileData
@@ -133,6 +142,8 @@ void PixelWorldEngine::DataManager::UnRegisterTexture(std::string fileName)
 	if (textures.count(fileName) == 0) return;
 	
 	Utility::Delete(textures[fileName]);
+
+	textures.erase(fileName);
 }
 
 void PixelWorldEngine::DataManager::UnRegisterFont(std::string fontName)
@@ -140,4 +151,6 @@ void PixelWorldEngine::DataManager::UnRegisterFont(std::string fontName)
 	if (fonts.count(fontName) == 0) return;
 
 	Utility::Delete(fonts[fontName]);
+
+	fonts.erase(fontName);
 }

@@ -57,7 +57,7 @@ void PixelWorldEngine::Application::OnMouseMove(void * sender, PixelWorldEngine:
 	mousePositionY = eventArg->y;
 
 	if (pixelWorld != nullptr) {
-		auto mousePositionRelative = ComputeMousePosition(RectangleF(0, 0, (float)windowWidth, (float)windowHeight),
+		auto mousePositionRelative = ComputeMousePosition(RectangleF(0, 0, (float)width, (float)height),
 			pixelWorld->resolutionWidth, pixelWorld->resolutionHeight, mousePositionX, mousePositionY);
 
 		mousePositionXRelative = mousePositionRelative.first;
@@ -107,13 +107,13 @@ void PixelWorldEngine::Application::OnKeyClick(void * sender, PixelWorldEngine::
 
 void PixelWorldEngine::Application::OnSizeChange(void * sender, PixelWorldEngine::Events::SizeChangeEvent * eventArg)
 {
-	windowWidth = eventArg->width;
-	windowHeight = eventArg->height;
+	width = eventArg->width;
+	height = eventArg->height;
 	
 	Utility::Delete(renderTarget);
 
 #ifdef _WIN32
-	swapChain->ResizeBuffers(1, windowWidth, windowHeight, (DXGI_FORMAT)Graphics::PixelFormat::Unknown, 0);
+	swapChain->ResizeBuffers(1, width, height, (DXGI_FORMAT)Graphics::PixelFormat::Unknown, 0);
 #endif // _WIN32
 
 	renderTarget = new Graphics::RenderTarget(graphics, this);
@@ -126,8 +126,9 @@ void PixelWorldEngine::Application::OnUpdate(void * sender)
 	timer.Start();
 
 	fpsCounter.Update(deltaTime);
-
-	pixelWorld->OnUpdate(deltaTime);
+	
+	if (pixelWorld != nullptr)
+		pixelWorld->OnUpdate(deltaTime);
 
 	for (auto it = animators.begin(); it != animators.end(); it++)
 		it->second->OnUpdate(deltaTime);
@@ -139,6 +140,7 @@ void PixelWorldEngine::Application::OnUpdate(void * sender)
 
 void PixelWorldEngine::Application::OnRender(void * sender)
 {
+	if (pixelWorld == nullptr) return;
 
 	auto worldTexture = pixelWorld->GetCurrentWorld();
 
@@ -155,7 +157,7 @@ void PixelWorldEngine::Application::OnRender(void * sender)
 
 	graphics->SetRenderTarget(renderTarget);
 
-	graphics->SetViewPort(Application::ComputeViewPort(windowWidth, windowHeight,
+	graphics->SetViewPort(Application::ComputeViewPort(width, height,
 		resolutionWidth, resolutionHeight));
 
 	graphics->SetShader(defaultShader);
@@ -318,7 +320,7 @@ void PixelWorldEngine::Application::OnProcessMessage(MSG message)
 auto PixelWorldEngine::Application::ComputeMousePosition(int x, int y) -> std::pair<int, int>
 {
 	if (pixelWorld != nullptr) {
-		auto mousePositionRelative = ComputeMousePosition(RectangleF(0, 0, (float)windowWidth, (float)windowHeight),
+		auto mousePositionRelative = ComputeMousePosition(RectangleF(0, 0, (float)width, (float)height),
 			pixelWorld->resolutionWidth, pixelWorld->resolutionHeight, mousePositionX, mousePositionY);
 		
 		return mousePositionRelative;
@@ -327,15 +329,15 @@ auto PixelWorldEngine::Application::ComputeMousePosition(int x, int y) -> std::p
 }
 
 
-auto PixelWorldEngine::Application::ComputeViewPort(int windowWidth, int windowHeight, int resolutionWidth, int resolutionHeight) -> RectangleF
+auto PixelWorldEngine::Application::ComputeViewPort(int width, int height, int resolutionWidth, int resolutionHeight) -> RectangleF
 {
-	if (windowWidth * resolutionHeight == windowHeight * resolutionWidth) return RectangleF(0, 0, (float)windowWidth, (float)windowHeight);
+	if (width * resolutionHeight == height * resolutionWidth) return RectangleF(0, 0, (float)width, (float)height);
 
 	float Tx = (float)resolutionWidth;
 	float Ty = (float)resolutionHeight;
 
-	float x = (float)windowWidth;
-	float  y = (float)windowHeight;
+	float x = (float)width;
+	float  y = (float)height;
 
 	float scaleWidth = 0;
 	float scaleHeight = 0;
@@ -345,17 +347,17 @@ auto PixelWorldEngine::Application::ComputeViewPort(int windowWidth, int windowH
 
 	if (Ty * x > Tx * y) {
 		//for width
-		scaleWidth = windowWidth / ((Ty * x) / (Tx * y));
-		scaleHeight = (float)windowHeight;
+		scaleWidth = width / ((Ty * x) / (Tx * y));
+		scaleHeight = (float)height;
 
-		offX = (windowWidth - scaleWidth) / 2.f;
+		offX = (width - scaleWidth) / 2.f;
 	}
 	else {
 		//for height
-		scaleWidth = (float)windowWidth;
-		scaleHeight = windowHeight * ((Ty * x) / (Tx * y));
+		scaleWidth = (float)width;
+		scaleHeight = height * ((Ty * x) / (Tx * y));
 
-		offY = (windowHeight - scaleHeight) / 2.f;
+		offY = (height - scaleHeight) / 2.f;
 	}
 
 	return RectangleF(offX, offY, offX + scaleWidth, offY + scaleHeight);
@@ -414,8 +416,8 @@ void PixelWorldEngine::Application::MakeWindow(std::string WindowName, int Width
 	if (isWindowCreated == true) return;
 
 	windowName = WindowName;
-	windowWidth = Width;
-	windowHeight = Height;
+	width = Width;
+	height = Height;
 	iconName = IconName;
 
 #ifdef _WIN32
@@ -444,8 +446,8 @@ void PixelWorldEngine::Application::MakeWindow(std::string WindowName, int Width
 
 	rect.top = 0;
 	rect.left = 0;
-	rect.right = windowWidth;
-	rect.bottom = windowHeight;
+	rect.right = width;
+	rect.bottom = height;
 
 	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 
@@ -455,12 +457,12 @@ void PixelWorldEngine::Application::MakeWindow(std::string WindowName, int Width
 
 	swapDesc.BufferCount = 1;
 	swapDesc.BufferDesc.Format = (DXGI_FORMAT)Graphics::PixelFormat::R8G8B8A8;
-	swapDesc.BufferDesc.Height = windowHeight;
+	swapDesc.BufferDesc.Height = height;
 	swapDesc.BufferDesc.RefreshRate.Denominator = 1;
 	swapDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapDesc.BufferDesc.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
 	swapDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	swapDesc.BufferDesc.Width = windowWidth;
+	swapDesc.BufferDesc.Width = width;
 	swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapDesc.Flags = 0;
 	swapDesc.OutputWindow = hwnd;
@@ -502,10 +504,10 @@ void PixelWorldEngine::Application::SetWindow(std::string WindowName, int Width,
 	SetWindowText(hwnd, &wideWindowName[0]);
 #endif
 
-	if (windowWidth != Width || windowHeight != Height) {
+	if (width != Width || height != Height) {
 
-		windowWidth = Width;
-		windowHeight = Height;
+		width = Width;
+		height = Height;
 
 #ifdef _WIN32
 
@@ -513,8 +515,8 @@ void PixelWorldEngine::Application::SetWindow(std::string WindowName, int Width,
 
 		rect.top = 0;
 		rect.left = 0;
-		rect.right = windowWidth;
-		rect.bottom = windowHeight;
+		rect.right = width;
+		rect.bottom = height;
 
 		AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 
@@ -604,12 +606,12 @@ void PixelWorldEngine::Application::UnRegisterAnimator(std::string name)
 
 auto PixelWorldEngine::Application::GetWindowWidth() -> int
 {
-	return windowWidth;
+	return width;
 }
 
 auto PixelWorldEngine::Application::GetWindowHeight() -> int
 {
-	return windowHeight;
+	return height;
 }
 
 auto PixelWorldEngine::Application::GetFramePerSecond() -> int
