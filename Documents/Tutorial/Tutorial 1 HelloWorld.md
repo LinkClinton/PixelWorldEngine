@@ -74,6 +74,6 @@ MouseClick是一个动态数组，用来存储所有的关于鼠标按钮的处�
     app->RunLoop();
 ```
 
-### 对应样例
+### 样例
 
 - [EngineHelloWorld](https://github.com/LinkClinton/PixelWorldEngineSample/tree/master/EngineHelloWorld)
