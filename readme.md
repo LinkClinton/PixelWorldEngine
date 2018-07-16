@@ -1,5 +1,7 @@
 # PixelWorldEngine
 
+版本: 0.97
+
 ## 介绍
 
 PixelWorldEngine是由C++编写的用于开发2D像素类型的游戏引擎，主要目的是用于开发开放世界。不知道简单也不知道是否好用QAQ。
