@@ -18,7 +18,7 @@ namespace PixelWorldEngine {
 	 * @brief 碰撞事件
 	 * @param[in] 涉及的另外的物体
 	 */
-	typedef std::function<void(PixelObject*)> CollideHandler;
+	typedef std::function<void(void*, PixelObject*)> CollideHandler;
 
 	typedef std::vector<UpdateHandler> UpdateHandlers;
 	typedef std::vector<CollideHandler> CollideHandlers;
@@ -60,18 +60,18 @@ namespace PixelWorldEngine {
 		 * @brief 当物体在移动的时候碰到其他物体的时候，将会触发
 		 * @param[in] piexlObject 碰撞到的物体
 		 */
-		virtual void OnCollide(PixelObject* piexlObject);
+		virtual void OnCollide(void* sender, PixelObject* piexlObject);
 
 		/**
 		 * @brief 当物体进入到另外的物体是触发，只有在物体没有开启物理碰撞的时候触发
 		 * @param[in] pixelObject 进入的物体
 		 */
-		virtual void OnEnter(PixelObject* pixelObject);
+		virtual void OnEnter(void* sender, PixelObject* pixelObject);
 
 		/**
 		 * @brief 当物体离开之前进入的物体的时候触发，只有在物体没有开启物理碰撞的时候触发
 		 */
-		virtual void OnLeave(PixelObject* pixelObject);
+		virtual void OnLeave(void* sender, PixelObject* pixelObject);
 
 		friend class PixelWorld;
 		friend class PixelObjectCompare;
@@ -99,13 +99,27 @@ namespace PixelWorldEngine {
 		void Move(float translationX, float translationY);
 
 		/**
-		 * @brief 设置深度层，深度较大的会覆盖深度较小的，如果深度相同那么结果未知
+		 * @brief 设置深度层，深度较大的会覆盖深度较小的，如果深度相同那么结果未知，默认为0
 		 * @param[in] depthLayer 深度层
 		 */
 		void SetDepthLayer(int depthLayer);
 
 		/**
-		 * @brief 是否允许物理碰撞，true则为开启，false则代表关闭
+		* @brief 设置物体的大小
+		* @param[in] objectWidth 物体的宽度
+		* @param[in] objectHeight 物体的高度
+		*/
+		virtual void SetSize(float objectWidth, float objectHeight)override;
+
+		/**
+		* @brief 设置物体坐标，这里将不会考虑任何其他因素，因此可能导致一些其他问题概不负责
+		* @param[in] x 物体的X坐标
+		* @param[in] y 物体的Y坐标
+		*/
+		virtual void SetPosition(float x, float y)override;
+
+		/**
+		 * @brief 是否允许物理碰撞，true则为开启，false则代表关闭，默认为true
 		 * @param[in] enable 是否允许
 		 */
 		void EnablePhysicsCollision(bool enable);

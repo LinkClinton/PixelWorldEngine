@@ -42,12 +42,12 @@ auto PixelWorldEngine::Collider::IsEnablePhysics() -> bool
 auto PixelWorldEngine::Collider::Intersect(Collider collider) -> bool
 {
 	//X-Axis
-	if (rect.right < collider.rect.left) return false;
-	if (rect.left > collider.rect.right) return false;
+	if (rect.right <= collider.rect.left) return false;
+	if (rect.left >= collider.rect.right) return false;
 
 	//Y-Axis
-	if (rect.bottom < collider.rect.top) return false;
-	if (rect.top > collider.rect.bottom) return false;
+	if (rect.bottom <= collider.rect.top) return false;
+	if (rect.top >= collider.rect.bottom) return false;
 
 	return true;
 }

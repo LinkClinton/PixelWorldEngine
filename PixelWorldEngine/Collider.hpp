@@ -41,7 +41,7 @@ namespace PixelWorldEngine {
 
 		/**
 		* @brief 是否启用物理碰撞
-		* @param[in] enable 表示物理碰撞的启用状态，即是否拥有物理属性，例如无法穿过等等，true表示启用，false则表示不启用
+		* @param[in] enable 表示物理碰撞的启用状态，即是否拥有物理属性，例如无法穿过等等，true表示启用，false则表示不启用，默认为true
 		*/
 		void EnablePhysics(bool enable);
 

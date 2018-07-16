@@ -16,6 +16,8 @@ namespace PixelWorldEngine {
 
 		static auto CountPixelFormatSize(Graphics::PixelFormat pixelFormat) -> int;
 
+		static auto ToString(int number) -> std::string;
+
 		template<typename T>
 		static auto Max(T x, T y) -> T;
 

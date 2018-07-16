@@ -149,15 +149,15 @@ void PixelWorldEngine::PixelObject::OnMove(float translationX, float translation
 {
 }
 
-void PixelWorldEngine::PixelObject::OnCollide(PixelObject* which)
+void PixelWorldEngine::PixelObject::OnCollide(void* sender, PixelObject* which)
 {
 }
 
-void PixelWorldEngine::PixelObject::OnEnter(PixelObject* pixelObject)
+void PixelWorldEngine::PixelObject::OnEnter(void* sender, PixelObject* pixelObject)
 {
 }
 
-void PixelWorldEngine::PixelObject::OnLeave(PixelObject* pixelObject)
+void PixelWorldEngine::PixelObject::OnLeave(void* sender, PixelObject* pixelObject)
 {
 }
 
@@ -174,29 +174,28 @@ void PixelWorldEngine::PixelObject::Move(float translationX, float translationY)
 	float resultX = MoveAxisXMap(translationX);
 	float resultY = MoveAxisYMap(translationY);
 
-	auto targetCollider = Collider(resultX, resultY, resultX + width, resultY + height);
+	auto targetEventCollider = Collider(resultX, resultY, resultX + width, resultY + height);
 
 	for (auto it = pixelWorld->pixelObjects.begin(); it != pixelWorld->pixelObjects.end(); it++) {
 		if (it->first == name) continue;
 
 		if (it->second->collider.IsEnablePhysics() == true) {
-			if (targetCollider.Intersect(it->second->collider) == true)
-				OnCollide(it->second), Events::DoEventHandlers(Collide, it->second);
+			if (targetEventCollider.Intersect(it->second->collider) == true)
+				OnCollide(this, it->second), Events::DoEventHandlers(Collide, this, it->second);
 		}
 		else {
 			bool originState = collider.Intersect(it->second->collider);
-			bool targetState = targetCollider.Intersect(it->second->collider);
+			bool targetState = targetEventCollider.Intersect(it->second->collider);
 
 			if (originState == true && targetState == false)
-				OnLeave(it->second), Events::DoEventHandlers(Leave, it->second);
+				OnLeave(this, it->second), Events::DoEventHandlers(Leave, this, it->second);
 
 			if (originState == false && targetState == true)
-				OnEnter(it->second), Events::DoEventHandlers(Enter, it->second);
+				OnEnter(this, it->second), Events::DoEventHandlers(Enter, this, it->second);
 		}
 	}
 
-
-	targetCollider = Collider(resultX, positionY, resultX + width, positionY + height);
+	auto targetCollider = Collider(resultX, positionY, resultX + width, positionY + height);
 
 	for (auto it = pixelWorld->pixelObjects.begin(); it != pixelWorld->pixelObjects.end(); it++) {
 		if (it->first == name || it->second->collider.IsEnablePhysics() == false) continue;
@@ -238,6 +237,22 @@ void PixelWorldEngine::PixelObject::SetDepthLayer(int DepthLayer)
 	}
 
 	depthLayer = DepthLayer;
+}
+
+void PixelWorldEngine::PixelObject::SetSize(float objectWidth, float objectHeight)
+{
+	width = objectWidth;
+	height = objectHeight;
+
+	collider.SetArea(positionX, positionY, positionX + width, positionY + height);
+}
+
+void PixelWorldEngine::PixelObject::SetPosition(float x, float y)
+{
+	positionX = x;
+	positionY = y;
+
+	collider.SetArea(positionX, positionY, positionX + width, positionY + height);
 }
 
 void PixelWorldEngine::PixelObject::EnablePhysicsCollision(bool enable)

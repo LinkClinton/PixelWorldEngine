@@ -394,9 +394,9 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, flo
 		InstanceData data[4];
 
 		data[0].worldTransform = translationMatrix * widthScaleMatrix;
-		data[1].worldTransform = glm::translate(translationMatrix, glm::vec3(0.0f, object->height - object->borderWidth - 1, 0.0f)) * widthScaleMatrix;
+		data[1].worldTransform = glm::translate(translationMatrix, glm::vec3(0.0f, object->height - object->borderWidth, 0.0f)) * widthScaleMatrix;
 		data[2].worldTransform = translationMatrix * heightScaleMatrix;
-		data[3].worldTransform = glm::translate(translationMatrix, glm::vec3(object->width - object->borderWidth - 1, 0.0f, 0.0f)) * heightScaleMatrix;
+		data[3].worldTransform = glm::translate(translationMatrix, glm::vec3(object->width - object->borderWidth, 0.0f, 0.0f)) * heightScaleMatrix;
 
 		auto color = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], object->opacity);
 

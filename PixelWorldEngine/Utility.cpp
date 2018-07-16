@@ -58,3 +58,17 @@ auto PixelWorldEngine::Utility::CountPixelFormatSize(Graphics::PixelFormat pixel
 		return 0;
 	}
 }
+
+auto PixelWorldEngine::Utility::ToString(int number) -> std::string
+{
+	std::string result = u8"";
+
+	while (number > 0) {
+		char c = (number % 10) + '0';
+		result = c + result;
+
+		number /= 10;
+	}
+
+	return result;
+}

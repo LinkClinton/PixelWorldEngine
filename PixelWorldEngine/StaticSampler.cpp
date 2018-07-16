@@ -23,7 +23,7 @@ PixelWorldEngine::Graphics::StaticSampler::StaticSampler(Graphics* Graphics, Tex
 	desc.MinLOD = -FLT_MAX;
 	desc.MaxLOD = FLT_MAX;
 	desc.MipLODBias = 0.0f;
-	desc.MaxAnisotropy = 1;
+	desc.MaxAnisotropy = 4;
 	desc.BorderColor[0] = desc.BorderColor[1] = desc.BorderColor[1] = desc.BorderColor[2] = 1;
 
 	graphics->device->CreateSamplerState(&desc, &sampler);
@@ -52,7 +52,7 @@ PixelWorldEngine::Graphics::StaticSampler::StaticSampler(Graphics* Graphics, Tex
 	desc.MinLOD = -FLT_MAX;
 	desc.MaxLOD = FLT_MAX;
 	desc.MipLODBias = 0.0f;
-	desc.MaxAnisotropy = 1;
+	desc.MaxAnisotropy = 4;
 	desc.BorderColor[0] = desc.BorderColor[1] = desc.BorderColor[2] = desc.BorderColor[3] = 1;
 
 

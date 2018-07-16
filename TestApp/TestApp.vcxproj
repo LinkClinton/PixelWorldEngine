@@ -70,7 +70,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)ThirdParty\freetype\include;$(SolutionDir)ThirdParty;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)PixelWorldEngine;$(SolutionDir)ThirdParty\freetype\include;$(SolutionDir)ThirdParty;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)ThirdParty\freetype\win32;$(SolutionDir)ThirdParty\SDL2\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -137,22 +137,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\PixelWorldEngine\PixelWorldEngine.vcxproj">
       <Project>{12ccc5c9-d3ff-4315-a2c1-bb8c7aa0aeee}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="MapBlock.jpg" />
     <Image Include="p.png" />
-    <Image Include="T.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="consola.ttf" />
   </ItemGroup>
   <ItemGroup>
     <None Include="msyh.ttc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameObject.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
