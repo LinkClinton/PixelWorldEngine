@@ -35,7 +35,6 @@ namespace PixelWorldEngine {
 		std::multiset<UIObject*, UIObjectCompare> childrenLayer; //子物体层
 
 		glm::mat4x4 transformMatrix; //变换矩阵
-		glm::mat4x4 invTransformMatrix; //逆变换矩阵
 
 		friend class PixelWorld;
 		friend class UIObjectCompare;
@@ -150,9 +149,9 @@ namespace PixelWorldEngine {
 
 		/**
 		 * @brief 设置边界颜色
-		 * @param[in] red 红色分量
-		 * @param[in] green 绿色分量
-		 * @param[in] blue 蓝色分量
+		 * @param[in] red 红色分量，默认为0
+		 * @param[in] green 绿色分量，默认为0
+		 * @param[in] blue 蓝色分量，默认为0
 		 */
 		void SetBorderColor(float red = 0.0f, float green = 0.0f, float blue = 0.0f);
 
@@ -195,8 +194,8 @@ namespace PixelWorldEngine {
 		void SetHeight(float height);
 
 		/**
-		 * @brief 设置旋转角度，旋转中心为物体中心，默认为0
-		 * @param[in] angle 角度
+		 * @brief 设置旋转角度，旋转中心为物体中心
+		 * @param[in] angle 角度，默认为0
 		 */
 		void SetAngle(float angle);
 
@@ -259,6 +258,7 @@ namespace PixelWorldEngine {
 		 * @param[in] object 物体
 		 * @param[in] x 点的X坐标
 		 * @param[in[ y 点的Y坐标
+		 * @return 返回true代表在，否则代表不在
 		 */
 		static auto IsInUIObjectRect(UIObject* object, float x, float y) -> bool;
 	};

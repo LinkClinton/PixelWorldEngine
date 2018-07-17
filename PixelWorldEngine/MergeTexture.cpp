@@ -17,7 +17,7 @@ PixelWorldEngine::MergeTexture::~MergeTexture()
 
 void PixelWorldEngine::MergeTexture::AddTexture(int id, int positionX, int positionY, Graphics::Texture2D * texture)
 {
-	DebugLayer::Assert(finalTexture->GetPixelFormat() != texture->GetPixelFormat(), Error::ErrorPixelFormat);
+	DebugReturn(DebugLayer::Assert(finalTexture->GetPixelFormat() != texture->GetPixelFormat(), Error::ErrorPixelFormat, FunctionName));
 
 	SubTexture subTexture;
 
@@ -51,13 +51,13 @@ void PixelWorldEngine::MergeTexture::AddTexture(int id, int positionX, int posit
 
 void PixelWorldEngine::MergeTexture::RemoveTexture(int id)
 {
+	DebugReturn(DebugLayer::Assert(subTextures.count(id) == 0, Error::TheIDIsNotExist, Utility::ToString(id), FunctionName));
+
 	subTextures.erase(id);
 }
 
 auto PixelWorldEngine::MergeTexture::GetTexCoordTransform(int id) -> glm::mat4x4
 {
-	if (subTextures.count(id) == 0) return glm::mat4(1);
-	
 	return subTextures[id].transform;
 }
 

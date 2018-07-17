@@ -22,22 +22,22 @@ namespace PixelWorldEngine {
 	private:
 		std::string applicationName; //应用程序的名字
 
-		int width = 0; //窗口的宽度
-		int height = 0; //窗口的高度
+		int width = 0; //窗口的宽度，默认为0
+		int height = 0; //窗口的高度，默认为0
 
 		std::string windowName; //窗口的名字
 		std::string iconName; //窗口使用的图标文件路径
 
-		bool isWindowCreated = false; //是否已经创建了窗口
-		bool isFocused = false; //窗口是否获取了焦点
+		bool isWindowCreated = false; //是否已经创建了窗口，默认为false
+		bool isFocused = false; //窗口是否获取了焦点，默认为false
 
-		int mousePositionX; //鼠标位置Y
-		int mousePositionY; //鼠标位置X
+		int mousePositionX; //鼠标位置Y，默认为0
+		int mousePositionY; //鼠标位置X，默认为0
 
-		int mousePositionXRelative; //鼠标位置X
-		int mousePositionYRelative; //鼠标位置Y
+		int mousePositionXRelative; //鼠标位置X，默认为0
+		int mousePositionYRelative; //鼠标位置Y，默认为0
 
-		float deltaTime; //每次更新经过的时间
+		float deltaTime; //每次更新经过的时间，默认为0
 
 		Timer timer; //计时器
 		FpsCounter fpsCounter; //fps计数器
@@ -51,7 +51,7 @@ namespace PixelWorldEngine {
 
 		std::map<std::string, Animator*> animators; //动画管理类
 
-		PixelWorld* pixelWorld; //使用的世界
+		PixelWorld* pixelWorld; //使用的世界，默认为nullptr
 
 #ifdef _WIN32
 		HWND hwnd = nullptr; //窗口句柄
@@ -197,7 +197,7 @@ namespace PixelWorldEngine {
 
 		/**
 		 * @brief 设置全屏
-		 * @param[in] state 是否全屏
+		 * @param[in] state 是否全屏，默认为false
 		 */
 		void MakeFullScreen(bool state);
 

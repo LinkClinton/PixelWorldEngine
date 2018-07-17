@@ -1,6 +1,7 @@
 #include "Text.hpp"
 
 #include "Encoding.hpp"
+#include "DebugLayer.hpp"
 
 auto PixelWorldEngine::Text::CalculateHeight(std::string text, Graphics::Font* font, int textWidth) -> int
 {
@@ -110,6 +111,8 @@ PixelWorldEngine::Text::Text(std::string Text, Graphics::Font * Font, int Width,
 
 	width = Width;
 	height = Height;
+
+	DebugReturn(DebugLayer::Assert(width <= 0, Error::WidthOrHeightLessThanZero, "Text", FunctionName));
 
 	if (height == 0)
 		height = CalculateHeight(text, font, width);

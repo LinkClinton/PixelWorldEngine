@@ -174,6 +174,8 @@ void PixelWorldEngine::UIObject::SetPositionY(float PositionY)
 
 void PixelWorldEngine::UIObject::SetSize(float Width, float Height)
 {
+	DebugReturn(DebugLayer::Assert(Width <= 0 || Height == 0, Error::WidthOrHeightLessThanZero, name, FunctionName));
+
 	width = Width;
 	height = Height;
 
@@ -185,6 +187,8 @@ void PixelWorldEngine::UIObject::SetSize(float Width, float Height)
 
 void PixelWorldEngine::UIObject::SetWidth(float Width)
 {
+	DebugReturn(DebugLayer::Assert(Width <= 0, Error::WidthOrHeightLessThanZero, name, FunctionName));
+
 	width = Width;
 
 	halfWidth = width * 0.5f;
@@ -194,6 +198,8 @@ void PixelWorldEngine::UIObject::SetWidth(float Width)
 
 void PixelWorldEngine::UIObject::SetHeight(float Height)
 {
+	DebugReturn(DebugLayer::Assert(Height <= 0, Error::WidthOrHeightLessThanZero, name, FunctionName));
+
 	height = Height;
 
 	halfHeight = height * 0.5f;
@@ -210,6 +216,8 @@ void PixelWorldEngine::UIObject::SetAngle(float Angle)
 
 void PixelWorldEngine::UIObject::SetBorderWidth(float width)
 {
+	DebugReturn(DebugLayer::Assert(width < 0, Error::TheValueIsNotRight, "width", FunctionName));
+	
 	borderWidth = width;
 }
 
@@ -240,6 +248,8 @@ void PixelWorldEngine::UIObject::SetDepthLayer(int DepthLayer)
 
 void PixelWorldEngine::UIObject::RegisterUIObject(UIObject * object)
 {
+	DebugReturn(DebugLayer::Assert(object == nullptr, Error::TheObjectIsNull, "object", FunctionName));
+
 	UnRegisterFromParent(object);
 	UnRegisterFromPixelWorld(object);
 	
@@ -253,8 +263,9 @@ void PixelWorldEngine::UIObject::RegisterUIObject(UIObject * object)
 
 void PixelWorldEngine::UIObject::UnRegisterUIObject(UIObject * object)
 {
-	DebugLayer::Assert(children.count(object->name) == 0, Error::NoChildObject, object->name, name);
-
+	DebugReturn(DebugLayer::Assert(object == nullptr, Error::TheObjectIsNull, "object", FunctionName));
+	DebugReturn(DebugLayer::Assert(children.count(object->name) == 0, Error::TheNameIsNotExist, object->name, FunctionName));
+	
 	children.erase(object->name);
 	childrenLayer.erase(object);
 
@@ -266,7 +277,7 @@ void PixelWorldEngine::UIObject::UnRegisterUIObject(UIObject * object)
 
 void PixelWorldEngine::UIObject::UnRegisterUIObject(std::string Name)
 {
-	DebugLayer::Assert(children.count(Name) == 0, Error::NoChildObject, Name, name);
+	DebugReturn(DebugLayer::Assert(children.count(Name) == 0, Error::TheNameIsNotExist, Name, FunctionName));
 
 	auto object = children[Name];
 

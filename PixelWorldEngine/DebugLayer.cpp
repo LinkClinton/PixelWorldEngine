@@ -1,18 +1,6 @@
 #include "DebugLayer.hpp"
 #include "Utility.hpp"
 
-#define MAX_ERROR_TEXT 1000
-
-
-auto PixelWorldEngine::DebugLayer::GetErrorMessage(Error error, va_list args) -> std::string
-{
-	char result[MAX_ERROR_TEXT];
-
-	vsprintf_s(result, messageTemplate[(int)error], args);
-
-	return Utility::CharArrayToString(result);
-}
-
 void PixelWorldEngine::DebugLayer::ReportMessage(std::string message) 
 {
 #ifdef _DEBUG
@@ -20,26 +8,21 @@ void PixelWorldEngine::DebugLayer::ReportMessage(std::string message)
 #endif // DEBUG
 }
 
-void PixelWorldEngine::DebugLayer::ReportError(Error error, ...)
+void PixelWorldEngine::DebugLayer::ReportError(Error error, std::string exMessage = " ")
 {
-	va_list args;
-
-	va_start(args, error);
-	std::string errorMessage = GetErrorMessage(error, args);
-	va_end(args);
-
-	ReportMessage(errorMessage);
+	ReportMessage(messageTemplate[(int)error] + exMessage);
 }
 
-void PixelWorldEngine::DebugLayer::Assert(bool test, Error error, ...)
+bool PixelWorldEngine::DebugLayer::Assert(bool test, Error error, std::string exMessage = " ")
 {
-	if (test == false) return;
+	if (test == false) return false;
 
-	va_list args;
+	ReportMessage(messageTemplate[(int)error] + exMessage);
 
-	va_start(args, error);
-	std::string errorMessage = GetErrorMessage(error, args);
-	va_end(args);
+	return true;
+}
 
-	ReportMessage(errorMessage);
+bool PixelWorldEngine::DebugLayer::Assert(bool test, Error error, std::string target, std::string type)
+{
+	return Assert(test, error, " Target = " + target + " Type = " + type);
 }

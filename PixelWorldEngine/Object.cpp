@@ -1,4 +1,5 @@
 #include "Object.hpp"
+#include "DebugLayer.hpp"
 
 PixelWorldEngine::Object::Object(std::string Name, float PositionX, float PositionY, float Width, float Height)
 {
@@ -19,10 +20,14 @@ PixelWorldEngine::Object::Object(std::string Name, float PositionX, float Positi
 	effectColor[0] = 1.0f;
 	effectColor[1] = 1.0f;
 	effectColor[2] = 1.0f;
+
+	DebugReturn(DebugLayer::Assert(width <= 0 || height <= 0, Error::WidthOrHeightLessThanZero, Name, "Object"));
 }
 
 void PixelWorldEngine::Object::SetSize(float objectWidth, float objectHeight)
 {
+	DebugReturn(DebugLayer::Assert(objectWidth <= 0 || objectHeight <= 0, Error::WidthOrHeightLessThanZero, name, FunctionName));
+
 	width = objectWidth;
 	height = objectHeight;
 }

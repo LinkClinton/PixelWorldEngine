@@ -241,6 +241,8 @@ void PixelWorldEngine::PixelObject::SetDepthLayer(int DepthLayer)
 
 void PixelWorldEngine::PixelObject::SetSize(float objectWidth, float objectHeight)
 {
+	DebugReturn(DebugLayer::Assert(objectWidth <= 0 || objectHeight <= 0, Error::WidthOrHeightLessThanZero, name, FunctionName));
+
 	width = objectWidth;
 	height = objectHeight;
 

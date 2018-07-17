@@ -61,9 +61,9 @@ PixelWorldEngine::DataManager::~DataManager()
 auto PixelWorldEngine::DataManager::ReadFile(std::string fileName) -> FileData
 {
 	FileData result;
-
+	
 	std::ifstream file;
-
+	
 	file.open(fileName, std::ios::binary | std::ios::ate);
 
 	size_t size = (size_t)file.tellg();
@@ -139,7 +139,7 @@ auto PixelWorldEngine::DataManager::RegisterFont(std::string fileName, std::stri
 
 void PixelWorldEngine::DataManager::UnRegisterTexture(std::string fileName)
 {
-	if (textures.count(fileName) == 0) return;
+	DebugReturn(DebugLayer::Assert(textures.count(fileName) == 0, Error::TheNameIsNotExist, fileName, FunctionName));
 	
 	Utility::Delete(textures[fileName]);
 
@@ -148,7 +148,7 @@ void PixelWorldEngine::DataManager::UnRegisterTexture(std::string fileName)
 
 void PixelWorldEngine::DataManager::UnRegisterFont(std::string fontName)
 {
-	if (fonts.count(fontName) == 0) return;
+	DebugReturn(DebugLayer::Assert(textures.count(fontName) == 0, Error::TheNameIsNotExist, fontName, FunctionName));
 
 	Utility::Delete(fonts[fontName]);
 

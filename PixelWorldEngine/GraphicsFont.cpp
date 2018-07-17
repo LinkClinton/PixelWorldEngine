@@ -3,20 +3,24 @@
 #include "Graphics.hpp"
 #include "DataManager.hpp"
 
+#include "DebugLayer.hpp"
+
 PixelWorldEngine::Graphics::Font::Font(Graphics * Graphics, FileData* data, int Size)
 {
 	graphics = Graphics;
 
 	size = Size;
 
+	DebugReturn(DebugLayer::Assert(size <= 0, Error::TheValueIsNotRight, "Size", FunctionName));
+
 	fontData = new FileData(*data);
 
-	auto error = FT_New_Memory_Face(graphics->fontLibrary, fontData->GetData(), fontData->GetSize(),
+	FT_New_Memory_Face(graphics->fontLibrary, fontData->GetData(), fontData->GetSize(),
 		0, &fontFace);
 
-	error = FT_Set_Pixel_Sizes(fontFace, 0, size);
+	FT_Set_Pixel_Sizes(fontFace, 0, size);
 
-	error = FT_Select_Charmap(fontFace, FT_Encoding::FT_ENCODING_UNICODE);
+	FT_Select_Charmap(fontFace, FT_Encoding::FT_ENCODING_UNICODE);
 }
 
 PixelWorldEngine::Graphics::Font::~Font()
@@ -41,9 +45,9 @@ auto PixelWorldEngine::Graphics::Font::GetCharacterCodeMetrics(char16_t characte
 
 	auto index = FT_Get_Char_Index(fontFace, character);
 
-	DebugLayer::Assert(index == 0, Error::UndefinedCharacter);
+	DebugReturnWithValue(DebugLayer::Assert(index == 0, Error::UndefinedCharacter, FunctionName), CharacterCodeMetrics());
 
-	auto error = FT_Load_Glyph(fontFace, index, FT_LOAD_DEFAULT);
+	FT_Load_Glyph(fontFace, index, FT_LOAD_DEFAULT);
 
 	auto glyph = fontFace->glyph;
 

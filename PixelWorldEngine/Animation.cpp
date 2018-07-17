@@ -50,6 +50,8 @@ PixelWorldEngine::Animation::~Animation()
 
 void PixelWorldEngine::Animation::Sort()
 {
+	DebugLayer::Assert(keyFrames.size() < 2, Error::NeedMoreThanOneFrame, name, "Animation");
+
 	std::sort(keyFrames.begin(), keyFrames.end());
 }
 
@@ -154,6 +156,9 @@ PixelWorldEngine::Animator::Animator(std::string Name)
 void PixelWorldEngine::Animator::AddAnimation(void * target, AnimationSetFunction function, Animation * animation, float startTime)
 {
 	DebugLayer::Assert(isRun, Error::CanNotAddAnimationWhenAnimatorRun, animation->name, name);
+
+	DebugReturn(DebugLayer::Assert(function == nullptr, Error::TheObjectIsNull, "function", FunctionName));
+	DebugReturn(DebugLayer::Assert(animation == nullptr, Error::TheObjectIsNull, "animation", FunctionName));
 
 	items.insert(AnimatorItem(target, function, animation, startTime));
 

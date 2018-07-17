@@ -38,11 +38,13 @@ MergeTexture* mergeTexture = new MergeTexture(app, 512, 256, Graphics::PixelForm
 
 GameObject* player; //操控的物体
 GameObject* object[objectCount]; //世界中的物体
-UIObject* uIObject;
+
+float cameraTimes = 1.0f;
+float cameraSpeed = 1.0f;
 
 /**
- * @brief 构建好纹理管理器
- */
+* @brief 构建好纹理管理器
+*/
 void MakeTextureManager() {
 	auto texture = dataManager->RegisterTexture(u8"MapBlock.jpg"); //读取纹理
 
@@ -79,7 +81,7 @@ void MakeWorld() {
 
 	worldMap->SetMapBlockSize(48); //设置地图格子
 
-	world->SetResolution(width, height); //设置分辨率
+	world->SetResolution(width, height, 2); //设置分辨率
 
 	world->SetCamera(&camera); //设置好摄像机
 	world->SetWorldMap(worldMap); //设置好地图
@@ -99,7 +101,7 @@ void MakeObject() {
 	player->SetRenderObjectID(10); //设置渲染编号
 
 	world->RegisterPixelObject(player); //注册玩家
-	
+
 	float objectSize = 48; //物体大小
 
 	float distanceX = objectSize * 2; //距离玩家距离X分量
@@ -126,17 +128,6 @@ void MakeObject() {
 			id++;
 		}
 	}
-
-	uIObject = new UIObject("UIObject"); //构建UI物体
-
-	uIObject->SetPosition(0, 0); //设置位置
-	uIObject->SetSize(100, 100); //设置大小
-	
-	uIObject->SetBorderColor(1, 0, 0); //设置边框颜色
-	uIObject->SetBorderWidth(1); //设置边框宽度
-	uIObject->SetOpacity(0.7f); //设置透明度
-
-	world->RegisterUIObject(uIObject); //注册UI物体
 }
 
 void OnUpdate(void* sender) {
@@ -145,17 +136,25 @@ void OnUpdate(void* sender) {
 
 	glm::vec2 translate = glm::vec2(0, 0); //位移
 
+	app->SetWindow(windowName + u8" FPS: " + Utility::ToString(app->GetFramePerSecond()), width, height);
+
 	float speed = 200; //速度
 
 	//根据WSAD移动
-	if (Input::GetKeyCodeDown(KeyCode::A))
+	if (Input::GetKeyCodeDown(KeyCode::A) == true)
 		translate.x -= 1;
-	if (Input::GetKeyCodeDown(KeyCode::D))
+	if (Input::GetKeyCodeDown(KeyCode::D) == true)
 		translate.x += 1;
-	if (Input::GetKeyCodeDown(KeyCode::S))
+	if (Input::GetKeyCodeDown(KeyCode::S) == true)
 		translate.y += 1;
-	if (Input::GetKeyCodeDown(KeyCode::W))
+	if (Input::GetKeyCodeDown(KeyCode::W) == true)
 		translate.y -= 1;
+	if (Input::GetKeyCodeDown(KeyCode::Up) == true)
+		cameraTimes += deltaTime * cameraSpeed;
+	if (Input::GetKeyCodeDown(KeyCode::Down) == true)
+		cameraTimes -= deltaTime * cameraSpeed;
+
+	cameraTimes = Utility::Limit(cameraTimes, 0.5f, 2.0f);
 
 	//位移
 	if (translate != glm::vec2(0, 0)) {
@@ -169,7 +168,7 @@ void OnUpdate(void* sender) {
 	//移动摄像机，将物体作为中心点
 	camera.SetFocus(player->GetPositionX() + player->GetWidth() * 0.5f,
 		player->GetPositionY() + player->GetHeight() * 0.5f,
-		RectangleF(cameraWidth* 0.5f, cameraHeight * 0.5f, cameraWidth * 0.5f, cameraHeight * 0.5f));
+		RectangleF(cameraWidth * 0.5f * cameraTimes, cameraHeight * 0.5f * cameraTimes, cameraWidth * 0.5f * cameraTimes, cameraHeight * 0.5f * cameraTimes));
 }
 
 int main() {
@@ -188,7 +187,7 @@ int main() {
 	app->ShowWindow(); //显示窗口
 	app->RunLoop(); //主循环
 
-	//释放资源
+					//释放资源
 	for (int x = 0; x < mapWidth; x++)
 		for (int y = 0; y > mapHeight; y++) {
 			auto data = worldMap->GetMapData(x, y);

@@ -17,6 +17,9 @@ PixelWorldEngine::Graphics::Texture2D::Texture2D(Graphics* Graphics, void * Data
 	size = rowPitch * height;
 
 	if (size == 0) return;
+
+	DebugReturn(DebugLayer::Assert(size < 0, Error::TheValueIsNotRight, "Width * Height", FunctionName));
+
 #ifdef _WIN32
 
 	desc.ArraySize = 1;
@@ -58,6 +61,10 @@ PixelWorldEngine::Graphics::Texture2D::Texture2D(Texture2D * srcTexture, PixelWo
 
 	rowPitch = width * Utility::CountPixelFormatSize(pixelFormat);
 	size = rowPitch * height;
+
+	if (size == 0) return;
+
+	DebugReturn(DebugLayer::Assert(size < 0, Error::TheValueIsNotRight, "Width * Height", FunctionName));
 
 #ifdef _WIN32
 
@@ -107,6 +114,9 @@ PixelWorldEngine::Graphics::Texture2D::~Texture2D()
 void PixelWorldEngine::Graphics::Texture2D::CopyFromTexture2D(Texture2D * srcTexture, int dstPositionX, int dstPositionY, PixelWorldEngine::Rectangle srcRect)
 {
 	if (srcRect.right - srcRect.left == 0 || srcRect.bottom - srcRect.top == 0) return;
+
+	DebugReturn(DebugLayer::Assert(srcRect.right - srcRect.left < 0 || srcRect.bottom - srcRect.top < 0,
+		Error::TheValueIsNotRight, "srcRect", FunctionName));
 
 #ifdef _WIN32
 
@@ -178,6 +188,11 @@ PixelWorldEngine::Graphics::BufferArray::BufferArray(Graphics * Graphics, void *
 
 	size = dataSize;
 	count = dataCount;
+
+	if (dataSize == 0) return;
+	
+	DebugReturn(DebugLayer::Assert(dataSize < 0, Error::TheValueIsNotRight, "dataSize", FunctionName));
+	DebugReturn(DebugLayer::Assert(dataCount <= 0, Error::TheValueIsNotRight, "dataCount", FunctionName));
 
 #ifdef _WIN32
 

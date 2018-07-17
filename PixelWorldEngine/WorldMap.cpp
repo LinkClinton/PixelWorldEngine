@@ -1,4 +1,5 @@
 #include "WorldMap.hpp"
+#include "DebugLayer.hpp"
 
 PixelWorldEngine::MapData::MapData()
 {
@@ -28,16 +29,24 @@ PixelWorldEngine::WorldMap::WorldMap(std::string name, int Width, int Height, fl
 
 void PixelWorldEngine::WorldMap::SetMapData(int x, int y, MapData * data)
 {
-	mapData[y * width + x] = data;
+	int id = y * width + x;
+
+	DebugReturn(DebugLayer::Assert(Utility::IsLimit(id, 0, width * height - 1) == false, Error::TheValueIsNotRight, "x and y", FunctionName));
+
+	mapData[id] = data;
 }
 
 void PixelWorldEngine::WorldMap::SetMapBlockSize(float size)
 {
+	DebugReturn(DebugLayer::Assert(size < 0, Error::TheValueIsNotRight, "size", FunctionName));
+
 	mapBlockSize = size;
 }
 
 auto PixelWorldEngine::WorldMap::GetMapData(int x, int y) -> MapData *
 {
+	int id = y * width + x;
+
 	return mapData[y * width + x];
 }
 
