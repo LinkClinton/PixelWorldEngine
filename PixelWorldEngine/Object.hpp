@@ -18,10 +18,10 @@ namespace PixelWorldEngine {
 		float width; //宽度，默认为1
 		float height; //高度，默认为1
 
-		float opacity; //不透明度
-		float effectColor[3]; //特效颜色
+		float opacity; //不透明度，默认为1
+		float effectColor[3]; //特效颜色，默认为(1, 1, 1)
 
-		int renderObjectID; //渲染物体的ID，默认为0，即不渲染
+		int renderObjectID; //渲染编号，默认为0，即不渲染
 		int depthLayer; //物体的所在的深度层，默认为0，深度较大的会覆盖深度较小的
 
 		friend class PixelWorld;
@@ -29,41 +29,41 @@ namespace PixelWorldEngine {
 		/**
 		* @brief 构造函数
 		* @param[in] Name 物体的名字
-		* @param[in] PositionX 物体(中心点)的X坐标
-		* @param[in] PositionY 物体(中心点)的Y坐标
-		* @param[in] Width 物体的宽度
-		* @param[in] Height 物体的高度
+		* @param[in] PositionX 物体(中心点)的X坐标，默认为0
+		* @param[in] PositionY 物体(中心点)的Y坐标，默认为0
+		* @param[in] Width 物体的宽度，默认为1
+		* @param[in] Height 物体的高度，默认为1
 		*/
 		Object(std::string Name, float PositionX = 0.f, float PositionY = 0.f, float Width = 1.f, float Height = 1);
 
 		/**
 		* @brief 设置物体的大小
-		* @param[in] objectWidth 物体的宽度
-		* @param[in] objectHeight 物体的高度
+		* @param[in] objectWidth 物体的宽度，默认为1
+		* @param[in] objectHeight 物体的高度，默认为1
 		*/
 		virtual void SetSize(float objectWidth, float objectHeight);
 
 		/**
 		* @brief 设置物体坐标，这里将不会考虑任何其他因素，因此可能导致一些其他问题概不负责
-		* @param[in] x 物体的X坐标
-		* @param[in] y 物体的Y坐标
+		* @param[in] x 物体的X坐标，默认为0
+		* @param[in] y 物体的Y坐标，默认为0
 		*/
 		virtual void SetPosition(float x, float y);
 
 		/**
-		* @brief 设置物体的渲染ID
-		* @param[in] id 物体的渲染ID
+		* @brief 设置物体的渲染编号，默认为0
+		* @param[in] id 物体的渲染编号
 		*/
 		virtual void SetRenderObjectID(int id);
 
 		/**
-		* @brief 设置不透明度
+		* @brief 设置不透明度，默认为1
 		* @param[in] opacity 不透明度
 		*/
 		virtual void SetOpacity(float opacity);
 
 		/**
-		* @brief 设置特效颜色，即我们最后纹理输出的颜色将会和特效颜色进行乘法的到最后的颜色
+		* @brief 设置特效颜色，默认为(1, 1, 1)，即我们最后纹理输出的颜色将会和特效颜色进行乘法得到最后的颜色
 		* @param[in] red 红色分量
 		* @param[in] green 绿色分量
 		* @param[in] blue 蓝色分量
@@ -95,8 +95,8 @@ namespace PixelWorldEngine {
 		virtual auto GetPositionY() -> float;
 
 		/**
-		* @brief 获取物体的渲染ID
-		* @return 渲染ID
+		* @brief 获取物体的渲染编号
+		* @return 渲染编号
 		*/
 		virtual auto GetRenderObjectID() -> int;
 

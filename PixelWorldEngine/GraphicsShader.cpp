@@ -43,7 +43,7 @@ PixelWorldEngine::Graphics::GraphicsShader::GraphicsShader(Graphics * Graphics,
 			&result, &error);
 
 		if (error != nullptr)
-			DebugLayer::Assert(true, Error::ShaderCompiledFailed, error->GetBufferPointer());
+			DebugLayer::Assert(true, Error::ShaderCompiledFailed, (char*)error->GetBufferPointer());
 
 		graphics->device->CreateVertexShader(result->GetBufferPointer(), result->GetBufferSize(),
 			nullptr, &vertexShader);
@@ -59,7 +59,7 @@ PixelWorldEngine::Graphics::GraphicsShader::GraphicsShader(Graphics * Graphics,
 			&result, &error);
 
 		if (error != nullptr)
-			DebugLayer::Assert(true, Error::ShaderCompiledFailed, error->GetBufferPointer());
+			DebugLayer::Assert(true, Error::ShaderCompiledFailed, (char*)error->GetBufferPointer());
 
 		graphics->device->CreatePixelShader(result->GetBufferPointer(), result->GetBufferSize(),
 			nullptr, &pixelShader);

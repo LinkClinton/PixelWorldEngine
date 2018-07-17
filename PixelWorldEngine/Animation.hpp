@@ -94,8 +94,9 @@ namespace PixelWorldEngine {
 		 * @param[in] timePos 时间点
 		 * @param[in] lastFrame 距离时间点最近且比它小的关键帧
 		 * @param[in] nextFrame 距离时间点最近且比他大的关键帧
+		 * @return 对应时间点的帧数据
 		 */
-		static auto DefaultProcessUnit(float timePos, KeyFrame lastFrame, KeyFrame nextFrame)->KeyFrame;
+		static auto DefaultProcessUnit(float timePos, KeyFrame lastFrame, KeyFrame nextFrame) -> KeyFrame;
 
 		friend class Animator;
 		friend class AnimatorItem;
@@ -259,13 +260,13 @@ namespace PixelWorldEngine {
 
 		/**
 		 * @brief 是否允许重复播放
-		 * @param[in] 是否允许
+		 * @param[in] 是否允许，默认为false
 		 */
 		void EnableRepeat(bool enable);
 
 		/**
 		 * @brief 设置播放速度
-		 * @param[in] speed 播放速度
+		 * @param[in] speed 播放速度，默认为1
 		 */
 		void SetSpeed(float speed);
 

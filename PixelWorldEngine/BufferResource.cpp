@@ -11,6 +11,10 @@ PixelWorldEngine::Graphics::Buffer::Buffer(Graphics* Graphics, void * data, int 
 	count = dataCount;
 	type = bufferType;
 
+	if (dataSize == 0) return;
+
+	DebugReturn(DebugLayer::Assert(dataSize < 0, Error::TheValueIsNotRight, "dataSize", FunctionName));
+	DebugReturn(DebugLayer::Assert(dataCount <= 0, Error::TheValueIsNotRight, "dataCount", FunctionName));
 #ifdef _WIN32
 
 	

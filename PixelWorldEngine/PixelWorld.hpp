@@ -20,7 +20,7 @@ namespace PixelWorldEngine {
 #define LOW_MAX_INSTANCE_DATA 100
 
 	/**
-	 * @brief 用来表述用途不同的缓冲的在着色器以及数组的ID
+	 * @brief 用来表述用途不同的缓冲的在着色器以及数组的编号
 	 */
 	enum class BufferIndex : int {
 		CameraBuffer, //摄像机矩阵缓冲
@@ -43,7 +43,7 @@ namespace PixelWorldEngine {
 	 * @brief 全局渲染设置，目前不使用
 	 */
 	struct PixelWorldRenderConfig {
-		Graphics::PixelFormat mergeTextureFormat[MAX_MERGETEXTURE_COUNT];
+		Graphics::PixelFormat mergeTextureFormat[MAX_MERGETEXTURE_COUNT]; //使用的合并纹理的格式
 		glm::vec4 unused[3];
 	};
 
@@ -51,7 +51,7 @@ namespace PixelWorldEngine {
 	 * @brief 实例数据
 	 */
 	struct InstanceData {
-		int setting[4]; //设置，第一个元素是使用的渲染ID，第二个元素是使用的纹理页编号
+		int setting[4]; //设置，第一个元素是使用的渲染编号，第二个元素是使用的纹理页编号
 		glm::mat4x4 worldTransform; //世界变换矩阵
 		glm::mat4x4 texcoordTransform; //纹理变换矩阵
 		glm::vec4 renderCoor; //渲染的颜色，第四个分量是不透明度
@@ -69,12 +69,14 @@ namespace PixelWorldEngine {
 		int resolutionWidth; //分辨率宽度
 		int resolutionHeight; //分辨率高度
 
+		float ssaaLevel = 1.0f; //SSAA等级
+
 		PixelWorldRenderConfig renderConfig; //渲染设置数据
 
 		Camera* camera; //摄像机
 		Camera UICamera; //UI摄像机
 
-		float backGroundColor[4]; //背景颜色
+		float backGroundColor[4]; //背景颜色，默认为(0, 0, 0, 1)
 
 		Graphics::Graphics* graphics; //...
 
@@ -94,7 +96,7 @@ namespace PixelWorldEngine {
 
 		TextureManager* textureManager; //纹理管理
 
-		WorldMap* worldMap; //当前使用的地图，默认为空
+		WorldMap* worldMap; //当前使用的地图，默认为nullptr
 
 		std::map<std::string, WorldMap*> worldMaps; //存储世界的地图
 		std::map<std::string, PixelObject*> pixelObjects; //存储世界的物体
@@ -103,35 +105,35 @@ namespace PixelWorldEngine {
 		std::multiset<PixelObject*, PixelObjectCompare> pixelObjectLayer;//存储不同层的PixelObject
 		std::multiset<UIObject*, UIObjectCompare> UIObjectLayer; //存储不同层的UIObject
 
-		UIObject* focusUIObject; //得到焦点的UIObject
+		UIObject* focusUIObject; //得到焦点的UIObject，默认为nullptr
 
 		friend class UIObject;
 		friend class PixelObject;
 		friend class Application;
 	private:
 		/**
-		* @brief 当鼠标移动的时候触发，注意鼠标必须在物体范围内
+		* @brief 当鼠标移动的时候触发
 		* @param[in] sender 谁触发了消息
 		* @param[in] eventArg 消息信息
 		*/
 		void OnMouseMove(void* sender, Events::MouseMoveEvent* eventArg);
 
 		/**
-		* @brief 当鼠标按下的时候触发，注意鼠标必须在物体范围内
+		* @brief 当鼠标按下的时候触发
 		* @param[in] sender 谁触发了消息
 		* @param[in] eventArg 消息信息
 		*/
 		void OnMouseClick(void* sender, Events::MouseClickEvent* eventArg);
 
 		/**
-		* @brief 当鼠标滑轮滚动的时候触发，注意鼠标必须在物体范围内
+		* @brief 当鼠标滑轮滚动的时候触发
 		* @param[in] sender 谁触发了消息
 		* @param[in] eventArg 消息信息
 		*/
 		void OnMouseWheel(void* sender, Events::MouseWheelEvent* eventArg);
 
 		/**
-		* @brief 当键盘按键按下去的时候触发，注意必须获取了焦点
+		* @brief 当键盘按键按下去的时候触发
 		* @param[in] sender 谁触发了消息
 		* @param[in] eventArg 消息信息
 		*/
@@ -169,7 +171,9 @@ namespace PixelWorldEngine {
 		/**
 		 * @brief 渲染UI物体
 		 * @param[in] baseTransform 父亲的位移
+		 * @param[in] baseOpacity 父亲的不透明度
 		 * @param[in] object 物体
+		 * @param[in] instanceData 构建的实例数据
 		 */
 		void RenderUIObject(glm::mat4x4 baseTransform, float baseOpacity, UIObject* object, std::vector<InstanceData>* instanceData);
 
@@ -194,21 +198,22 @@ namespace PixelWorldEngine {
 		 * @brief 设置使用的分辨率大小
 		 * @param[in] width 分辨率的宽度
 		 * @param[in] height 分辨率的高度
+		 * @param[in] ssaa 设置缓冲倍数，用于抗锯齿，默认为1.0f
 		 */
-		void SetResolution(int width, int height);
+		void SetResolution(int width, int height, float ssaa = 1.0f);
 
 		/**
 		 * @brief 设置背景颜色
-		 * @param[in] red 分量
-		 * @param[in] green 分量
-		 * @param[in] blue 分量
-		 * @param[in] alpha 分量
+		 * @param[in] red 分量，默认为0
+		 * @param[in] green 分量，默认为0
+		 * @param[in] blue 分量，默认为0
+		 * @param[in] alpha 分量，默认为1
 		 */
 		void SetBackGroundColor(float red, float green, float blue, float alpha);
 
 		/**
 		 * @brief 设置我们使用的摄像机
-		 * @param[in] camera 摄像机
+		 * @param[in] camera 摄像机，默认为nullptr
 		 */
 		void SetCamera(Camera* camera);
 
@@ -266,7 +271,7 @@ namespace PixelWorldEngine {
 		void UnRegisterPixelObject(std::string objectName);
 
 		/**
-		 * @brief 注册UI物体，可以注册进入到多个世界
+		 * @brief 注册UI物体，被注册的物体将会加入到世界中去，如果物体之前在另外一个世界里，那么将会先从移除然后再加入
 		 * @param[in] object 物体
 		 */
 		void RegisterUIObject(UIObject* object);

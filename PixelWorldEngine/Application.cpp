@@ -143,7 +143,7 @@ void PixelWorldEngine::Application::OnRender(void * sender)
 	if (pixelWorld == nullptr) return;
 
 	auto worldTexture = pixelWorld->GetCurrentWorld();
-
+	
 	auto resolutionWidth = worldTexture->GetWidth();
 	auto resolutionHeight = worldTexture->GetHeight();
 
@@ -378,7 +378,7 @@ auto PixelWorldEngine::Application::ComputeMousePosition(RectangleF ViewPort, in
 
 PixelWorldEngine::Application::Application(std::string ApplicationName)
 {
-	DebugLayer::Assert(isCreate, Error::MoreThanOneInstance);
+	DebugThrow(DebugLayer::Assert(isCreate, Error::MoreThanOneInstance, ApplicationName, "Application"));
 
 	applicationName = ApplicationName;
 
@@ -419,6 +419,8 @@ void PixelWorldEngine::Application::MakeWindow(std::string WindowName, int Width
 	width = Width;
 	height = Height;
 	iconName = IconName;
+
+	DebugReturn(DebugLayer::Assert(width <= 0 || height <= 0, Error::WidthOrHeightLessThanZero, WindowName, FunctionName));
 
 #ifdef _WIN32
 
@@ -478,7 +480,7 @@ void PixelWorldEngine::Application::MakeWindow(std::string WindowName, int Width
 	graphics->device->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&device));
 	device->GetParent(__uuidof(IDXGIAdapter), reinterpret_cast<void**>(&adapter));
 	adapter->GetParent(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&factory));
-
+	
 	factory->CreateSwapChain(graphics->device, &swapDesc, &swapChain);
 
 	Utility::Dispose(device);
@@ -497,6 +499,8 @@ void PixelWorldEngine::Application::MakeWindow(std::string WindowName, int Width
 void PixelWorldEngine::Application::SetWindow(std::string WindowName, int Width, int Height)
 {
 	windowName = WindowName;
+
+	DebugReturn(DebugLayer::Assert(Width <= 0 || Height <= 0, Error::WidthOrHeightLessThanZero, WindowName, FunctionName));
 
 #ifdef _WIN32
 	wideWindowName = Encoding::ToWideChar(windowName);
@@ -591,16 +595,22 @@ void PixelWorldEngine::Application::SetWorld(PixelWorld * PixelWorld)
 
 void PixelWorldEngine::Application::RegisterAnimator(Animator * animator)
 {
+	DebugReturn(DebugLayer::Assert(animator == nullptr, Error::TheObjectIsNull, applicationName, FunctionName));
+		
 	animators[animator->name] = animator;
 }
 
 void PixelWorldEngine::Application::UnRegisterAnimator(Animator * animator)
 {
+	DebugReturn(DebugLayer::Assert(animator == nullptr, Error::TheObjectIsNull, applicationName, FunctionName));
+	
 	animators.erase(animator->name);
 }
 
 void PixelWorldEngine::Application::UnRegisterAnimator(std::string name)
 {
+	DebugReturn(DebugLayer::Assert(animators.count(name) == 0, Error::TheNameIsNotExist, name, FunctionName));
+	
 	animators.erase(name);
 }
 

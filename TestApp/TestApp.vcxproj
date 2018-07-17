@@ -74,7 +74,7 @@
     <LibraryPath>$(SolutionDir)ThirdParty\freetype\win32;$(SolutionDir)ThirdParty\SDL2\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)ThirdParty\freetype\include;$(SolutionDir)ThirdParty;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)PixelWorldEngine;$(SolutionDir)ThirdParty\freetype\include;$(SolutionDir)ThirdParty;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)ThirdParty\freetype\win32;$(SolutionDir)ThirdParty\SDL2\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

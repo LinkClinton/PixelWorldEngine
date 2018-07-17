@@ -14,20 +14,6 @@ auto PixelWorldEngine::Utility::CharArrayToString(char str[]) -> std::string
 	return result;
 }
 
-auto PixelWorldEngine::Utility::WCharArrrayToWString(wchar_t str[]) -> std::wstring
-{
-	if (str == nullptr) return std::wstring();
-
-	auto length = wcslen(str);
-
-	std::wstring result;
-
-	for (size_t i = 0; i < length; i++)
-		result.push_back(str[i]);
-
-	return result;
-}
-
 auto PixelWorldEngine::Utility::CharArrayToVector(char str[]) -> std::vector<byte>
 {
 	if (str == nullptr) return  std::vector<byte>();

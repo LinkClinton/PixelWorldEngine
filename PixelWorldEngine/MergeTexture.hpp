@@ -32,6 +32,7 @@ namespace PixelWorldEngine {
 		 * @brief 是否相交
 		 * @param[in] texture1 第一个子纹理
 		 * @param[in] texture2 第二个子纹理
+		 * @return 如果相交返回true，否则返回false
 		 */
 		static bool IsEnter(SubTexture texture1, SubTexture texture2);
 	};
@@ -51,7 +52,7 @@ namespace PixelWorldEngine {
 		 * @brief 构造函数
 		 * @param[in] width 宽度
 		 * @param[in] height 高度
-		 * @param[in] pixelFormat MergeTexture纹理的类型，
+		 * @param[in] pixelFormat 合并纹理的类型，
 		 */
 		MergeTexture(Application* application, int width, int height, Graphics::PixelFormat pixelFormat = Graphics::PixelFormat::R8G8B8A8);
 
@@ -61,29 +62,29 @@ namespace PixelWorldEngine {
 		~MergeTexture();
 
 		/**
-		 * @brief 添加纹理，将纹理复制到MergeTexture中去，注意如何复制到的位置和其他纹理有交集，那么就不会复制
-		 * @param[in] id 纹理的渲染ID
-		 * @param[in] positionX 纹理在MergeTexture的起始X坐标
-		 * @param[in] positionY 纹理在MergeTexture的起始Y坐标
+		 * @brief 添加纹理，将纹理复制到合并纹理中去，注意如何复制到的位置和其他纹理有交集，或者超出范围，那么就不会复制
+		 * @param[in] id 纹理的渲染编号
+		 * @param[in] positionX 纹理在合并纹理的起始X坐标
+		 * @param[in] positionY 纹理在合并纹理的起始Y坐标
 		 * @param[in] texture 要复制的纹理
 		 */
 		void AddTexture(int id, int positionX, int positionY, Graphics::Texture2D* texture);
 
 		/**
 		 * @brief 移除纹理，注意并不会将这个纹理的区域的数据清零，但是那部分区域将会变成可用区域
-		 * @param[in] id 纹理的ID
+		 * @param[in] id 纹理的渲染编号
 		 */
 		void RemoveTexture(int id);
 
 		/**
-		 * @brief 获取纹理坐标的变换矩阵，即将对应原本纹理的纹理坐标变换到MergeTexture的纹理坐标系中去
-		 * @param[in] id 纹理的渲染ID
+		 * @brief 获取纹理坐标的变换矩阵，即将对应原本纹理的纹理坐标变换到合并纹理的纹理坐标系中去
+		 * @param[in] id 纹理的渲染编号
 		 * @return 变换矩阵
 		 */
 		auto GetTexCoordTransform(int id) -> glm::mat4x4;
 
 		/**
-		 * @brief 获取MergeTexture的数据
+		 * @brief 获取合并纹理的数据
 		 * @return 纹理数据
 		 */
 		auto GetFinalTexture() -> Graphics::Texture2D*;
@@ -95,7 +96,7 @@ namespace PixelWorldEngine {
 		auto GetPixelFormat() -> Graphics::PixelFormat;
 
 		/**
-		 * @brief 检测这个ID是否已经被使用了
+		 * @brief 检测这个渲染编号是否已经被使用了
 		 * @return 是否被使用
 		 */
 		auto IsExistID(int id) -> bool;

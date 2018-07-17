@@ -14,7 +14,7 @@ PixelWorldEngine是由C++编写的用于开发2D像素类型的游戏引擎，�
 
 - 目前支持的系统：Windows 7, Windows 8, Windows 10
 - 最低内存需求：2GB
-- 最低显卡需求：支持Direct 10.1
+- 最低显卡需求：支持DirectX 10.1
 - 环境需求：Visual Studio 2017(Windows版本), Python3
 
 ## 如何配置

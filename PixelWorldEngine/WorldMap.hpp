@@ -8,10 +8,10 @@ namespace PixelWorldEngine {
 #define DEFAULT_BLOCK_SIZE 32
 
 	/**
-	 * @brief 地图某一格的数据
+	 * @brief 地图块
 	 */
 	struct MapData {
-		int RenderObjectID; //表示这一格渲染的纹理ID，但是请注意纹理的Alpha值。为0的话，就代表不渲染
+		int RenderObjectID; //渲染编号。为0的话，就代表不渲染
 		bool MoveEnable; //是否允许物体移动到这一格，默认为true
 		float Opacity; //不透明度，默认为1
 
@@ -22,7 +22,7 @@ namespace PixelWorldEngine {
 	};
 
 	/**
-	 * @brief 当前世界的地图，用于描述世界的地理属性，左上角为地图的 0,0 
+	 * @brief 当前世界的地图，用于描述世界的地理属性，左上角为地图的 (0,0) 
 	 */
 	class WorldMap {
 	private:
@@ -40,8 +40,8 @@ namespace PixelWorldEngine {
 		 * @param[in] name 世界的地图的名字
 		 * @param[in] Width 世界的宽度
 		 * @param[in] Height 世界的高度
-		 * @param[in] MapBlockSize 世界的格子大小
-		 * @param[in] data 世界的地图的数据信息，数组大小请保证大于等于Width x Height
+		 * @param[in] MapBlockSize 世界的格子大小，默认为32
+		 * @param[in] data 世界的地图的数据信息，数组大小请保证大于等于Width * Height
 		 */
 		WorldMap(std::string name, int Width, int Height, float MapBlockSize = DEFAULT_BLOCK_SIZE, MapData** data = nullptr);
 
@@ -55,7 +55,7 @@ namespace PixelWorldEngine {
 
 		/**
 		 * @brief 设置地图格子大小
-		 * @param[in] 地图格子大小
+		 * @param[in] 地图格子大小，默认为32
 		 */
 		void SetMapBlockSize(float size);
 
@@ -91,7 +91,7 @@ namespace PixelWorldEngine {
 		* @param[in] y Y坐标
 		* @return 格子的对应坐标
 		*/
-		auto GetWorldMapDataIndex(float x, float y)->std::pair<int, int>;
+		auto GetWorldMapDataIndex(float x, float y) -> std::pair<int, int>;
 
 		/**
 		* @brief 获取点(x, y)对应当前世界地图的格子，如果不在地图范围内，则返回nullptr
@@ -99,7 +99,7 @@ namespace PixelWorldEngine {
 		* @param[in] y Y坐标
 		* @return 格子的数据
 		*/
-		auto GetWorldMapData(float x, float y)->MapData*;
+		auto GetWorldMapData(float x, float y) -> MapData*;
 
 		/**
 		 * @brief 获取世界的地图的名字

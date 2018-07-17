@@ -37,6 +37,8 @@ void PixelWorldEngine::PixelWorld::OnUpdate(float deltaTime)
 
 PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Application)
 {
+	DebugReturn(DebugLayer::Assert(Application == nullptr, Error::TheObjectIsNull, "Application", FunctionName));
+
 	worldName = WorldName;
 	graphics = Application->GetGraphics();
 
@@ -72,7 +74,8 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 			Utility::CharArrayToVector((char*)lowPsPixelWorldDefaultShaderCode));
 	}
 
-	defaultSampler = new Graphics::StaticSampler(graphics);
+	defaultSampler = new Graphics::StaticSampler(graphics, Graphics::TextureAddressMode::Clamp,
+		Graphics::TextureFilter::Anisotropic);
 
 	textureManager = new TextureManager(Application);
 
@@ -97,9 +100,12 @@ PixelWorldEngine::PixelWorld::~PixelWorld()
 	Utility::Delete(renderCanvas);
 }
 
-void PixelWorldEngine::PixelWorld::SetResolution(int width, int height)
+void PixelWorldEngine::PixelWorld::SetResolution(int width, int height, float ssaa)
 {
-	if (width == resolutionWidth || height == resolutionHeight) return;
+	DebugReturn(DebugLayer::Assert(width <= 0 || height <= 0, Error::WidthOrHeightLessThanZero, worldName, FunctionName));
+	DebugReturn(DebugLayer::Assert(ssaa <= 0, Error::TheValueIsNotRight, "ssaa", FunctionName));
+
+	if (width == resolutionWidth && height == resolutionHeight && ssaaLevel == ssaa) return;
 
 	UICamera.SetRectangle(PixelWorldEngine::RectangleF(0, 0, (float)width, (float)height));
 
@@ -109,13 +115,14 @@ void PixelWorldEngine::PixelWorld::SetResolution(int width, int height)
 
 	resolutionWidth = width;
 	resolutionHeight = height;
+	ssaaLevel = ssaa;
 
-	renderBuffer = new Graphics::Texture2D(graphics, nullptr, resolutionWidth, resolutionHeight,
+	renderBuffer = new Graphics::Texture2D(graphics, nullptr, (int)(resolutionWidth * ssaaLevel), (int)(resolutionHeight * ssaaLevel),
 		Graphics::PixelFormat::R8G8B8A8);
 
 	renderTarget = new Graphics::RenderTarget(graphics, renderBuffer);
 
-	renderCanvas = new Graphics::RectangleF(0, 0, (float)width, (float)height, graphics);
+	renderCanvas = new Graphics::RectangleF(0, 0, (float)resolutionWidth * ssaaLevel, (float)resolutionHeight * ssaaLevel, graphics);
 }
 
 void PixelWorldEngine::PixelWorld::SetBackGroundColor(float red, float green, float blue, float alpha)
@@ -148,6 +155,8 @@ void PixelWorldEngine::PixelWorld::SetWorldMap(std::string worldMapName)
 
 void PixelWorldEngine::PixelWorld::SetWorldMap(WorldMap * WorldMap)
 {
+	DebugReturn(DebugLayer::Assert(WorldMap == nullptr, Error::TheObjectIsNull, "WorldMap", FunctionName));
+
 	if (worldMaps[WorldMap->GetMapName()] == nullptr)
 		RegisterWorldMap(WorldMap);
 
@@ -161,11 +170,15 @@ void PixelWorldEngine::PixelWorld::SetTextureManager(TextureManager * TextureMan
 
 void PixelWorldEngine::PixelWorld::RegisterWorldMap(WorldMap * worldMap)
 {
+	DebugReturn(DebugLayer::Assert(worldMap == nullptr, Error::TheObjectIsNull, "worldMap", FunctionName));
+
 	worldMaps[worldMap->GetMapName()] = worldMap;
 }
 
 void PixelWorldEngine::PixelWorld::RegisterPixelObject(PixelObject * pixelObject)
 {
+	DebugReturn(DebugLayer::Assert(pixelObject == nullptr, Error::TheObjectIsNull, "pixelObject", FunctionName));
+
 	if (pixelObject->pixelWorld != nullptr) 
 		pixelObject->pixelWorld->UnRegisterPixelObject(pixelObject);
 
@@ -177,7 +190,8 @@ void PixelWorldEngine::PixelWorld::RegisterPixelObject(PixelObject * pixelObject
 
 void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(PixelObject * pixelObject)
 {
-	DebugLayer::Assert(pixelObjects.count(pixelObject->name) == 0, Error::NoChildObject, pixelObject->name, worldName);
+	DebugReturn(DebugLayer::Assert(pixelObject == nullptr, Error::TheObjectIsNull, "pixelObject", FunctionName));
+	DebugReturn(DebugLayer::Assert(pixelObjects.count(pixelObject->name) == 0, Error::TheNameIsNotExist, pixelObject->name, FunctionName));
 
 	pixelObjects.erase(pixelObject->name);
 	pixelObjectLayer.erase(pixelObject);
@@ -187,8 +201,8 @@ void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(PixelObject * pixelObje
 
 void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(std::string objectName)
 {
-	DebugLayer::Assert(pixelObjects.count(objectName) == 0, Error::NoChildObject, objectName, worldName);
-
+	DebugReturn(DebugLayer::Assert(pixelObjects.count(objectName) == 0, Error::TheNameIsNotExist, objectName, FunctionName));
+	
 	auto pixelObject = pixelObjects[objectName];
 
 	pixelObjects.erase(objectName);
@@ -199,6 +213,8 @@ void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(std::string objectName)
 
 void PixelWorldEngine::PixelWorld::RegisterUIObject(UIObject * object)
 {
+	DebugReturn(DebugLayer::Assert(object == nullptr, Error::TheObjectIsNull, "object", FunctionName));
+
 	UIObject::UnRegisterFromParent(object);
 	UIObject::UnRegisterFromPixelWorld(object);
 
@@ -210,8 +226,9 @@ void PixelWorldEngine::PixelWorld::RegisterUIObject(UIObject * object)
 
 void PixelWorldEngine::PixelWorld::UnRegisterUIObject(UIObject * object)
 {
-	DebugLayer::Assert(UIObjects.count(object->name) == 0, Error::NoChildObject, object->name, worldName);
-
+	DebugReturn(DebugLayer::Assert(object == nullptr, Error::TheObjectIsNull, "object", FunctionName));
+	DebugReturn(DebugLayer::Assert(UIObjects.count(object->name) == 0, Error::TheNameIsNotExist, object->name, FunctionName));
+	
 	UIObjects.erase(object->name);
 	UIObjectLayer.erase(object);
 
@@ -222,7 +239,7 @@ void PixelWorldEngine::PixelWorld::UnRegisterUIObject(UIObject * object)
 
 void PixelWorldEngine::PixelWorld::UnRegisterUIObject(std::string name)
 {
-	DebugLayer::Assert(UIObjects.count(name) == 0, Error::NoChildObject, name, worldName);
+	DebugReturn(DebugLayer::Assert(UIObjects.count(name) == 0, Error::TheNameIsNotExist, name, FunctionName));
 
 	auto object = UIObjects[name];
 
@@ -476,7 +493,7 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 
 	graphics->SetRenderTarget(renderTarget);
 
-	graphics->SetViewPort(RectangleF(0.f, 0.f, (float)resolutionWidth, (float)resolutionHeight));
+	graphics->SetViewPort(RectangleF(0.f, 0.f, (float)resolutionWidth * ssaaLevel, (float)resolutionHeight * ssaaLevel));
 
 	graphics->SetShader(shader);
 
@@ -501,9 +518,12 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 	
 	graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
 
-	RenderWorldMap();
+	if (camera != nullptr) {
 
-	RenderPixelObjects();
+		RenderWorldMap();
+
+		RenderPixelObjects();
+	}
 
 	RenderUIObjects();
 
