@@ -136,7 +136,7 @@ namespace PixelWorldEngine {
 		* @brief 获取物体的碰撞盒的状态，即是否开启
 		* @return 放回碰撞盒的状态
 		*/
-		auto IsEnableCollider() -> bool;
+		auto IsEnablePhysicsCollision() -> bool;
 	};
 
 	class PixelObjectCompare {

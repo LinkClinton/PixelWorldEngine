@@ -262,7 +262,7 @@ void PixelWorldEngine::PixelObject::EnablePhysicsCollision(bool enable)
 	collider.EnablePhysics(enable);
 }
 
-auto PixelWorldEngine::PixelObject::IsEnableCollider() -> bool
+auto PixelWorldEngine::PixelObject::IsEnablePhysicsCollision() -> bool
 {
 	return collider.IsEnablePhysics();
 }

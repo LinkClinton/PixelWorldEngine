@@ -47,6 +47,10 @@ $(SolutionDir)ThirdParty\freetype\win32
 $(SolutionDir)ThirdParty\SDL2\x86
 ```
 
+## 已知问题
+
+- UIObject获取焦点后点击空白地区无法解除焦点，以及UIObject整个焦点系统就有问题，只能有一个物体获取焦点。
+
 ## 第三方库
 
 - [SDL2](http://www.libsdl.org)

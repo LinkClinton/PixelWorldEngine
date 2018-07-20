@@ -303,7 +303,7 @@ void PixelWorldEngine::Application::OnProcessMessage(MSG message)
 
 		eventArg->x = GET_X_LPARAM(message.lParam);
 		eventArg->y = GET_Y_LPARAM(message.lParam);
-		eventArg->offset = HIWORD(message.wParam);
+		eventArg->offset = (short)HIWORD(message.wParam);
 
 		OnMouseWheel(this, eventArg);
 

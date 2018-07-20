@@ -46,7 +46,12 @@ PixelWorldEngine::Graphics::Texture2D::Texture2D(Graphics* Graphics, void * Data
 
 #endif // _WIN32
 
-	Update(Data);
+	if (Data == nullptr) {
+		std::vector<byte> data(size);
+
+		Update(&data[0]);
+	}
+	else Update(Data);
 }
 
 PixelWorldEngine::Graphics::Texture2D::Texture2D(Texture2D * srcTexture, PixelWorldEngine::Rectangle srcRect)

@@ -356,6 +356,8 @@ void PixelWorldEngine::PixelWorld::RenderWorldMap()
 
 void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 {
+	auto viewCollide = Collider(camera->GetRectangle());
+
 	std::vector<InstanceData> instanceData;
 
 	for (auto it = pixelObjectLayer.begin(); it != pixelObjectLayer.end(); it++) {
@@ -363,6 +365,8 @@ void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 		InstanceData data;
 
 		if (pixelObject->renderObjectID == 0) continue;
+
+		if (viewCollide.Intersect(pixelObject->collider) == false) continue;
 
 		auto matrix = glm::translate(glm::mat4(1), glm::vec3(pixelObject->positionX,
 			pixelObject->positionY, 0.f));
@@ -415,7 +419,7 @@ void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, flo
 		data[2].worldTransform = translationMatrix * heightScaleMatrix;
 		data[3].worldTransform = glm::translate(translationMatrix, glm::vec3(object->width - object->borderWidth, 0.0f, 0.0f)) * heightScaleMatrix;
 
-		auto color = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], object->opacity);
+		auto color = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], opacity);
 
 		data[0].renderCoor = color;
 		data[1].renderCoor = color;
