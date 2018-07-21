@@ -52,6 +52,8 @@ namespace PixelWorldEngine {
 		TheIDIsNotExist,
 		//The value is not right.
 		TheValueIsNotRight,
+		//Allocate memory error.
+		MemoryAllocateError,
 		Count
 	};
 
@@ -70,7 +72,8 @@ namespace PixelWorldEngine {
 		"The object is null.",
 		"The name of object is not exist.",
 		"The ID is not exist.",
-		"The value is not right."
+		"The value is not right.",
+		"Allocate memory error."
 	};
 
 	class DebugLayer {
