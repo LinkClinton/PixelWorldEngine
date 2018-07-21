@@ -118,8 +118,8 @@ auto PixelWorldEngine::PixelObject::MoveAxisYMap(float translation) -> float
 		float originY = PositionY;
 		float targetY = PositionY + translation;
 
-		int originGrid = Utility::Limit((int)ceil((originY+1) / mapBlockSize) - 1, 0, worldHeight);
-		int targetGrid = Utility::Limit((int)ceil((targetY +1)/ mapBlockSize) - 1, 0, worldHeight);
+		int originGrid = Utility::Limit((int)ceil((originY + 1) / mapBlockSize) - 1, 0, worldHeight);
+		int targetGrid = Utility::Limit((int)ceil((targetY + 1) / mapBlockSize) - 1, 0, worldHeight);
 
 		bool moveEnable = true;
 

@@ -314,7 +314,7 @@ void PixelWorldEngine::PixelWorld::RenderWorldMap()
 		
 		renderObjectRect.left = Utility::Max((int)(viewRect.left / mapBlockSize), 0);
 		renderObjectRect.top = Utility::Max((int)(viewRect.top / mapBlockSize), 0);
-		renderObjectRect.right = Utility::Min((int)(viewRect.right / mapBlockSize) + 1, worldMap->GetHeight() - 1);
+		renderObjectRect.right = Utility::Min((int)(viewRect.right / mapBlockSize) + 1, worldMap->GetWidth() - 1);
 		renderObjectRect.bottom = Utility::Min((int)(viewRect.bottom / mapBlockSize) + 1, worldMap->GetHeight() - 1);
 
 		auto scaleMatrix = glm::scale(glm::mat4(1), glm::vec3(mapBlockSize, mapBlockSize, 1.f));
