@@ -38,7 +38,6 @@
     <ClInclude Include="GraphicsRenderTarget.hpp" />
     <ClInclude Include="Input.hpp" />
     <ClInclude Include="KeyCode.hpp" />
-    <ClInclude Include="Matrix.hpp" />
     <ClInclude Include="MergeTexture.hpp" />
     <ClInclude Include="Object.hpp" />
     <ClInclude Include="PixelWorld.hpp" />
@@ -51,7 +50,6 @@
     <ClInclude Include="Timer.hpp" />
     <ClInclude Include="UIObject.hpp" />
     <ClInclude Include="Utility.hpp" />
-    <ClInclude Include="Vector.hpp" />
     <ClInclude Include="WorldMap.hpp" />
     <ClInclude Include="PixelObject.hpp" />
   </ItemGroup>
@@ -72,7 +70,6 @@
     <ClCompile Include="GraphicsRenderTarget.cpp" />
     <ClCompile Include="GraphicsShader.cpp" />
     <ClCompile Include="Input.cpp" />
-    <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="MergeTexture.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PixelObject.cpp" />
@@ -84,7 +81,6 @@
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="UIObject.cpp" />
     <ClCompile Include="Utility.cpp" />
-    <ClCompile Include="Vector.cpp" />
     <ClCompile Include="WorldMap.cpp" />
   </ItemGroup>
   <ItemGroup>
