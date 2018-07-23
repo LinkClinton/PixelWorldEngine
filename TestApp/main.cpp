@@ -1,87 +1,62 @@
 #include <Application.hpp>
-#include <Text.hpp>
+#include <PixelWorld.hpp>
+#include <Input.hpp>
+
+#include <cstring>
+
+#include "GameObject.hpp"
 
 using namespace PixelWorldEngine;
-using namespace Graphics;
 
 const std::string applicationName = u8"Application";
-const std::string worldName = u8"PixelWorld";
-const std::string windowName = u8"Text";
-
-const std::string fontName = u8"Consola";
+const std::string pixelWorldName = u8"PixelWorld";
+const std::string windowName = u8"PixelWorld";
+const std::string worldMapName = u8"WorldMap";
 
 const int width = 1280;
 const int height = 720;
 
-const int textWidth = 200;
-const int textHeight = 0;
+const int mapWidth = 100;
+const int mapHeight = 100;
 
-Application* app = new Application(applicationName); //构建应用程序
-PixelWorld* world = new PixelWorld(worldName, app); //构建世界
+const int cameraWidth = 1280;
+const int cameraHeight = 720;
+
+const int objectCount = 20;
+
+Application* app = new Application(applicationName); //构建Application
+
+PixelWorld* world = new PixelWorld(pixelWorldName, app); //构建世界
+WorldMap* worldMap = new WorldMap(worldMapName, mapWidth, mapHeight); //构建地图
+
 DataManager* dataManager = new DataManager(app); //构建数据管理器
-TextureManager* textureManager = new TextureManager(app); //构建纹理管理器
-MergeTexture* mergeTexture = new MergeTexture(app, 400, 400, PixelFormat::A8); //构建合并纹理，因为存储文字贴图
+TextureManager* textureManager = new TextureManager(app, Graphics::PixelFormat::R8G8B8A8); //构建纹理管理器
 
-Font* font = nullptr;
-Text* text = nullptr;
+Camera camera = Camera(RectangleF(0, 0, cameraWidth, cameraHeight)); //构建摄像机
 
-UIObject* object = nullptr;
-UIObject* objectParent = nullptr;
+GameObject* player; //操控的物体
+GameObject* object[objectCount]; //世界中的物体
 
-Camera camera = Camera(PixelWorldEngine::RectangleF(0, 0, width, height)); //摄像机
-
-																		   /**
-																		   * @brief 构建资源
-																		   */
-void MakeResource() {
-
-	font = dataManager->RegisterFont("Consola.ttf", fontName, 32); //读取字体文件
-
-	text = new Text(u8"This is an example about render Text!", font, textWidth, textHeight); //构建文字纹理，高度设置为0的话表示由系统决定
-
-	auto texture = text->GetTexture(); //获取纹理，纹理的管理不需要担心
-
-	mergeTexture->AddTexture(1, 0, 0, texture); //将纹理放入合并纹理中去
-
-	textureManager->AddMergeTexture(0, mergeTexture); //添加合并纹理到纹理管理器
-}
+float cameraTimes = 1.0f;
+float cameraSpeed = 1.0f;
 
 /**
-* @brief 构建物体
-*/
-void MakeObject() {
-	object = new UIObject("UIObject");  //构建UI物体
-	objectParent = new UIObject("UIObjectParent");
+ * @brief 构建好纹理管理器
+ */
+void MakeTextureManager() {
+	auto texture = dataManager->RegisterTexture(u8"MapBlock.jpg"); //读取纹理
 
-	float centerX = width * 0.5f; //计算中心位置
-	float centerY = height * 0.5f;
+	int renderObjectID = 0; //渲染编号，即将纹理映射成整数，方便我们使用
 
-	objectParent->SetSize((float)text->GetWidth() * 2, (float)text->GetWidth() * 2); //设置父亲物体的大小为文本宽度的两倍
-	objectParent->SetPosition(centerX - objectParent->GetWidth() * 0.5f, centerY - objectParent->GetHeight() * 0.5f); //设置父亲物体的位置为中心
-	objectParent->SetAngle(glm::pi<float>() * 0.25f); //设置旋转角度，旋转中心为物体中心，会对子物体造成影响
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 8; j++) {
+			auto subTexture = new Graphics::Texture2D(texture, PixelWorldEngine::Rectangle(j * 64, i * 64, j * 64 + 64, i * 64 + 64)); //创建纹理，从原有纹理中复制出一部分出来
 
-	objectParent->SetRenderObjectID(0); //由于不渲染纹理，因此设置为0
-	objectParent->SetOpacity(0.7f); //设置不透明度，会对子物体造成影响
+			textureManager->RegisterTexture(++renderObjectID, subTexture); //将这一块纹理添加到合并纹理中去，并为其设置好渲染编号
 
-	objectParent->SetBorderWidth(1); //设置边框宽度
-	objectParent->SetBorderColor(0, 1, 0); //设置边框颜色
-
-
-	object->SetSize((float)text->GetWidth(), (float)text->GetHeight()); //设置大小和文本纹理一样大小
-	object->SetPosition(objectParent->GetWidth() * 0.5f - object->GetWidth() * 0.5f, objectParent->GetHeight() * 0.5f - object->GetHeight() * 0.5f); //设置位置为中心
-	object->SetAngle(-glm::pi<float>() * 0.25f); //设置旋转角度
-
-	object->SetRenderObjectID(1); //将渲染编号设置为文本纹理的
-	object->SetEffectColor(1, 0, 0); //设置文本颜色，默认为(1, 1, 1)，其本质是对纹理颜色进行一个乘法
-
-	object->SetBorderWidth(1); //设置边框宽度，默认为0
-	object->SetBorderColor(1, 0, 0); //设置边框颜色
-
-
-
-	objectParent->RegisterUIObject(object); //注册子物体
-
-	world->RegisterUIObject(objectParent); //注册UI物体
+			Utility::Delete(subTexture); //释放资源
+		}
+	}
 
 }
 
@@ -89,41 +64,135 @@ void MakeObject() {
 * @brief 构建世界
 */
 void MakeWorld() {
+
+	//将地图使用渲染编号为18的纹理覆盖
+	for (int x = 0; x < mapWidth; x++) {//地图宽度
+		for (int y = 0; y < mapHeight; y++) {//地图高度
+			auto data = new MapData(); //创建地图块数据，记住最后释放资源
+
+			data->RenderObjectID = 18; //设置这一块地图渲染的时候使用的纹理
+
+			worldMap->SetMapData(x, y, data); //设置好地图数据
+		}
+	}
+
+	worldMap->SetMapBlockSize(48); //设置地图格子
+
 	world->SetResolution(width, height); //设置分辨率
 
-	world->SetCamera(&camera); //设置摄像机，但是这个并不会影响到UI物体
+	world->SetCamera(&camera); //设置好摄像机
+	world->SetWorldMap(worldMap); //设置好地图
 
-	world->SetTextureManager(textureManager); //设置纹理管理器
-
-	app->SetWorld(world); //将世界和应用程序关联
+	world->SetTextureManager(textureManager); //设置好纹理管理器
 }
 
-/**
-* @brief 销毁资源释放内存
-*/
-void DestoryResource() {
-	dataManager->UnRegisterFont(fontName); //字体要进行卸载
+void MakeObject() {
 
-	Utility::Delete(text);
-	Utility::Delete(object);
-	Utility::Delete(objectParent);
-	Utility::Delete(world);
-	Utility::Delete(dataManager);
-	Utility::Delete(textureManager);
-	Utility::Delete(mergeTexture);
-	Utility::Delete(app);
+	float mapCenterX = worldMap->GetMapBlockSize() * worldMap->GetWidth() * 0.5f; //地图中心点X坐标
+	float mapCenterY = worldMap->GetMapBlockSize() * worldMap->GetHeight() * 0.5f; //地图中心点Y坐标
+
+	player = new GameObject(u8"Player"); //玩家
+
+	player->SetSize(64, 64); //设置玩家操控块大小
+	player->SetPosition(mapCenterX - player->GetWidth() * 0.5f, mapCenterY - player->GetHeight() * 0.5f); //设置位置为中心
+	player->SetRenderObjectID(10); //设置渲染编号
+
+	world->RegisterPixelObject(player); //注册玩家
+	
+	float objectSize = 48; //物体大小
+
+	float distanceX = objectSize * 2; //距离玩家距离X分量
+	float distanceY = objectSize * 2; //距离玩家距离Y分量
+
+	float Left = mapCenterX - distanceX - objectSize; //左上角块X位置
+	float Top = mapCenterY - distanceY - objectSize; //左上角块Y位置
+
+	int id = 0; //编号
+
+	for (int xPosition = 0; xPosition < 6; xPosition++) { //以此构建物体
+		for (int yPosition = 0; yPosition < 6; yPosition++) {
+			if (xPosition != 0 && yPosition != 0 && xPosition != 5 && yPosition != 5) //如果处于实心位置，不构造
+				continue;
+
+			object[id] = new GameObject("Object" + Utility::ToString(id)); //构造物体
+
+			object[id]->SetSize(objectSize, objectSize); //设置大小
+			object[id]->SetPosition(Left + xPosition * objectSize, Top + yPosition * objectSize); //设置位置
+			object[id]->SetRenderObjectID(10); //设置渲染编号
+
+			world->RegisterPixelObject(object[id]); //注册物体
+
+			id++;
+		}
+	}
+}
+
+void OnUpdate(void* sender) {
+
+	auto deltaTime = app->GetDeltaTime(); //获取经过的时间
+
+	glm::vec2 translate = glm::vec2(0, 0); //位移
+
+	float speed = 200; //速度
+
+	//根据WSAD移动
+	if (Input::GetKeyCodeDown(KeyCode::A) == true)
+		translate.x -= 1;
+	if (Input::GetKeyCodeDown(KeyCode::D) == true)
+		translate.x += 1;
+	if (Input::GetKeyCodeDown(KeyCode::S) == true)
+		translate.y += 1;
+	if (Input::GetKeyCodeDown(KeyCode::W) == true)
+		translate.y -= 1;
+	if (Input::GetKeyCodeDown(KeyCode::Up) == true)
+		cameraTimes += deltaTime * cameraSpeed;
+	if (Input::GetKeyCodeDown(KeyCode::Down) == true)
+		cameraTimes -= deltaTime * cameraSpeed;
+
+	cameraTimes = Utility::Limit(cameraTimes, 0.5f, 2.0f);
+
+	//位移
+	if (translate != glm::vec2(0, 0)) {
+
+		translate = glm::normalize(translate) * speed * deltaTime;
+
+		player->SetNeedTranslate(translate);
+		player->Move(translate.x, translate.y);
+	}
+
+	//移动摄像机，将物体作为中心点
+	camera.SetFocus(player->GetPositionX() + player->GetWidth() * 0.5f,
+		player->GetPositionY() + player->GetHeight() * 0.5f,
+		RectangleF(cameraWidth * 0.5f * cameraTimes, cameraHeight * 0.5f * cameraTimes, cameraWidth * 0.5f * cameraTimes, cameraHeight * 0.5f * cameraTimes));
 }
 
 int main() {
-	MakeResource(); //构建资源
 
-	MakeObject(); //构建物体
+	MakeTextureManager(); //构建好纹理管理器
 
 	MakeWorld(); //构建世界
 
-				 //构建窗口并显示
-	app->MakeWindow(windowName, width, height);
-	app->ShowWindow();
+	MakeObject(); //构建物体
 
+	app->SetWorld(world); //设置世界
+
+	app->Update.push_back(OnUpdate); //添加更新事件
+
+	app->MakeWindow(windowName, width, height); //创建窗口
+	app->ShowWindow(); //显示窗口
 	app->RunLoop(); //主循环
+
+	//释放资源
+	for (int x = 0; x < mapWidth; x++)
+		for (int y = 0; y > mapHeight; y++) {
+			auto data = worldMap->GetMapData(x, y);
+
+			Utility::Delete(data);
+		}
+
+	Utility::Delete(worldMap);
+	Utility::Delete(world);
+	Utility::Delete(dataManager);
+	Utility::Delete(textureManager);
+	Utility::Delete(app);
 }

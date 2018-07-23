@@ -33,3 +33,4 @@ namespace PixelWorldEngine {
 
 #include "Texture2D.hpp"
 #include "BufferArray.hpp"
+#include "Texture2DArray.hpp"

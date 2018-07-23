@@ -13,6 +13,8 @@ namespace PixelWorldEngine {
 
 	namespace Graphics {
 
+		class Texture2D;
+
 		/**
 		* @brief 二维纹理数组
 		*/

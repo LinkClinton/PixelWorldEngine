@@ -43,8 +43,7 @@ namespace PixelWorldEngine {
 	 * @brief 全局渲染设置，目前不使用
 	 */
 	struct PixelWorldRenderConfig {
-		Graphics::PixelFormat mergeTextureFormat[MAX_MERGETEXTURE_COUNT]; //使用的合并纹理的格式
-		glm::vec4 unused[3];
+		glm::vec4 unused[4];
 	};
 
 	 /**

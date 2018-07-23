@@ -32,16 +32,12 @@ cbuffer Camera : register(b0)
 
 cbuffer RenderConfig : register(b1)
 {
-    int4 mergeTextureFormat;
-    float4 unused[3];
+    float4 unused[4];
 };
 
 StructuredBuffer<InstanceData> instanceData : register(t0);
 
-Texture2D Texture0 : register(t1);
-Texture2D Texture1 : register(t2);
-Texture2D Texture2 : register(t3);
-Texture2D Texture3 : register(t4);
+Texture2DArray Texture : register(t1);
 
 SamplerState sampler0 : register(s0);
 
@@ -51,41 +47,8 @@ float4 main(OutputData input, uint id : SV_INSTANCEID) : SV_TARGET
         return instanceData[id].renderColor;
 
     int which = instanceData[id].setting[1];
-    int format = mergeTextureFormat[which];
-
-    float4 texColor = float4(0, 0, 0, 0);
-
-    if (which == 0)
-    {
-        if (format == PIXELFORMAT_A8)
-            texColor =  float4(1.0f, 1.0f, 1.0f, Texture0.Sample(sampler0, input.tex0).a);
-        else
-            texColor = Texture0.Sample(sampler0, input.tex0);
-    }
-
-    if (which == 1)
-    {
-        if (format == PIXELFORMAT_A8)
-            texColor = float4(1.0f, 1.0f, 1.0f, Texture1.Sample(sampler0, input.tex0).a);
-        else
-            texColor = Texture1.Sample(sampler0, input.tex0);
-    }
-
-    if (which == 2)
-    {
-        if (format == PIXELFORMAT_A8)
-            texColor = float4(1.0f, 1.0f, 1.0f, Texture2.Sample(sampler0, input.tex0).a);
-        else
-            texColor = Texture2.Sample(sampler0, input.tex0);
-    }
-
-    if (which == 3)
-    {
-        if (format == PIXELFORMAT_A8)
-            texColor = float4(1.0f, 1.0f, 1.0f, Texture3.Sample(sampler0, input.tex0).a);
-        else
-            texColor = Texture3.Sample(sampler0, input.tex0);
-    }
     
+    float4 texColor = Texture.Sample(sampler0, float3(input.tex0, which));
+
     return texColor * instanceData[id].renderColor;
 }
