@@ -23,6 +23,7 @@
     <ClInclude Include="Application.hpp" />
     <ClInclude Include="BaseStruct.hpp" />
     <ClInclude Include="BlockAllocator.hpp" />
+    <ClInclude Include="BufferArray.hpp" />
     <ClInclude Include="BufferResource.hpp" />
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Collider.hpp" />
@@ -46,6 +47,8 @@
     <ClInclude Include="ShaderResource.hpp" />
     <ClInclude Include="StaticSampler.hpp" />
     <ClInclude Include="Text.hpp" />
+    <ClInclude Include="Texture2D.hpp" />
+    <ClInclude Include="Texture2DArray.hpp" />
     <ClInclude Include="TextureManager.hpp" />
     <ClInclude Include="Timer.hpp" />
     <ClInclude Include="UIObject.hpp" />
@@ -57,6 +60,7 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="BlockAllocator.cpp" />
+    <ClCompile Include="BufferArray.cpp" />
     <ClCompile Include="BufferResource.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collider.cpp" />
@@ -77,6 +81,8 @@
     <ClCompile Include="ShaderResource.cpp" />
     <ClCompile Include="StaticSampler.cpp" />
     <ClCompile Include="Text.cpp" />
+    <ClCompile Include="Texture2D.cpp" />
+    <ClCompile Include="Texture2DArray.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="UIObject.cpp" />
