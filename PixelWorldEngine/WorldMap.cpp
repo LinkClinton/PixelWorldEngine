@@ -5,12 +5,10 @@ PixelWorldEngine::MapData::MapData()
 {
 	RenderObjectID = 0;
 
-	MoveEnable = true;
-
 	Opacity = 1.f;
 }
 
-PixelWorldEngine::WorldMap::WorldMap(std::string name, int Width, int Height, float MapBlockSize, MapData ** data)
+PixelWorldEngine::WorldMap::WorldMap(std::string name, int Width, int Height, float MapBlockSize, MapData * data)
 {
 	mapName = name;
 
@@ -27,7 +25,7 @@ PixelWorldEngine::WorldMap::WorldMap(std::string name, int Width, int Height, fl
 		mapData[i] = data[i];
 }
 
-void PixelWorldEngine::WorldMap::SetMapData(int x, int y, MapData * data)
+void PixelWorldEngine::WorldMap::SetMapData(int x, int y, MapData data)
 {
 	int id = y * width + x;
 
@@ -43,7 +41,7 @@ void PixelWorldEngine::WorldMap::SetMapBlockSize(float size)
 	mapBlockSize = size;
 }
 
-auto PixelWorldEngine::WorldMap::GetMapData(int x, int y) -> MapData *
+auto PixelWorldEngine::WorldMap::GetMapData(int x, int y) -> MapData 
 {
 	int id = y * width + x;
 
@@ -78,11 +76,11 @@ auto PixelWorldEngine::WorldMap::GetWorldMapDataIndex(float x, float y) -> std::
 	else return std::pair<int, int>(-1, -1);
 }
 
-auto PixelWorldEngine::WorldMap::GetWorldMapData(float x, float y) -> MapData *
+auto PixelWorldEngine::WorldMap::GetWorldMapData(float x, float y) -> MapData 
 {
 	auto index = GetWorldMapDataIndex(x, y);
 
-	if (index == WorldMap::InvalidLocation()) return nullptr;
+	if (index == WorldMap::InvalidLocation()) return MapData();
 
 	return GetMapData(index.first, index.second);
 }

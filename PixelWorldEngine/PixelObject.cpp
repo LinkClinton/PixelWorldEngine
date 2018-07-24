@@ -1,268 +1,78 @@
 #include "PixelObject.hpp"
-#include "PixelWorld.hpp"
 
-auto PixelWorldEngine::PixelObject::MoveAxisXMap(float translation) -> float
+PixelWorldEngine::PixelObject::PixelObject(std::string Name, PixelWorldEngine::Transform transform)
 {
-	if (pixelWorld == nullptr) return positionX;
-	if (pixelWorld->worldMap == nullptr) return positionX + translation;
+	name = Name;
 
-	float PositionX = positionX;
+	parent = nullptr;
 
-	int worldWidth = pixelWorld->GetWorldMap()->GetWidth() - 1;
-	int worldHeight = pixelWorld->GetWorldMap()->GetHeight() - 1;
+	depth = 0;
 
-	auto worldMap = pixelWorld->GetWorldMap();
+	Transform = transform;
 
-	float mapBlockSize = worldMap->GetMapBlockSize();
+	RenderObjectID = 0;
 
-	int GridTop = Utility::Limit((int)ceil((positionY + 1) / mapBlockSize) - 1, 0, worldHeight);
-	int GridBottom = Utility::Limit((int)ceil((positionY + height) / mapBlockSize) - 1, 0, worldHeight);
-
-	if (translation >= 0) {
-		float originX = PositionX + width - 1;
-		float targetX = PositionX + width - 1 + translation;
-
-		int originGrid = Utility::Limit((int)ceil((originX + 1) / mapBlockSize) - 1, 0, worldWidth);
-		int targetGrid = Utility::Limit((int)ceil((targetX + 1) / mapBlockSize) - 1, 0, worldWidth);
-
-		bool moveEnable = true;
-
-		for (int x = originGrid; x <= targetGrid; x++) {
-
-			for (int y = GridTop; y <= GridBottom; y++) {
-				if (worldMap->GetMapData(x, y)->MoveEnable == false) {
-					moveEnable = false; break;
-				}
-			}
-
-			if (moveEnable == false) {
-				PositionX = x * mapBlockSize - width;
-				break;
-			}
-		}
-
-		if (moveEnable == true)
-			PositionX = Utility::Min(PositionX + translation, worldWidth * mapBlockSize);
-	}
-	else {
-		float originX = PositionX;
-		float targetX = PositionX + translation;
-
-		int originGrid = Utility::Limit((int)ceil((originX + 1) / mapBlockSize) - 1, 0, worldWidth);
-		int targetGrid = Utility::Limit((int)ceil((targetX + 1) / mapBlockSize) - 1, 0, worldWidth);
-
-		bool moveEnable = true;
-
-		for (int x = originGrid; x >= targetGrid; x--) {
-
-			for (int y = GridTop; y <= GridBottom; y++) {
-				if (worldMap->GetMapData(x, y)->MoveEnable == false) {
-					moveEnable = false; break;
-				}
-			}
-
-			if (moveEnable == false) break;
-		}
-
-		if (moveEnable == true)
-			PositionX = Utility::Max(PositionX + translation, 0.0f);
-	}
-
-	return PositionX;
+	Opacity = 1.0f;
 }
 
-auto PixelWorldEngine::PixelObject::MoveAxisYMap(float translation) -> float
+void PixelWorldEngine::PixelObject::SetDepth(int Depth)
 {
-	if (pixelWorld == nullptr) return positionY;
-	if (pixelWorld->worldMap == nullptr) return positionY + translation;
+	if (depth == Depth) return;
 
-	float PositionY = positionY;
+	depth = Depth;
 
-	int worldWidth = pixelWorld->GetWorldMap()->GetWidth() - 1;
-	int worldHeight = pixelWorld->GetWorldMap()->GetHeight() - 1;
+	if (parent == nullptr) return;
 
-	auto worldMap = pixelWorld->GetWorldMap();
-
-	float mapBlockSize = worldMap->GetMapBlockSize();
-
-	int GridLeft = Utility::Limit((int)ceil((positionX + 1) / mapBlockSize) - 1, 0, worldWidth);
-	int GridRight = Utility::Limit((int)ceil((positionX + width) / mapBlockSize) - 1, 0, worldWidth);
-
-	if (translation >= 0) {
-		float originY = PositionY + height - 1;
-		float targetY = PositionY + height - 1 + translation;
-
-		int originGrid = Utility::Limit((int)ceil((originY + 1) / mapBlockSize) - 1, 0, worldHeight);
-		int targetGrid = Utility::Limit((int)ceil((targetY + 1) / mapBlockSize) - 1, 0, worldHeight);
-
-		bool moveEnable = true;
-
-		for (int y = originGrid; y <= targetGrid; y++) {
-
-			for (int x = GridLeft; x <= GridRight; x++) {
-				if (worldMap->GetMapData(x, y)->MoveEnable == false) {
-					moveEnable = false; break;
-				}
-			}
-
-			if (moveEnable == false) {
-				PositionY = y * mapBlockSize - height;
-				break;
-			}
-		}
-
-		if (moveEnable == true)
-			PositionY = Utility::Min(PositionY + translation, worldHeight * mapBlockSize);
-	}
-	else {
-		float originY = PositionY;
-		float targetY = PositionY + translation;
-
-		int originGrid = Utility::Limit((int)ceil((originY + 1) / mapBlockSize) - 1, 0, worldHeight);
-		int targetGrid = Utility::Limit((int)ceil((targetY + 1) / mapBlockSize) - 1, 0, worldHeight);
-
-		bool moveEnable = true;
-
-		for (int y = originGrid; y >= targetGrid; y--) {
-
-			for (int x = GridLeft; x <= GridRight; x++) {
-				if (worldMap->GetMapData(x, y)->MoveEnable == false) {
-					moveEnable = false; break;
-				}
-			}
-
-			if (moveEnable == false) break;
-		}
-
-		if (moveEnable == true)
-			PositionY = Utility::Max(PositionY + translation, 0.0f);
-	}
-
-	return PositionY;
+	parent->childrenDepthSort.erase(this);
+	parent->childrenDepthSort.insert(this);
 }
 
-void PixelWorldEngine::PixelObject::OnUpdate(float deltaTime)
+void PixelWorldEngine::PixelObject::SetParent(PixelObject * Parent)
 {
+	Parent->SetChild(this);
 }
 
-void PixelWorldEngine::PixelObject::OnMove(float translationX, float translationY)
+void PixelWorldEngine::PixelObject::SetChild(PixelObject * child)
 {
+	if (child->parent != nullptr) child->parent->CancelChild(child->name);
+
+	childrenNameIndex.insert(std::pair<std::string, PixelObject*>(child->name, child));
+	childrenDepthSort.insert(child);
+
+	child->parent = this;
 }
 
-void PixelWorldEngine::PixelObject::OnCollide(void* sender, PixelObject* which)
+void PixelWorldEngine::PixelObject::CancelChild(std::string name)
 {
+	auto child = childrenNameIndex[name];
+
+	child->parent = nullptr;
+	
+	childrenNameIndex.erase(name);
+	childrenDepthSort.erase(child);
 }
 
-void PixelWorldEngine::PixelObject::OnEnter(void* sender, PixelObject* pixelObject)
+auto PixelWorldEngine::PixelObject::GetName() -> std::string
 {
+	return name;
 }
 
-void PixelWorldEngine::PixelObject::OnLeave(void* sender, PixelObject* pixelObject)
+auto PixelWorldEngine::PixelObject::GetDepth() -> int
 {
+	return depth;
 }
 
-PixelWorldEngine::PixelObject::PixelObject(std::string Name, float PositionX, float PositionY, float Width, float Height)
-	:Object(Name, PositionX, PositionY, Width, Height)
-{	
-	collider.SetArea(positionX, positionY, positionX + width, positionY + height);
+auto PixelWorldEngine::PixelObject::GetParent() -> PixelObject *
+{
+	return parent;
 }
 
-void PixelWorldEngine::PixelObject::Move(float translationX, float translationY)
+auto PixelWorldEngine::PixelObject::GetChildren(std::string name) -> PixelObject *
 {
-	if (pixelWorld == nullptr) return;
-
-	float resultX = MoveAxisXMap(translationX);
-	float resultY = MoveAxisYMap(translationY);
-
-	auto targetEventCollider = Collider(resultX, resultY, resultX + width, resultY + height);
-
-	for (auto it = pixelWorld->pixelObjects.begin(); it != pixelWorld->pixelObjects.end(); it++) {
-		if (it->first == name) continue;
-
-		if (it->second->collider.IsEnablePhysics() == true) {
-			if (targetEventCollider.Intersect(it->second->collider) == true)
-				OnCollide(this, it->second), Events::DoEventHandlers(Collide, this, it->second);
-		}
-		else {
-			bool originState = collider.Intersect(it->second->collider);
-			bool targetState = targetEventCollider.Intersect(it->second->collider);
-
-			if (originState == true && targetState == false)
-				OnLeave(this, it->second), Events::DoEventHandlers(Leave, this, it->second);
-
-			if (originState == false && targetState == true)
-				OnEnter(this, it->second), Events::DoEventHandlers(Enter, this, it->second);
-		}
-	}
-
-	auto targetCollider = Collider(resultX, positionY, resultX + width, positionY + height);
-
-	for (auto it = pixelWorld->pixelObjects.begin(); it != pixelWorld->pixelObjects.end(); it++) {
-		if (it->first == name || it->second->collider.IsEnablePhysics() == false) continue;
-
-		if (targetCollider.Intersect(it->second->collider) == true) {
-			resultX = positionX;
-			break;
-		}
-	}
-
-	targetCollider = Collider(positionX, resultY, positionX + width, resultY + height);
-
-	for (auto it = pixelWorld->pixelObjects.begin(); it != pixelWorld->pixelObjects.end(); it++) {
-		if (it->first == name || it->second->collider.IsEnablePhysics() == false) continue;
-
-		if (targetCollider.Intersect(it->second->collider) == true) {
-			resultY = positionY;
-			break;
-		}
-	}
-
-	auto realTranslationX = resultX - positionX;
-	auto realTranslationY = resultY - positionY;
-
-	positionX = resultX;
-	positionY = resultY;
-
-	collider.SetArea(positionX, positionY, positionX + width, positionY + height);
-
-	OnMove(realTranslationX, realTranslationY);
+	return childrenNameIndex[name];
 }
 
-void PixelWorldEngine::PixelObject::SetDepthLayer(int DepthLayer)
+bool PixelWorldEngine::PixelObjectCompare::operator()(PixelObject * object1, PixelObject * object2) const
 {
-	if (depthLayer != DepthLayer && pixelWorld != nullptr) {
-		depthLayer = DepthLayer;
-		pixelWorld->pixelObjectLayer.erase(this);
-		pixelWorld->pixelObjectLayer.insert(this);
-	}
-
-	depthLayer = DepthLayer;
-}
-
-void PixelWorldEngine::PixelObject::SetSize(float objectWidth, float objectHeight)
-{
-	DebugReturn(DebugLayer::Assert(objectWidth <= 0 || objectHeight <= 0, Error::WidthOrHeightLessThanZero, name, FunctionName));
-
-	width = objectWidth;
-	height = objectHeight;
-
-	collider.SetArea(positionX, positionY, positionX + width, positionY + height);
-}
-
-void PixelWorldEngine::PixelObject::SetPosition(float x, float y)
-{
-	positionX = x;
-	positionY = y;
-
-	collider.SetArea(positionX, positionY, positionX + width, positionY + height);
-}
-
-void PixelWorldEngine::PixelObject::EnablePhysicsCollision(bool enable)
-{
-	collider.EnablePhysics(enable);
-}
-
-auto PixelWorldEngine::PixelObject::IsEnablePhysicsCollision() -> bool
-{
-	return collider.IsEnablePhysics();
+	return object1->GetDepth() < object2->GetDepth();
 }

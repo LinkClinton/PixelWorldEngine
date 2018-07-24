@@ -33,14 +33,11 @@ PixelWorldEngine::TextureManager::TextureManager(Application * Application, Grap
 
 	if (isInitialized == true) return;
 
-	textureSizes[0] = TextureType::Size64;
-	textureSizes[1] = TextureType::Size128;
-	textureSizes[2] = TextureType::Size256;
-	textureSizes[3] = TextureType::Size512;
-	textureSizes[4] = TextureType::Size768;
-	textureSizes[5] = TextureType::Size1024;
-	textureSizes[6] = TextureType::Size1536;
-	textureSizes[7] = TextureType::Size2048;
+	textureSizes[0] = TextureType::Size128;
+	textureSizes[1] = TextureType::Size256;
+	textureSizes[2] = TextureType::Size512;
+	textureSizes[3] = TextureType::Size1024;
+	textureSizes[4] = TextureType::Size2048;
 
 	int index = 0;
 

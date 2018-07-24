@@ -5,34 +5,27 @@
 
 void PixelWorldEngine::PixelWorld::OnMouseMove(void * sender, Events::MouseMoveEvent * eventArg)
 {
-	for (auto it = UIObjectLayer.begin(); it != UIObjectLayer.end(); it++)
-		(*it)->ProcessMouseMoveEvent(*it, eventArg, glm::mat4(1));
+	
 }
 
 void PixelWorldEngine::PixelWorld::OnMouseClick(void * sender, Events::MouseClickEvent * eventArg)
 {
-	for (auto it = UIObjectLayer.begin(); it != UIObjectLayer.end(); it++)
-		(*it)->ProcessMouseClickEvent(*it, eventArg, glm::mat4(1));
+	
 }
 
 void PixelWorldEngine::PixelWorld::OnMouseWheel(void * sender, Events::MouseWheelEvent * eventArg)
 {
-	for (auto it = UIObjectLayer.begin(); it != UIObjectLayer.end(); it++)
-		(*it)->ProcessMouseWheelEvent(*it, eventArg, glm::mat4(1));
+	
 }
 
 void PixelWorldEngine::PixelWorld::OnKeyClick(void * sender, Events::KeyClickEvent * eventArg)
 {
-	for (auto it = UIObjectLayer.begin(); it != UIObjectLayer.end(); it++)
-		(*it)->ProcessKeyClickEvent(*it, eventArg);
+
 }
 
 void PixelWorldEngine::PixelWorld::OnUpdate(float deltaTime)
 {
-	for (auto it = pixelObjects.begin(); it != pixelObjects.end(); it++) {
-		it->second->OnUpdate(deltaTime);
-		Events::DoEventHandlers(it->second->Update, deltaTime);
-	}
+
 }
 
 PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Application)
@@ -42,10 +35,11 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 	worldName = WorldName;
 	graphics = Application->GetGraphics();
 
-	renderObject = new Graphics::RectangleF(0, 0, 1, 1, graphics);
+	renderObject = new Graphics::RectangleF(-0.5f, -0.5f, 0.5f, 0.5f, graphics);
 	
 	buffers.resize((int)BufferIndex::Count);
 	bufferArrays.resize((int)BufferArrayIndex::Count);
+	layerRoots.resize((int)PixelObjectLayer::Count);
 
 	auto matrix = glm::mat4(1);
 
@@ -62,6 +56,8 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 		bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData] = new Graphics::BufferArray(graphics, nullptr, sizeof(InstanceData));
 	}
 
+	layerRoots[(int)PixelObjectLayer::WorldLayer] = new PixelObject("WorldLayer");
+	layerRoots[(int)PixelObjectLayer::UILayer] = new PixelObject("UILayer");
 
 	if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::High) {
 		defaultShader = new Graphics::GraphicsShader(graphics,
@@ -82,8 +78,6 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 	worldMap = nullptr;
 	textureManager = nullptr;
 
-	focusUIObject = nullptr;
-
 	SetShader();
 
 	SetBackGroundColor(0, 0, 0, 1);
@@ -93,6 +87,12 @@ PixelWorldEngine::PixelWorld::~PixelWorld()
 {
 	for (size_t i = 0; i < buffers.size(); i++)
 		Utility::Delete(buffers[i]);
+
+	for (size_t i = 0; i < bufferArrays.size(); i++)
+		Utility::Delete(bufferArrays[i]);
+
+	for (size_t i = 0; i < layerRoots.size(); i++)
+		Utility::Delete(layerRoots[i]);
 
 	Utility::Delete(defaultShader);
 	Utility::Delete(renderBuffer);
@@ -148,17 +148,9 @@ void PixelWorldEngine::PixelWorld::SetShader()
 	shader = defaultShader;
 }
 
-void PixelWorldEngine::PixelWorld::SetWorldMap(std::string worldMapName)
-{
-	worldMap = worldMaps[worldMapName];
-}
-
 void PixelWorldEngine::PixelWorld::SetWorldMap(WorldMap * WorldMap)
 {
 	DebugReturn(DebugLayer::Assert(WorldMap == nullptr, Error::TheObjectIsNull, "WorldMap", FunctionName));
-
-	if (worldMaps[WorldMap->GetMapName()] == nullptr)
-		RegisterWorldMap(WorldMap);
 
 	worldMap = WorldMap;
 }
@@ -168,92 +160,24 @@ void PixelWorldEngine::PixelWorld::SetTextureManager(TextureManager * TextureMan
 	textureManager = TextureManager;
 }
 
-void PixelWorldEngine::PixelWorld::RegisterWorldMap(WorldMap * worldMap)
+void PixelWorldEngine::PixelWorld::SetPixelObject(PixelObject * pixelObject, PixelObjectLayer layer)
 {
-	DebugReturn(DebugLayer::Assert(worldMap == nullptr, Error::TheObjectIsNull, "worldMap", FunctionName));
-
-	worldMaps[worldMap->GetMapName()] = worldMap;
+	layerRoots[(int)layer]->SetChild(pixelObject);
 }
 
-void PixelWorldEngine::PixelWorld::RegisterPixelObject(PixelObject * pixelObject)
+void PixelWorldEngine::PixelWorld::CancelPixelObject(std::string name, PixelObjectLayer layer)
 {
-	DebugReturn(DebugLayer::Assert(pixelObject == nullptr, Error::TheObjectIsNull, "pixelObject", FunctionName));
-
-	if (pixelObject->pixelWorld != nullptr) 
-		pixelObject->pixelWorld->UnRegisterPixelObject(pixelObject);
-
-	pixelObjects[pixelObject->name] = pixelObject;
-	pixelObjectLayer.insert(pixelObject);
-	
-	pixelObject->pixelWorld = this;
-}
-
-void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(PixelObject * pixelObject)
-{
-	DebugReturn(DebugLayer::Assert(pixelObject == nullptr, Error::TheObjectIsNull, "pixelObject", FunctionName));
-	DebugReturn(DebugLayer::Assert(pixelObjects.count(pixelObject->name) == 0, Error::TheNameIsNotExist, pixelObject->name, FunctionName));
-
-	pixelObjects.erase(pixelObject->name);
-	pixelObjectLayer.erase(pixelObject);
-
-	pixelObject->pixelWorld = nullptr;
-}
-
-void PixelWorldEngine::PixelWorld::UnRegisterPixelObject(std::string objectName)
-{
-	DebugReturn(DebugLayer::Assert(pixelObjects.count(objectName) == 0, Error::TheNameIsNotExist, objectName, FunctionName));
-	
-	auto pixelObject = pixelObjects[objectName];
-
-	pixelObjects.erase(objectName);
-	pixelObjectLayer.erase(pixelObject);
-
-	pixelObject->pixelWorld = nullptr;
-}
-
-void PixelWorldEngine::PixelWorld::RegisterUIObject(UIObject * object)
-{
-	DebugReturn(DebugLayer::Assert(object == nullptr, Error::TheObjectIsNull, "object", FunctionName));
-
-	UIObject::UnRegisterFromParent(object);
-	UIObject::UnRegisterFromPixelWorld(object);
-
-	UIObjects[object->name] = object;
-	UIObjectLayer.insert(object);
-
-	UIObject::SetPixelWorld(object, this);
-}
-
-void PixelWorldEngine::PixelWorld::UnRegisterUIObject(UIObject * object)
-{
-	DebugReturn(DebugLayer::Assert(object == nullptr, Error::TheObjectIsNull, "object", FunctionName));
-	DebugReturn(DebugLayer::Assert(UIObjects.count(object->name) == 0, Error::TheNameIsNotExist, object->name, FunctionName));
-	
-	UIObjects.erase(object->name);
-	UIObjectLayer.erase(object);
-
-	object->isFocused = false;
-
-	UIObject::SetPixelWorld(object, nullptr);
-}
-
-void PixelWorldEngine::PixelWorld::UnRegisterUIObject(std::string name)
-{
-	DebugReturn(DebugLayer::Assert(UIObjects.count(name) == 0, Error::TheNameIsNotExist, name, FunctionName));
-
-	auto object = UIObjects[name];
-
-	UIObjects.erase(name);
-	UIObjectLayer.erase(object);
-
-	object->isFocused = false;
-
-	UIObject::SetPixelWorld(object, nullptr);
+	layerRoots[(int)layer]->CancelChild(name);
 }
 
 auto PixelWorldEngine::PixelWorld::GetWorldMap() -> WorldMap *
 {
 	return worldMap;
+}
+
+auto PixelWorldEngine::PixelWorld::GetPixelObject(std::string name, PixelObjectLayer layer) -> PixelObject*
+{
+	return layerRoots[(int)layer]->GetChildren(name);
 }
 
 void PixelWorldEngine::PixelWorld::LowDrawObject(std::vector<InstanceData>* instanceData)
@@ -301,6 +225,8 @@ void PixelWorldEngine::PixelWorld::HighDrawObject(std::vector<InstanceData>* ins
 
 void PixelWorldEngine::PixelWorld::RenderWorldMap()
 {
+	if (camera == nullptr) return;
+
 	auto matrix = camera->GetMatrix();
 	auto viewRect = camera->GetRectangle();
 	auto renderObjectRect = Rectangle();
@@ -324,18 +250,19 @@ void PixelWorldEngine::PixelWorld::RenderWorldMap()
 		for (int x = renderObjectRect.left; x <= renderObjectRect.right; x++) {
 
 			for (int y = renderObjectRect.top; y <= renderObjectRect.bottom; y++) {
-				if (worldMap->GetMapData(x, y) == nullptr) continue;
-
 				InstanceData data;
 
 				auto mapData = worldMap->GetMapData(x, y);
-				auto arrayIndex = textureManager->GetArrayIndex(mapData->RenderObjectID);
+				auto arrayIndex = textureManager->GetArrayIndex(mapData.RenderObjectID);
 
-				data.worldTransform = glm::translate(glm::mat4(1), glm::vec3(x * mapBlockSize, y * mapBlockSize, 0.f)) * scaleMatrix;
-				data.texcoordTransform = textureManager->GetTexCoordTransform(mapData->RenderObjectID);
-				data.setting[0] = mapData->RenderObjectID;
+				if (mapData.RenderObjectID == 0) continue;
+
+				data.worldTransform = glm::translate(glm::mat4(1), glm::vec3(x * mapBlockSize + mapBlockSize * 0.5f,
+					y * mapBlockSize + mapBlockSize * 0.5f, 0.f)) * scaleMatrix;
+				data.texcoordTransform = textureManager->GetTexCoordTransform(mapData.RenderObjectID);
+				data.setting[0] = mapData.RenderObjectID;
 				data.setting[1] = arrayIndex;
-				data.renderCoor = glm::vec4(1.0f, 1.0f, 1.0f, mapData->Opacity);
+				data.renderCoor = glm::vec4(1.0f, 1.0f, 1.0f, mapData.Opacity);
 
 				instanceData.push_back(data);
 
@@ -352,134 +279,63 @@ void PixelWorldEngine::PixelWorld::RenderWorldMap()
 	}
 }
 
+void PixelWorldEngine::PixelWorld::RenderPixelObject(glm::mat4x4 baseTransformMatrix, float baseOpacity, PixelObject * pixelObject,
+	std::vector<InstanceData>* instanceData, Camera* camera)
+{
+	//如果摄像机无法看见，那么就跳过
+
+	auto transformMatrix = baseTransformMatrix * pixelObject->Transform.GetMatrix();
+	auto opacity = baseOpacity * pixelObject->Opacity;
+
+	if (pixelObject->RenderObjectID != 0) {
+		InstanceData data;
+
+		int arrayIndex = textureManager->GetArrayIndex(pixelObject->RenderObjectID);
+
+		data.renderCoor = glm::vec4(1, 1, 1, opacity);
+		data.setting[0] = pixelObject->RenderObjectID;
+		data.setting[1] = arrayIndex;
+		data.worldTransform = transformMatrix;
+		data.texcoordTransform = textureManager->GetTexCoordTransform(pixelObject->RenderObjectID);
+		
+		instanceData->push_back(data);
+
+		if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::Low && instanceData->size() == LOW_MAX_INSTANCE_DATA)
+			LowDrawObject(instanceData);
+	}
+
+	for (auto it = pixelObject->childrenDepthSort.begin(); it != pixelObject->childrenDepthSort.end(); it++)
+		RenderPixelObject(transformMatrix, opacity, *it, instanceData, camera);
+}
+
 void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 {
-	auto viewCollide = Collider(camera->GetRectangle());
+	std::vector<Camera*> usedCamera((int)PixelObjectLayer::Count);
+	std::vector<BufferArrayIndex> arrayIndex((int)PixelObjectLayer::Count);
 
-	std::vector<InstanceData> instanceData;
+	usedCamera[(int)PixelObjectLayer::WorldLayer] = camera;
+	usedCamera[(int)PixelObjectLayer::UILayer] = &UICamera;
 
-	for (auto it = pixelObjectLayer.begin(); it != pixelObjectLayer.end(); it++) {
-		auto pixelObject = *it;
-		InstanceData data;
+	arrayIndex[(int)PixelObjectLayer::WorldLayer] = BufferArrayIndex::PixelObjectInstanceData;
+	arrayIndex[(int)PixelObjectLayer::UILayer] = BufferArrayIndex::UIObjectInstanceData;
 
-		if (pixelObject->renderObjectID == 0) continue;
+	for (size_t i = 0; i < layerRoots.size(); i++) {
+		std::vector<InstanceData> instanceData;
 
-		if (viewCollide.Intersect(pixelObject->collider) == false) continue;
+		if (usedCamera[i] == nullptr) continue;
 
-		auto matrix = glm::translate(glm::mat4(1), glm::vec3(pixelObject->positionX,
-			pixelObject->positionY, 0.f));
-		auto arrayIndex = textureManager->GetArrayIndex(pixelObject->renderObjectID);
+		auto cameraMatrix = usedCamera[i]->GetMatrix();
 
-		matrix = glm::scale(matrix, glm::vec3(pixelObject->width, pixelObject->height, 1.f));
+		buffers[(int)BufferIndex::CameraBuffer]->Update(&cameraMatrix);
 
-		data.renderCoor = glm::vec4(pixelObject->effectColor[0], pixelObject->effectColor[1], pixelObject->effectColor[2], pixelObject->opacity);
-		data.setting[0] = pixelObject->renderObjectID;
-		data.setting[1] = arrayIndex;
-		data.worldTransform = matrix;
-		data.texcoordTransform = textureManager->GetTexCoordTransform(pixelObject->renderObjectID);
+		graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
 
-		instanceData.push_back(data);
+		RenderPixelObject(glm::mat4(1), 1.0f, layerRoots[i], &instanceData, usedCamera[i]);
 
-		if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::Low && instanceData.size() == LOW_MAX_INSTANCE_DATA)
-			LowDrawObject(&instanceData);
-	}
-
-	if (instanceData.size() != 0) {
-		if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::High)
-			HighDrawObject(&instanceData, BufferArrayIndex::PixelObjectInstanceData);
-		else LowDrawObject(&instanceData);
-	}
-}
-
-void PixelWorldEngine::PixelWorld::RenderUIObject(glm::mat4x4 baseTransform, float baseOpacity, UIObject* object, std::vector<InstanceData>* instanceData)
-{
-	auto halfWidth = object->width * 0.5f;
-	auto halfHeight = object->height * 0.5f;
-	auto twoBorderWidth = object->borderWidth * 2.0f;
-
-	auto opacity = baseOpacity * object->opacity;
-	
-	glm::mat4x4 translationMatrix = baseTransform * object->transformMatrix;
-
-	if (object->borderWidth != 0.0f) {
-		auto widthScaleMatrix = glm::scale(glm::mat4(1), glm::vec3(object->width, object->borderWidth, 1.0f));
-		auto heightScaleMatrix = glm::scale(glm::mat4(1), glm::vec3(object->borderWidth, object->height, 1.0f));
-
-		auto beforeRotateMatrix = glm::translate(glm::mat4(1), glm::vec3(-halfWidth, -halfHeight, 0.0f));
-		auto afterRotateMatrix = glm::translate(glm::mat4(1), glm::vec3(halfWidth, halfHeight, 0.0f));
-
-		InstanceData data[4];
-
-		data[0].worldTransform = translationMatrix * widthScaleMatrix;
-		data[1].worldTransform = glm::translate(translationMatrix, glm::vec3(0.0f, object->height - object->borderWidth, 0.0f)) * widthScaleMatrix;
-		data[2].worldTransform = translationMatrix * heightScaleMatrix;
-		data[3].worldTransform = glm::translate(translationMatrix, glm::vec3(object->width - object->borderWidth, 0.0f, 0.0f)) * heightScaleMatrix;
-
-		auto color = glm::vec4(object->borderColor[0], object->borderColor[1], object->borderColor[2], opacity);
-
-		data[0].renderCoor = color;
-		data[1].renderCoor = color;
-		data[2].renderCoor = color;
-		data[3].renderCoor = color;
-
-		for (int i = 0; i < 4; i++) {
-			instanceData[i].push_back(data[i]);
-
-			if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::Low && instanceData[i].size() == LOW_MAX_INSTANCE_DATA)
-				LowDrawObject(&instanceData[i]);
-		}
-	}
-
-	if (object->renderObjectID != 0) {
-		glm::mat4 matrix = glm::mat4(1);
-
-		matrix = glm::translate(translationMatrix, glm::vec3(object->borderWidth, object->borderWidth, 0.0f));
-		matrix = glm::scale(matrix, glm::vec3(object->width - twoBorderWidth, object->height - twoBorderWidth, 1.0f));
-
-		InstanceData data;
-
-		int arrayIndex = textureManager->GetArrayIndex(object->renderObjectID);
-
-
-		data.renderCoor = glm::vec4(object->effectColor[0], object->effectColor[1], object->effectColor[2], object->opacity);
-		data.setting[0] = object->renderObjectID;
-		data.setting[1] = arrayIndex;
-		data.worldTransform = matrix;
-		data.texcoordTransform = textureManager->GetTexCoordTransform(object->renderObjectID);
-
-		instanceData[4].push_back(data);
-
-		if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::Low && instanceData[4].size() == LOW_MAX_INSTANCE_DATA)
-			LowDrawObject(&instanceData[4]);
-
-	}
-
-	for (auto it = object->childrenLayer.begin(); it != object->childrenLayer.end(); it++)
-		RenderUIObject(translationMatrix, opacity, *it, instanceData);
-}
-
-void PixelWorldEngine::PixelWorld::RenderUIObjects()
-{
-	auto cameraMatrix = UICamera.GetMatrix();
-
-	buffers[(int)BufferIndex::CameraBuffer]->Update(&cameraMatrix);
-
-	graphics->SetConstantBuffer(buffers[(int)BufferIndex::CameraBuffer], (int)BufferIndex::CameraBuffer);
-
-	std::vector<InstanceData> instanceData[5];
-
-	for (auto it = UIObjectLayer.begin(); it != UIObjectLayer.end(); it++) {
-		auto object = *it;
-
-		RenderUIObject(glm::mat4(1), 1.0f, object, instanceData);
-	}
-
-	for (int i = 0; i < 5; i++) {
-		if (instanceData[i].size() != 0) {
-
+		if (instanceData.size() != 0) {
 			if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::High)
-				HighDrawObject(&instanceData[i], BufferArrayIndex::UIObjectInstanceData);
-			else LowDrawObject(&instanceData[i]);
+				HighDrawObject(&instanceData, arrayIndex[i]);
+			else LowDrawObject(&instanceData);
 		}
 	}
 }
@@ -509,14 +365,9 @@ auto PixelWorldEngine::PixelWorld::GetCurrentWorld() -> Graphics::Texture2D *
 	
 	graphics->SetConstantBuffer(buffers[(int)BufferIndex::RenderConfig], (int)BufferIndex::RenderConfig);
 
-	if (camera != nullptr) {
+	RenderWorldMap();
 
-		RenderWorldMap();
-
-		RenderPixelObjects();
-	}
-
-	RenderUIObjects();
+	RenderPixelObjects();
 
 	return renderBuffer;
 }

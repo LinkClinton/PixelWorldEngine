@@ -39,7 +39,7 @@
     <ClInclude Include="GraphicsRenderTarget.hpp" />
     <ClInclude Include="Input.hpp" />
     <ClInclude Include="KeyCode.hpp" />
-    <ClInclude Include="Object.hpp" />
+    <ClInclude Include="PixelObject.hpp" />
     <ClInclude Include="PixelWorld.hpp" />
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="GraphicsShader.hpp" />
@@ -50,10 +50,9 @@
     <ClInclude Include="Texture2DArray.hpp" />
     <ClInclude Include="TextureManager.hpp" />
     <ClInclude Include="Timer.hpp" />
-    <ClInclude Include="UIObject.hpp" />
+    <ClInclude Include="Transform.hpp" />
     <ClInclude Include="Utility.hpp" />
     <ClInclude Include="WorldMap.hpp" />
-    <ClInclude Include="PixelObject.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
@@ -73,7 +72,6 @@
     <ClCompile Include="GraphicsRenderTarget.cpp" />
     <ClCompile Include="GraphicsShader.cpp" />
     <ClCompile Include="Input.cpp" />
-    <ClCompile Include="Object.cpp" />
     <ClCompile Include="PixelObject.cpp" />
     <ClCompile Include="PixelWorld.cpp" />
     <ClCompile Include="ShaderResource.cpp" />
@@ -83,7 +81,7 @@
     <ClCompile Include="Texture2DArray.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="UIObject.cpp" />
+    <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Utility.cpp" />
     <ClCompile Include="WorldMap.cpp" />
   </ItemGroup>

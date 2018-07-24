@@ -6,23 +6,20 @@
 #include "ShaderResource.hpp"
 #include "WorldMap.hpp"
 
-#define TEXTURE_WIDTH 4096
-#define TEXTURE_HEIGHT 4096
-#define TEXTURE_ARRAY_ADD 16
+#define TEXTURE_WIDTH 2048
+#define TEXTURE_HEIGHT 2048
+#define TEXTURE_ARRAY_ADD 8
 #define MAX_TEXTURE_SIZE 2048
 
 namespace PixelWorldEngine {
 
 	enum TextureType {
-		Size64 = 64,
 		Size128 = 128,
 		Size256 = 256,
 		Size512 = 512,
-		Size768 = 768,
 		Size1024 = 1024,
-		Size1536 = 1536,
 		Size2048 = 2048,
-		Count = 8
+		Count = 5
 	};
 
 	struct SubTexture {
