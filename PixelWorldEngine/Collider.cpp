@@ -39,20 +39,13 @@ auto PixelWorldEngine::Collider::IsEnablePhysics() -> bool
 	return isEnablePhysics;
 }
 
-auto PixelWorldEngine::Collider::Intersect(Collider collider) -> bool
+auto PixelWorldEngine::Collider::Intersect(glm::vec2 position, glm::mat4x4 transform) -> bool
 {
-	//X-Axis
-	if (rect.right <= collider.rect.left) return false;
-	if (rect.left >= collider.rect.right) return false;
+	auto localPosition = glm::inverse(transform) * glm::vec4(position, 0, 1);
 
-	//Y-Axis
-	if (rect.bottom <= collider.rect.top) return false;
-	if (rect.top >= collider.rect.bottom) return false;
+	if (localPosition.x >= rect.left && localPosition.x <= rect.right &&
+		localPosition.y >= rect.top && localPosition.y <= rect.bottom)
+		return true;
 
-	return true;
-}
-
-auto PixelWorldEngine::Collider::Translate(Collider collider, float x, float y) -> Collider
-{
-	return Collider(RectangleF::Transform(collider.rect, x, y));
+	return false;
 }

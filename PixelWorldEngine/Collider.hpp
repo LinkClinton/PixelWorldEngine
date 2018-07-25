@@ -57,20 +57,7 @@ namespace PixelWorldEngine {
 		*/
 		auto IsEnablePhysics() -> bool;
 
-		/**
-		* @brief 检测是否和一个碰撞盒相撞
-		* @return 是否相撞
-		*/
-		auto Intersect(Collider collider) -> bool;
-
-		/**
-		* @brief 对碰撞盒进行位移
-		* @param[in] collider 碰撞盒
-		* @param[in] x X位移
-		* @param[in[ y Y位移
-		* @return 结果碰撞盒
-		*/
-		static auto Translate(Collider collider, float x, float y)->Collider;
+		auto Intersect(glm::vec2 position, glm::mat4x4 transform) -> bool;
 	};
 
 }

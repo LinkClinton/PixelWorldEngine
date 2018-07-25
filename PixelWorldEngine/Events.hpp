@@ -68,12 +68,16 @@ namespace PixelWorldEngine {
 		typedef std::function<void(void*, MouseWheelEvent*)> MouseWheelHandler;
 		typedef std::function<void(void*, KeyClickEvent*)> KeyClickEventHandler;
 		typedef std::function<void(void*)> UpdateEventHandler;
+		typedef std::function<void(void*)> MouseEnterEventHandler;
+		typedef std::function<void(void*)> MouseLeaveEventHandler;
 
 		typedef std::vector<MouseMoveHandler> MouseMoveHandlers;
 		typedef std::vector<MouseClickHandler> MouseClickHandlers;
 		typedef std::vector<MouseWheelHandler> MouseWheelHandlers;
 		typedef std::vector<KeyClickEventHandler> KeyClickEventHandlers;
 		typedef std::vector<UpdateEventHandler> UpdateEventHandlers;
+		typedef std::vector<MouseEnterEventHandler> MouseEnterEventHandlers;
+		typedef std::vector<MouseLeaveEventHandler> MouseLeaveEventHandlers;
 
 		class EventHandler {
 		public:

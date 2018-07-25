@@ -5,27 +5,77 @@
 
 void PixelWorldEngine::PixelWorld::OnMouseMove(void * sender, Events::MouseMoveEvent * eventArg)
 {
-	
+	Camera* usedCamera[(int)PixelObjectLayer::Count];
+
+	usedCamera[(int)PixelObjectLayer::WorldLayer] = camera;
+	usedCamera[(int)PixelObjectLayer::UILayer] = &UICamera;
+
+	for (size_t i = 0; i < layerRoots.size(); i++) {
+		if (camera == nullptr) continue;
+
+		auto arg = Events::MouseMoveEvent(*eventArg);
+		auto position = Utility::ConvertPosition(usedCamera[i],
+			glm::vec2(eventArg->x / (float)resolutionWidth, (float)eventArg->y / resolutionHeight));
+
+		arg.x = (int)position.x;
+		arg.y = (int)position.y;
+
+		Internal::PixelObjectProcess::ProcessMouseMove(layerRoots[i], &arg, glm::mat4(1));
+	}
 }
 
 void PixelWorldEngine::PixelWorld::OnMouseClick(void * sender, Events::MouseClickEvent * eventArg)
 {
-	
+	Camera* usedCamera[(int)PixelObjectLayer::Count];
+
+	usedCamera[(int)PixelObjectLayer::WorldLayer] = camera;
+	usedCamera[(int)PixelObjectLayer::UILayer] = &UICamera;
+
+	for (size_t i = 0; i < layerRoots.size(); i++) {
+		if (camera == nullptr) continue;
+
+		auto arg = Events::MouseClickEvent(*eventArg);
+		auto position = Utility::ConvertPosition(usedCamera[i],
+			glm::vec2(eventArg->x / (float)resolutionWidth, (float)eventArg->y / resolutionHeight));
+
+		arg.x = (int)position.x;
+		arg.y = (int)position.y;
+
+		Internal::PixelObjectProcess::ProcessMouseClick(layerRoots[i], &arg, glm::mat4(1));
+	}
 }
 
 void PixelWorldEngine::PixelWorld::OnMouseWheel(void * sender, Events::MouseWheelEvent * eventArg)
 {
-	
+	Camera* usedCamera[(int)PixelObjectLayer::Count];
+
+	usedCamera[(int)PixelObjectLayer::WorldLayer] = camera;
+	usedCamera[(int)PixelObjectLayer::UILayer] = &UICamera;
+
+	for (size_t i = 0; i < layerRoots.size(); i++) {
+		if (camera == nullptr) continue;
+
+		auto arg = Events::MouseWheelEvent(*eventArg);
+		auto position = Utility::ConvertPosition(usedCamera[i],
+			glm::vec2(eventArg->x / (float)resolutionWidth, (float)eventArg->y / resolutionHeight));
+
+		arg.x = (int)position.x;
+		arg.y = (int)position.y;
+
+		Internal::PixelObjectProcess::ProcessMouseWheel(layerRoots[i], &arg, glm::mat4(1));
+	}
 }
 
 void PixelWorldEngine::PixelWorld::OnKeyClick(void * sender, Events::KeyClickEvent * eventArg)
 {
-
+	for (auto it = layerRoots.begin(); it != layerRoots.end(); it++)
+		Internal::PixelObjectProcess::ProcessKeyClick(*it, eventArg);
 }
 
 void PixelWorldEngine::PixelWorld::OnUpdate(float deltaTime)
 {
-
+	for (auto it = layerRoots.begin(); it != layerRoots.end(); it++)
+		Internal::PixelObjectProcess::ProcessUpdate(*it);
 }
 
 PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Application)
@@ -290,12 +340,14 @@ void PixelWorldEngine::PixelWorld::RenderPixelObject(glm::mat4x4 baseTransformMa
 	if (pixelObject->RenderObjectID != 0) {
 		InstanceData data;
 
+		auto matrix = glm::scale(transformMatrix, glm::vec3(pixelObject->width, pixelObject->height, 1.0f));
+
 		int arrayIndex = textureManager->GetArrayIndex(pixelObject->RenderObjectID);
 
 		data.renderCoor = glm::vec4(1, 1, 1, opacity);
 		data.setting[0] = pixelObject->RenderObjectID;
 		data.setting[1] = arrayIndex;
-		data.worldTransform = transformMatrix;
+		data.worldTransform = matrix;
 		data.texcoordTransform = textureManager->GetTexCoordTransform(pixelObject->RenderObjectID);
 		
 		instanceData->push_back(data);

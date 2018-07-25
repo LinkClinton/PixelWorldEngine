@@ -27,6 +27,7 @@ TextureManager* textureManager = new TextureManager(app, PixelWorldEngine::Graph
 Camera camera = Camera(RectangleF(0, 0, 1280, 720)); //构建摄像机
 
 PixelObject object = PixelObject("1");
+PixelObject objectSon1 = PixelObject("son1");
 
 void MakeTextureManager() {
 	auto texture = dataManager->RegisterTexture(u8"MapBlock.jpg"); //读取纹理
@@ -42,6 +43,18 @@ void MakeTextureManager() {
 			Utility::Delete(subTexture); //释放资源
 		}
 	}
+}
+
+void OnEnter(void* sender) {
+	auto object = (PixelObject*)sender;
+
+	std::cout << "MouseEnter: " + object->GetName() << std::endl;
+}
+
+void OnLeave(void* sender) {
+	auto object = (PixelObject*)sender;
+
+	std::cout << "MouseLeave: " + object->GetName() << std::endl;
 }
 
 /**
@@ -61,6 +74,21 @@ void MakeWorld() {
 	}
 
 	object.RenderObjectID = 2;
+	object.SetSize(100, 100);
+	object.Opacity = 0.7f;
+	object.Transform.SetPosition(glm::vec2(100, 100));
+	object.Transform.SetForward(glm::vec2(1, 1));
+
+	objectSon1.RenderObjectID = 3;
+	objectSon1.Transform.SetPosition(glm::vec2(10, 10));
+	objectSon1.SetSize(50, 50);
+
+	object.MouseEnterEvent.push_back(OnEnter);
+	object.MouseLeaveEvent.push_back(OnLeave);
+	objectSon1.MouseEnterEvent.push_back(OnEnter);
+	objectSon1.MouseLeaveEvent.push_back(OnLeave);
+
+	object.SetChild(&objectSon1);
 
 	world->SetPixelObject(&object, PixelObjectLayer::WorldLayer);
 

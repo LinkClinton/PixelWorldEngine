@@ -64,5 +64,29 @@ namespace PixelWorldEngine {
 		}
 	};
 
+	struct Size {
+		int width;
+		int height;
+
+		Size() = default;
+
+		Size(int Width, int Height) {
+			width = Width;
+			height = Height;
+		}
+	};
+
+	struct SizeF {
+		float width;
+		float height;
+
+		SizeF() = default;
+		
+		SizeF(float Width, float Height) {
+			width = Width;
+			height = Height;
+		}
+	};
+
 }
 

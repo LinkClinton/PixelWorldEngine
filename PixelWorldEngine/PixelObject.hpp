@@ -2,30 +2,89 @@
 
 #include "pch.hpp"
 
+#include "Events.hpp"
+
 #include "Transform.hpp"
+#include "Collider.hpp"
+#include "BaseStruct.hpp"
 
 namespace PixelWorldEngine {
 
 	class PixelObject;
 
-	class PixelObjectCompare {
-	public:
-		bool operator () (PixelObject* object1, PixelObject* object2)const;
-	};
-	
+	namespace Internal {
+
+		class PixelObjectCompare {
+		public:
+			bool operator () (PixelObject* object1, PixelObject* object2)const;
+		};
+
+		class PixelObjectProcess {
+		public:
+			static void ProcessUpdate(PixelObject* object);
+
+			static void ProcessMouseEnter(PixelObject* object);
+
+			static void ProcessMouseLeave(PixelObject* object);
+
+			static void ProcessMouseMove(PixelObject* object, Events::MouseMoveEvent* eventArg, glm::mat4x4 baseTransformMatrix);
+
+			static void ProcessMouseClick(PixelObject* object, Events::MouseClickEvent* eventArg, glm::mat4x4 baseTransformMatrix);
+
+			static void ProcessMouseWheel(PixelObject* object, Events::MouseWheelEvent* eventArg, glm::mat4x4 baseTransformMatrix);
+
+			static void ProcessKeyClick(PixelObject* object, Events::KeyClickEvent* eventArg);
+		};
+
+	}
+
+
+
 	class PixelObject {
 	private:
 		std::string name;
 		
 		PixelObject* parent;
 
+		float width;
+		float height;
+
 		int depth;
 	
+		bool isHover;
+		bool isEnableRead;
+
+		Collider collider;
+
 		std::map<std::string, PixelObject*> childrenNameIndex;
-		std::multiset<PixelObject*, PixelObjectCompare> childrenDepthSort;
+		std::multiset<PixelObject*, Internal::PixelObjectCompare> childrenDepthSort;
 
 		friend class PixelWorld;
+		friend class Internal::PixelObjectProcess;
+		friend class Internal::PixelObjectCompare;
+	protected:
+		virtual void OnUpdate(void* sender) {}
+
+		virtual void OnMouseEnter(void* sender) {}
+
+		virtual void OnMouseLeave(void* sender) {}
+
+		virtual void OnMouseMove(void* sender, Events::MouseMoveEvent* eventArg) {}
+
+		virtual void OnMouseClick(void* sender, Events::MouseClickEvent* eventArg) {}
+
+		virtual void OnMouseWheel(void* sender, Events::MouseWheelEvent* eventArg) {}
+
+		virtual void OnKeyClick(void* sender, Events::KeyClickEvent* eventArg) {}
 	public:
+		Events::UpdateEventHandlers UpdateEvent;
+		Events::MouseEnterEventHandlers MouseEnterEvent;
+		Events::MouseLeaveEventHandlers MouseLeaveEvent;
+		Events::MouseMoveHandlers MouseMoveEvent;
+		Events::MouseClickHandlers MouseClickEvent;
+		Events::MouseWheelHandlers MouseWheelEvent;
+		Events::KeyClickEventHandlers KeyClickEvent;
+
 		Transform Transform;
 
 		int RenderObjectID;
@@ -34,21 +93,25 @@ namespace PixelWorldEngine {
 	public:
 		PixelObject(std::string name, PixelWorldEngine::Transform transform = PixelWorldEngine::Transform());
 
-		void SetDepth(int depth);
+		virtual void SetDepth(int depth);
 
-		void SetParent(PixelObject* parent);
+		virtual void SetSize(float width, float height);
 
-		void SetChild(PixelObject* child);
+		virtual void SetParent(PixelObject* parent);
 
-		void CancelChild(std::string name);
+		virtual void SetChild(PixelObject* child);
 
-		auto GetName() -> std::string;
+		virtual void CancelChild(std::string name);
 
-		auto GetDepth() -> int;
+		virtual auto GetName() -> std::string;
 
-		auto GetParent() -> PixelObject*;
+		virtual auto GetDepth() -> int;
 
-		auto GetChildren(std::string name) -> PixelObject*;
+		virtual auto GetSize() -> SizeF;
+		
+		virtual auto GetParent() -> PixelObject*;
+
+		virtual auto GetChildren(std::string name) -> PixelObject*;
 	};
 
 }
