@@ -14,6 +14,8 @@
 
 #include "PixelObject.hpp"
 
+#include "CollideSolver.hpp"
+
 namespace PixelWorldEngine {
 
 #define LOW_MAX_INSTANCE_DATA 100
@@ -81,6 +83,8 @@ namespace PixelWorldEngine {
 		Camera UICamera; //UI摄像机
 
 		float backGroundColor[4]; //背景颜色，默认为(0, 0, 0, 1)
+
+		Internal::CollideSolver collideSolver;
 
 		Graphics::Graphics* graphics; //...
 

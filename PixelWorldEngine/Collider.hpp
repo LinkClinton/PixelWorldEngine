@@ -12,8 +12,6 @@ namespace PixelWorldEngine {
 	class Collider {
 	private:
 		RectangleF rect; //描述盒子的范围
-
-		bool isEnablePhysics; //是否启用
 	public:
 		/**
 		* @brief 构造函数
@@ -40,24 +38,14 @@ namespace PixelWorldEngine {
 		void SetArea(float left, float top, float right, float bottom);
 
 		/**
-		* @brief 是否启用物理碰撞
-		* @param[in] enable 表示物理碰撞的启用状态，即是否拥有物理属性，例如无法穿过等等，true表示启用，false则表示不启用，默认为true
-		*/
-		void EnablePhysics(bool enable);
-
-		/**
 		* @brief 获取碰撞盒范围
 		* @return 碰撞盒范围
 		*/
 		auto GetArea()->RectangleF;
 
-		/**
-		* @brief 获取物理碰撞的启用状态
-		* @return 物理碰撞的启用状态
-		*/
-		auto IsEnablePhysics() -> bool;
-
 		auto Intersect(glm::vec2 position, glm::mat4x4 transform) -> bool;
+
+		auto Intersect(Collider other, glm::mat4x4 transform, glm::mat4x4 otherTransform) -> bool;
 	};
 
 }

@@ -34,12 +34,24 @@ namespace PixelWorldEngine {
 			static void ProcessMouseWheel(PixelObject* object, Events::MouseWheelEvent* eventArg, glm::mat4x4 baseTransformMatrix);
 
 			static void ProcessKeyClick(PixelObject* object, Events::KeyClickEvent* eventArg);
+
+			static void ProcessObjectCollide(PixelObject* objectA, PixelObject* objectB);
+
+			static void ProcessObjectEnter(PixelObject* objectA, PixelObject* objectB);
+			
+			static void ProcessObjectLeave(PixelObject* objectA, PixelObject* objectB);
 		};
+
+		class CollideSolver;
 
 	}
 
+	namespace Events {
 
+		typedef std::function<void(PixelObject*, PixelObject*)> CollideEventHandler;
+		typedef std::vector<CollideEventHandler> CollideEventHandlers;
 
+	}
 	class PixelObject {
 	private:
 		std::string name;
@@ -53,8 +65,11 @@ namespace PixelWorldEngine {
 	
 		bool isHover;
 		bool isEnableRead;
+		bool isEnablePhysicsCollide;
 
 		Collider collider;
+
+		Transform oldTransform;
 
 		std::map<std::string, PixelObject*> childrenNameIndex;
 		std::multiset<PixelObject*, Internal::PixelObjectCompare> childrenDepthSort;
@@ -62,6 +77,7 @@ namespace PixelWorldEngine {
 		friend class PixelWorld;
 		friend class Internal::PixelObjectProcess;
 		friend class Internal::PixelObjectCompare;
+		friend class Internal::CollideSolver;
 	protected:
 		virtual void OnUpdate(void* sender) {}
 
@@ -76,14 +92,23 @@ namespace PixelWorldEngine {
 		virtual void OnMouseWheel(void* sender, Events::MouseWheelEvent* eventArg) {}
 
 		virtual void OnKeyClick(void* sender, Events::KeyClickEvent* eventArg) {}
+
+		virtual void OnObjectCollide(PixelObject* objectA, PixelObject* objectB) {}
+
+		virtual void OnObjectEnter(PixelObject* objectA, PixelObject* objectB) {}
+
+		virtual void OnObjectLeave(PixelObject* objectA, PixelObject* objectB) {}
 	public:
-		Events::UpdateEventHandlers UpdateEvent;
-		Events::MouseEnterEventHandlers MouseEnterEvent;
-		Events::MouseLeaveEventHandlers MouseLeaveEvent;
-		Events::MouseMoveHandlers MouseMoveEvent;
-		Events::MouseClickHandlers MouseClickEvent;
-		Events::MouseWheelHandlers MouseWheelEvent;
-		Events::KeyClickEventHandlers KeyClickEvent;
+		Events::UpdateEventHandlers Update;
+		Events::MouseEnterEventHandlers MouseEnter;
+		Events::MouseLeaveEventHandlers MouseLeave;
+		Events::MouseMoveHandlers MouseMove;
+		Events::MouseClickHandlers MouseClick;
+		Events::MouseWheelHandlers MouseWheel;
+		Events::KeyClickEventHandlers KeyClick;
+		Events::CollideEventHandlers ObjectCollide;
+		Events::CollideEventHandlers ObjectEnter;
+		Events::CollideEventHandlers ObjectLeave;
 
 		Transform Transform;
 

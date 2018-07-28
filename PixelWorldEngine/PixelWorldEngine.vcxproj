@@ -27,6 +27,7 @@
     <ClInclude Include="BufferResource.hpp" />
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Collider.hpp" />
+    <ClInclude Include="CollideSolver.hpp" />
     <ClInclude Include="Encoding.hpp" />
     <ClInclude Include="EngineDefaultResource.hpp" />
     <ClInclude Include="Geometry.hpp" />
@@ -62,6 +63,7 @@
     <ClCompile Include="BufferResource.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collider.cpp" />
+    <ClCompile Include="CollideSolver.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="DebugLayer.cpp" />
     <ClCompile Include="Encoding.cpp" />

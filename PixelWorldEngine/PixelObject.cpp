@@ -12,10 +12,12 @@ PixelWorldEngine::PixelObject::PixelObject(std::string Name, PixelWorldEngine::T
 
 	isHover = false;
 	isEnableRead = false;
+	isEnablePhysicsCollide = true;
 
 	collider.SetArea(0, 0, 0, 0);
 
 	Transform = transform;
+	oldTransform = transform;
 
 	RenderObjectID = 0;
 
@@ -40,7 +42,7 @@ void PixelWorldEngine::PixelObject::SetSize(float Width, float Height)
 	height = Height;
 	
 	float halfWidth = width * 0.5f;
-	float halfHeight = height * 0.4f;
+	float halfHeight = height * 0.5f;
 
 	collider.SetArea(-halfWidth, -halfHeight, halfWidth, halfHeight);
 }
@@ -104,7 +106,7 @@ void PixelWorldEngine::Internal::PixelObjectProcess::ProcessUpdate(PixelObject *
 {
 	object->OnUpdate(object);
 
-	Events::DoEventHandlers(object->UpdateEvent, object);
+	Events::DoEventHandlers(object->Update, object);
 
 	for (auto it = object->childrenDepthSort.begin(); it != object->childrenDepthSort.end(); it++)
 		ProcessUpdate(*it);
@@ -114,7 +116,7 @@ void PixelWorldEngine::Internal::PixelObjectProcess::ProcessMouseEnter(PixelObje
 {
 	object->OnMouseEnter(object);
 
-	Events::DoEventHandlers(object->MouseEnterEvent, object);
+	Events::DoEventHandlers(object->MouseEnter, object);
 
 	object->isHover = true;
 }
@@ -123,7 +125,7 @@ void PixelWorldEngine::Internal::PixelObjectProcess::ProcessMouseLeave(PixelObje
 {
 	object->OnMouseLeave(object);
 
-	Events::DoEventHandlers(object->MouseLeaveEvent, object);
+	Events::DoEventHandlers(object->MouseLeave, object);
 
 	object->isHover = false;
 }
@@ -135,7 +137,7 @@ void PixelWorldEngine::Internal::PixelObjectProcess::ProcessMouseMove(PixelObjec
 	if (object->collider.Intersect(glm::vec2(eventArg->x, eventArg->y), baseTransformMatrix) == true) {
 		object->OnMouseMove(object, eventArg);
 
-		Events::DoEventHandlers(object->MouseMoveEvent, object, eventArg);
+		Events::DoEventHandlers(object->MouseMove, object, eventArg);
 
 		if (object->isHover == false) ProcessMouseEnter(object);
 	}
@@ -152,7 +154,7 @@ void PixelWorldEngine::Internal::PixelObjectProcess::ProcessMouseClick(PixelObje
 	if (object->collider.Intersect(glm::vec2(eventArg->x, eventArg->y), baseTransformMatrix) == true) {
 		object->OnMouseClick(object, eventArg);
 
-		Events::DoEventHandlers(object->MouseClickEvent, object, eventArg);
+		Events::DoEventHandlers(object->MouseClick, object, eventArg);
 	}
 
 	for (auto it = object->childrenDepthSort.begin(); it != object->childrenDepthSort.end(); it++)
@@ -166,7 +168,7 @@ void PixelWorldEngine::Internal::PixelObjectProcess::ProcessMouseWheel(PixelObje
 	if (object->collider.Intersect(glm::vec2(eventArg->x, eventArg->y), baseTransformMatrix) == true) {
 		object->OnMouseWheel(object, eventArg);
 
-		Events::DoEventHandlers(object->MouseWheelEvent, object, eventArg);
+		Events::DoEventHandlers(object->MouseWheel, object, eventArg);
 	}
 
 	for (auto it = object->childrenDepthSort.begin(); it != object->childrenDepthSort.end(); it++)
@@ -179,9 +181,37 @@ void PixelWorldEngine::Internal::PixelObjectProcess::ProcessKeyClick(PixelObject
 
 	object->OnKeyClick(object, eventArg);
 
-	Events::DoEventHandlers(object->KeyClickEvent, object, eventArg);
+	Events::DoEventHandlers(object->KeyClick, object, eventArg);
 
 	for (auto it = object->childrenDepthSort.begin(); it != object->childrenDepthSort.end(); it++)
 		ProcessKeyClick(*it, eventArg);
 }
+
+void PixelWorldEngine::Internal::PixelObjectProcess::ProcessObjectCollide(PixelObject * objectA, PixelObject * objectB)
+{
+	objectA->OnObjectCollide(objectA, objectB);
+	objectB->OnObjectCollide(objectB, objectA);
+
+	Events::DoEventHandlers(objectA->ObjectCollide, objectA, objectB);
+	Events::DoEventHandlers(objectB->ObjectCollide, objectB, objectA);
+}
+
+void PixelWorldEngine::Internal::PixelObjectProcess::ProcessObjectEnter(PixelObject * objectA, PixelObject * objectB)
+{
+	objectA->OnObjectEnter(objectA, objectB);
+	objectB->OnObjectEnter(objectB, objectA);
+
+	Events::DoEventHandlers(objectA->ObjectEnter, objectA, objectB);
+	Events::DoEventHandlers(objectB->ObjectEnter, objectB, objectA);
+}
+
+void PixelWorldEngine::Internal::PixelObjectProcess::ProcessObjectLeave(PixelObject * objectA, PixelObject * objectB)
+{
+	objectA->OnObjectLeave(objectA, objectB);
+	objectB->OnObjectLeave(objectB, objectA);
+
+	Events::DoEventHandlers(objectA->ObjectLeave, objectA, objectB);
+	Events::DoEventHandlers(objectB->ObjectLeave, objectB, objectA);
+}
+
 

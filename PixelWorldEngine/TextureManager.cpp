@@ -139,8 +139,6 @@ void PixelWorldEngine::TextureManager::Clear()
 
 auto PixelWorldEngine::TextureManager::GetTexCoordTransform(int id) -> glm::mat4x4
 {
-	DebugReturnWithValue(DebugLayer::Assert(subTextures.count(id) == 0, Error::TheIDIsNotExist, FunctionName), glm::mat4(1));
-
 	return subTextures[id].transform;
 }
 
@@ -151,8 +149,6 @@ auto PixelWorldEngine::TextureManager::GetTextureArray() -> Graphics::Texture2DA
 
 auto PixelWorldEngine::TextureManager::GetArrayIndex(int id) -> int
 {
-	DebugReturnWithValue(DebugLayer::Assert(subTextures.count(id) == 0, Error::TheIDIsNotExist, FunctionName), 0);
-
 	return subTextures[id].arrayIndex;
 }
 

@@ -29,6 +29,8 @@ Camera camera = Camera(RectangleF(0, 0, 1280, 720)); //构建摄像机
 PixelObject object = PixelObject("1");
 PixelObject objectSon1 = PixelObject("son1");
 
+PixelObject targetObject = PixelObject("TargetObject");
+
 void MakeTextureManager() {
 	auto texture = dataManager->RegisterTexture(u8"MapBlock.jpg"); //读取纹理
 
@@ -45,6 +47,10 @@ void MakeTextureManager() {
 	}
 }
 
+void OnCollide(PixelObject* A, PixelObject* B) {
+	std::cout << A->GetName() << " Collide " << B->GetName() << std::endl;
+}
+
 void OnEnter(void* sender) {
 	auto object = (PixelObject*)sender;
 
@@ -55,6 +61,20 @@ void OnLeave(void* sender) {
 	auto object = (PixelObject*)sender;
 
 	std::cout << "MouseLeave: " + object->GetName() << std::endl;
+}
+
+void OnMouseMove(void* sender, Events::MouseMoveEvent* e) {
+	
+	auto position = Utility::ConvertPosition(&camera, glm::vec2((float)e->x / width, (float)e->y / height));
+
+	object.Transform.SetPosition(position);
+
+}
+
+void OnUpdate(void* sender) {
+	app->SetWindow(windowName + " FPS: " + Utility::ToString(app->GetFramePerSecond()), width, height);
+
+	object.Transform.SetRotate(object.Transform.GetRotate() + glm::pi<float>() * app->GetDeltaTime() * 0.2f);
 }
 
 /**
@@ -83,14 +103,18 @@ void MakeWorld() {
 	objectSon1.Transform.SetPosition(glm::vec2(10, 10));
 	objectSon1.SetSize(50, 50);
 
-	object.MouseEnterEvent.push_back(OnEnter);
-	object.MouseLeaveEvent.push_back(OnLeave);
-	objectSon1.MouseEnterEvent.push_back(OnEnter);
-	objectSon1.MouseLeaveEvent.push_back(OnLeave);
+	targetObject.RenderObjectID = 4;
+	targetObject.SetSize(200, 150);
+	targetObject.Opacity = 1.0f;
+	targetObject.Transform.SetPosition(glm::vec2(200, 200));
+	targetObject.Transform.SetRotate(glm::pi<float>() * 0.25f);
+
+	object.ObjectCollide.push_back(OnCollide);
 
 	object.SetChild(&objectSon1);
 
 	world->SetPixelObject(&object, PixelObjectLayer::WorldLayer);
+	world->SetPixelObject(&targetObject, PixelObjectLayer::WorldLayer);
 
 	world->SetResolution(width, height); //设置分辨率
 
@@ -107,6 +131,9 @@ int main() {
 	MakeWorld(); //构建世界
 
 	app->SetWorld(world); //设置世界
+
+	app->MouseMove.push_back(OnMouseMove);
+	app->Update.push_back(OnUpdate);
 
 	app->MakeWindow(windowName, width, height); //创建窗口
 	app->ShowWindow(); //显示窗口
