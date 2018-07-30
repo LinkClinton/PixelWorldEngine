@@ -89,6 +89,46 @@ auto PixelWorldEngine::Transform::CreateMatrixFromTransform(const Transform & tr
 	return transformMatrix;
 }
 
+auto PixelWorldEngine::operator+(const Transform & left, const Transform & right) -> Transform
+{
+	Transform result;
 
+	result.position = left.position + right.position;
+	result.scale = left.scale + right.scale;
+	result.SetRotate(left.angle + right.angle);
 
+	return result;
+}
 
+auto PixelWorldEngine::operator-(const Transform & left, const Transform & right) -> Transform
+{
+	Transform result;
+
+	result.position = left.position - right.position;
+	result.scale = left.scale - right.scale;
+	result.SetRotate(left.angle - right.angle);
+
+	return result;
+}
+
+auto PixelWorldEngine::operator*(const Transform & left, float value) -> Transform
+{
+	Transform result;
+
+	result.position = left.position * value;
+	result.scale = left.scale * value;
+	result.SetRotate(left.angle * value);
+
+	return result;
+}
+
+auto PixelWorldEngine::operator/(const Transform & left, float value) -> Transform
+{
+	Transform result;
+
+	result.position = left.position / value;
+	result.scale = left.scale / value;
+	result.SetRotate(left.angle / value);
+
+	return result;
+}

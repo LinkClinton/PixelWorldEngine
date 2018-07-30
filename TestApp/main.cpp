@@ -1,5 +1,6 @@
 #include <Application.hpp>
 #include <PixelWorld.hpp>
+#include <Input.hpp>
 
 #include <cstring>
 
@@ -48,33 +49,59 @@ void MakeTextureManager() {
 }
 
 void OnCollide(PixelObject* A, PixelObject* B) {
-	std::cout << A->GetName() << " Collide " << B->GetName() << std::endl;
+	//std::cout << A->GetName() << " Collide " << B->GetName() << std::endl;
 }
 
 void OnEnter(void* sender) {
 	auto object = (PixelObject*)sender;
 
-	std::cout << "MouseEnter: " + object->GetName() << std::endl;
+	//std::cout << "MouseEnter: " + object->GetName() << std::endl;
 }
 
 void OnLeave(void* sender) {
 	auto object = (PixelObject*)sender;
 
-	std::cout << "MouseLeave: " + object->GetName() << std::endl;
+	//std::cout << "MouseLeave: " + object->GetName() << std::endl;
 }
 
 void OnMouseMove(void* sender, Events::MouseMoveEvent* e) {
 	
-	auto position = Utility::ConvertPosition(&camera, glm::vec2((float)e->x / width, (float)e->y / height));
+	//auto position = Utility::ConvertPosition(&camera, glm::vec2((float)e->x / width, (float)e->y / height));
 
-	object.Transform.SetPosition(position);
+	//object.Transform.SetPosition(position);
 
 }
 
 void OnUpdate(void* sender) {
 	app->SetWindow(windowName + " FPS: " + Utility::ToString(app->GetFramePerSecond()), width, height);
 
-	object.Transform.SetRotate(object.Transform.GetRotate() + glm::pi<float>() * app->GetDeltaTime() * 0.2f);
+	//object.Transform.SetRotate(object.Transform.GetRotate() + glm::pi<float>() * app->GetDeltaTime() * 0.2f);
+
+	auto deltaTime = app->GetDeltaTime(); //获取经过的时间
+
+	glm::vec2 translate = glm::vec2(0, 0); //位移
+
+	float speed = 200; //速度
+
+					   //根据WSAD移动
+	if (Input::GetKeyCodeDown(KeyCode::A) == true)
+		translate.x -= 1;
+	if (Input::GetKeyCodeDown(KeyCode::D) == true)
+		translate.x += 1;
+	if (Input::GetKeyCodeDown(KeyCode::S) == true)
+		translate.y += 1;
+	if (Input::GetKeyCodeDown(KeyCode::W) == true)
+		translate.y -= 1;
+	
+	//位移
+	if (translate != glm::vec2(0, 0)) {
+
+		translate = glm::normalize(translate) * speed * deltaTime;
+
+		object.Transform.SetPosition(object.Transform.GetPosition() + translate);
+	}
+
+	
 }
 
 /**
@@ -96,8 +123,8 @@ void MakeWorld() {
 	object.RenderObjectID = 2;
 	object.SetSize(100, 100);
 	object.Opacity = 0.7f;
-	object.Transform.SetPosition(glm::vec2(100, 100));
-	object.Transform.SetForward(glm::vec2(1, 1));
+	object.Transform.SetPosition(glm::vec2(0, 0));
+	//object.Transform.SetForward(glm::vec2(1, 1));
 
 	objectSon1.RenderObjectID = 3;
 	objectSon1.Transform.SetPosition(glm::vec2(10, 10));
@@ -107,14 +134,14 @@ void MakeWorld() {
 	targetObject.SetSize(200, 150);
 	targetObject.Opacity = 1.0f;
 	targetObject.Transform.SetPosition(glm::vec2(200, 200));
-	targetObject.Transform.SetRotate(glm::pi<float>() * 0.25f);
+	//targetObject.Transform.SetRotate(glm::pi<float>() * 0.25f);
 
 	object.ObjectCollide.push_back(OnCollide);
 
 	object.SetChild(&objectSon1);
 
-	world->SetPixelObject(&object, PixelObjectLayer::WorldLayer);
-	world->SetPixelObject(&targetObject, PixelObjectLayer::WorldLayer);
+	world->SetPixelObject(&object, Layer::WorldLayer);
+	world->SetPixelObject(&targetObject, Layer::WorldLayer);
 
 	world->SetResolution(width, height); //设置分辨率
 

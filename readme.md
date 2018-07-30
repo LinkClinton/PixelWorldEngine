@@ -1,6 +1,6 @@
 # PixelWorldEngine
 
-版本: 1.00
+版本: 1.03beta
 
 ## 介绍
 
@@ -47,9 +47,15 @@ $(SolutionDir)ThirdParty\freetype\win32
 $(SolutionDir)ThirdParty\SDL2\x86
 ```
 
-## 已知问题
+## [更新内容](./Documents/Update/UpdateVersion1.03beta.md)
 
-- UIObject获取焦点后点击空白地区无法解除焦点，以及UIObject整个焦点系统就有问题，只能有一个物体获取焦点。
+- 统一化物体，只留存PixelObject但提供物体分层。
+- 新增物体层，对于用于UI的物体，我们提供UI层，对于游戏中的物体我们用于世界层，UI层物体将不会考虑碰撞以及摄像机影响，其坐标系和分辨率相关。
+- 新增变换(Transform)类型，用于描述物体的位移，缩放，旋转。
+- 修改TextureManager类型，使用内存管理的方式来管理纹理，使我们不用再去使用合并纹理去管理纹理，更为简单方便。
+- 物体碰撞更新，提供更高精准度的运算。
+- WorldMap的地图数据将不再保存指针，因此不需要再去关心地图数据的生命周期。
+- 移除地图数据的移动禁止。
 
 ## 第三方库
 
@@ -59,5 +65,5 @@ $(SolutionDir)ThirdParty\SDL2\x86
 
 ## 教程以及样例
 
-- **[教程](../Documents/Tutorial)**
+- **[教程](./Documents/Tutorial/)**
 - **[样例](https://github.com/LinkClinton/PixelWorldEngineSample)**

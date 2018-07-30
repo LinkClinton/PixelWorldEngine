@@ -5,10 +5,10 @@
 
 void PixelWorldEngine::PixelWorld::OnMouseMove(void * sender, Events::MouseMoveEvent * eventArg)
 {
-	Camera* usedCamera[(int)PixelObjectLayer::Count];
+	Camera* usedCamera[(int)Layer::Count];
 
-	usedCamera[(int)PixelObjectLayer::WorldLayer] = camera;
-	usedCamera[(int)PixelObjectLayer::UILayer] = &UICamera;
+	usedCamera[(int)Layer::WorldLayer] = camera;
+	usedCamera[(int)Layer::UILayer] = &UICamera;
 
 	for (size_t i = 0; i < layerRoots.size(); i++) {
 		if (camera == nullptr) continue;
@@ -26,10 +26,10 @@ void PixelWorldEngine::PixelWorld::OnMouseMove(void * sender, Events::MouseMoveE
 
 void PixelWorldEngine::PixelWorld::OnMouseClick(void * sender, Events::MouseClickEvent * eventArg)
 {
-	Camera* usedCamera[(int)PixelObjectLayer::Count];
+	Camera* usedCamera[(int)Layer::Count];
 
-	usedCamera[(int)PixelObjectLayer::WorldLayer] = camera;
-	usedCamera[(int)PixelObjectLayer::UILayer] = &UICamera;
+	usedCamera[(int)Layer::WorldLayer] = camera;
+	usedCamera[(int)Layer::UILayer] = &UICamera;
 
 	for (size_t i = 0; i < layerRoots.size(); i++) {
 		if (camera == nullptr) continue;
@@ -47,10 +47,10 @@ void PixelWorldEngine::PixelWorld::OnMouseClick(void * sender, Events::MouseClic
 
 void PixelWorldEngine::PixelWorld::OnMouseWheel(void * sender, Events::MouseWheelEvent * eventArg)
 {
-	Camera* usedCamera[(int)PixelObjectLayer::Count];
+	Camera* usedCamera[(int)Layer::Count];
 
-	usedCamera[(int)PixelObjectLayer::WorldLayer] = camera;
-	usedCamera[(int)PixelObjectLayer::UILayer] = &UICamera;
+	usedCamera[(int)Layer::WorldLayer] = camera;
+	usedCamera[(int)Layer::UILayer] = &UICamera;
 
 	for (size_t i = 0; i < layerRoots.size(); i++) {
 		if (camera == nullptr) continue;
@@ -77,7 +77,7 @@ void PixelWorldEngine::PixelWorld::OnUpdate(float deltaTime)
 	for (auto it = layerRoots.begin(); it != layerRoots.end(); it++)
 		Internal::PixelObjectProcess::ProcessUpdate(*it);
 
-	collideSolver.SolveCollide(layerRoots[(int)PixelObjectLayer::WorldLayer]);
+	collideSolver.SolveCollide(layerRoots[(int)Layer::WorldLayer]);
 }
 
 PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Application)
@@ -91,7 +91,7 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 	
 	buffers.resize((int)BufferIndex::Count);
 	bufferArrays.resize((int)BufferArrayIndex::Count);
-	layerRoots.resize((int)PixelObjectLayer::Count);
+	layerRoots.resize((int)Layer::Count);
 
 	auto matrix = glm::mat4(1);
 
@@ -108,8 +108,8 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string WorldName, Application * Ap
 		bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData] = new Graphics::BufferArray(graphics, nullptr, sizeof(InstanceData));
 	}
 
-	layerRoots[(int)PixelObjectLayer::WorldLayer] = new PixelObject("WorldLayer");
-	layerRoots[(int)PixelObjectLayer::UILayer] = new PixelObject("UILayer");
+	layerRoots[(int)Layer::WorldLayer] = new PixelObject("WorldLayer");
+	layerRoots[(int)Layer::UILayer] = new PixelObject("UILayer");
 
 	if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::High) {
 		defaultShader = new Graphics::GraphicsShader(graphics,
@@ -212,12 +212,12 @@ void PixelWorldEngine::PixelWorld::SetTextureManager(TextureManager * TextureMan
 	textureManager = TextureManager;
 }
 
-void PixelWorldEngine::PixelWorld::SetPixelObject(PixelObject * pixelObject, PixelObjectLayer layer)
+void PixelWorldEngine::PixelWorld::SetPixelObject(PixelObject * pixelObject, Layer layer)
 {
 	layerRoots[(int)layer]->SetChild(pixelObject);
 }
 
-void PixelWorldEngine::PixelWorld::CancelPixelObject(std::string name, PixelObjectLayer layer)
+void PixelWorldEngine::PixelWorld::CancelPixelObject(std::string name, Layer layer)
 {
 	layerRoots[(int)layer]->CancelChild(name);
 }
@@ -227,7 +227,7 @@ auto PixelWorldEngine::PixelWorld::GetWorldMap() -> WorldMap *
 	return worldMap;
 }
 
-auto PixelWorldEngine::PixelWorld::GetPixelObject(std::string name, PixelObjectLayer layer) -> PixelObject*
+auto PixelWorldEngine::PixelWorld::GetPixelObject(std::string name, Layer layer) -> PixelObject*
 {
 	return layerRoots[(int)layer]->GetChildren(name);
 }
@@ -334,28 +334,32 @@ void PixelWorldEngine::PixelWorld::RenderWorldMap()
 void PixelWorldEngine::PixelWorld::RenderPixelObject(glm::mat4x4 baseTransformMatrix, float baseOpacity, PixelObject * pixelObject,
 	std::vector<InstanceData>* instanceData, Camera* camera)
 {
-	//如果摄像机无法看见，那么就跳过
+	Collider cameraCollider = Collider(camera->GetRectangle());
 
 	auto transformMatrix = baseTransformMatrix * pixelObject->Transform.GetMatrix();
 	auto opacity = baseOpacity * pixelObject->Opacity;
 
-	if (pixelObject->RenderObjectID != 0) {
-		InstanceData data;
+	if (cameraCollider.Intersect(pixelObject->collider, glm::mat4(1), transformMatrix) == true) {
 
-		auto matrix = glm::scale(transformMatrix, glm::vec3(pixelObject->width, pixelObject->height, 1.0f));
-
-		int arrayIndex = textureManager->GetArrayIndex(pixelObject->RenderObjectID);
-
-		data.renderCoor = glm::vec4(1, 1, 1, opacity);
-		data.setting[0] = pixelObject->RenderObjectID;
-		data.setting[1] = arrayIndex;
-		data.worldTransform = matrix;
-		data.texcoordTransform = textureManager->GetTexCoordTransform(pixelObject->RenderObjectID);
 		
-		instanceData->push_back(data);
+		if (pixelObject->RenderObjectID != 0) {
+			InstanceData data;
 
-		if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::Low && instanceData->size() == LOW_MAX_INSTANCE_DATA)
-			LowDrawObject(instanceData);
+			auto matrix = glm::scale(transformMatrix, glm::vec3(pixelObject->width, pixelObject->height, 1.0f));
+
+			int arrayIndex = textureManager->GetArrayIndex(pixelObject->RenderObjectID);
+
+			data.renderCoor = glm::vec4(1, 1, 1, opacity);
+			data.setting[0] = pixelObject->RenderObjectID;
+			data.setting[1] = arrayIndex;
+			data.worldTransform = matrix;
+			data.texcoordTransform = textureManager->GetTexCoordTransform(pixelObject->RenderObjectID);
+
+			instanceData->push_back(data);
+
+			if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::Low && instanceData->size() == LOW_MAX_INSTANCE_DATA)
+				LowDrawObject(instanceData);
+		}
 	}
 
 	for (auto it = pixelObject->childrenDepthSort.begin(); it != pixelObject->childrenDepthSort.end(); it++)
@@ -364,14 +368,14 @@ void PixelWorldEngine::PixelWorld::RenderPixelObject(glm::mat4x4 baseTransformMa
 
 void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 {
-	std::vector<Camera*> usedCamera((int)PixelObjectLayer::Count);
-	std::vector<BufferArrayIndex> arrayIndex((int)PixelObjectLayer::Count);
+	std::vector<Camera*> usedCamera((int)Layer::Count);
+	std::vector<BufferArrayIndex> arrayIndex((int)Layer::Count);
 
-	usedCamera[(int)PixelObjectLayer::WorldLayer] = camera;
-	usedCamera[(int)PixelObjectLayer::UILayer] = &UICamera;
+	usedCamera[(int)Layer::WorldLayer] = camera;
+	usedCamera[(int)Layer::UILayer] = &UICamera;
 
-	arrayIndex[(int)PixelObjectLayer::WorldLayer] = BufferArrayIndex::PixelObjectInstanceData;
-	arrayIndex[(int)PixelObjectLayer::UILayer] = BufferArrayIndex::UIObjectInstanceData;
+	arrayIndex[(int)Layer::WorldLayer] = BufferArrayIndex::PixelObjectInstanceData;
+	arrayIndex[(int)Layer::UILayer] = BufferArrayIndex::UIObjectInstanceData;
 
 	for (size_t i = 0; i < layerRoots.size(); i++) {
 		std::vector<InstanceData> instanceData;

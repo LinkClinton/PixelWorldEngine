@@ -1,5 +1,15 @@
 #include "PixelObject.hpp"
 
+#include "DebugLayer.hpp"
+
+void PixelWorldEngine::PixelObject::UpdateTransform(PixelObject * object)
+{
+	object->oldTransform = object->Transform;
+
+	for (auto it = object->childrenDepthSort.begin(); it != object->childrenDepthSort.end(); it++)
+		UpdateTransform(*it);
+}
+
 PixelWorldEngine::PixelObject::PixelObject(std::string Name, PixelWorldEngine::Transform transform)
 {
 	name = Name;
@@ -11,8 +21,8 @@ PixelWorldEngine::PixelObject::PixelObject(std::string Name, PixelWorldEngine::T
 	depth = 0;
 
 	isHover = false;
-	isEnableRead = false;
-	isEnablePhysicsCollide = true;
+	IsEnableRead = false;
+	IsEnablePhysicsCollide = true;
 
 	collider.SetArea(0, 0, 0, 0);
 
@@ -49,11 +59,15 @@ void PixelWorldEngine::PixelObject::SetSize(float Width, float Height)
 
 void PixelWorldEngine::PixelObject::SetParent(PixelObject * Parent)
 {
+	DebugReturn(DebugLayer::Assert(Parent == nullptr, Error::TheValueIsNotRight, "Parent", FunctionName));
+
 	Parent->SetChild(this);
 }
 
 void PixelWorldEngine::PixelObject::SetChild(PixelObject * child)
 {
+	DebugReturn(DebugLayer::Assert(child == nullptr, Error::TheValueIsNotRight, "child", FunctionName));
+
 	if (child->parent != nullptr) child->parent->CancelChild(child->name);
 
 	childrenNameIndex.insert(std::pair<std::string, PixelObject*>(child->name, child));
@@ -64,6 +78,8 @@ void PixelWorldEngine::PixelObject::SetChild(PixelObject * child)
 
 void PixelWorldEngine::PixelObject::CancelChild(std::string name)
 {
+	DebugReturn(DebugLayer::Assert(childrenNameIndex.count(name) == 0, Error::TheNameIsNotExist, name, FunctionName));
+
 	auto child = childrenNameIndex[name];
 
 	child->parent = nullptr;
@@ -94,6 +110,8 @@ auto PixelWorldEngine::PixelObject::GetParent() -> PixelObject *
 
 auto PixelWorldEngine::PixelObject::GetChildren(std::string name) -> PixelObject *
 {
+	if (childrenNameIndex.count(name) == 0) return nullptr;
+
 	return childrenNameIndex[name];
 }
 
@@ -177,7 +195,7 @@ void PixelWorldEngine::Internal::PixelObjectProcess::ProcessMouseWheel(PixelObje
 
 void PixelWorldEngine::Internal::PixelObjectProcess::ProcessKeyClick(PixelObject * object, Events::KeyClickEvent * eventArg)
 {
-	if (object->isEnableRead == false) return;
+	if (object->IsEnableRead == false) return;
 
 	object->OnKeyClick(object, eventArg);
 

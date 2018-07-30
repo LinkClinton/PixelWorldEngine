@@ -40,9 +40,12 @@ namespace PixelWorldEngine {
 		Count
 	};
 
-	enum class PixelObjectLayer {
-		WorldLayer,
-		UILayer,
+	/**
+	 * @brief 物体层
+	 */
+	enum class Layer {
+		WorldLayer, //世界层
+		UILayer, //UI层
 		Count
 	};
 
@@ -84,7 +87,7 @@ namespace PixelWorldEngine {
 
 		float backGroundColor[4]; //背景颜色，默认为(0, 0, 0, 1)
 
-		Internal::CollideSolver collideSolver;
+		Internal::CollideSolver collideSolver; //碰撞处理器
 
 		Graphics::Graphics* graphics; //...
 
@@ -161,9 +164,20 @@ namespace PixelWorldEngine {
 		 */
 		void RenderWorldMap();
 
+		/**
+		 * @brief 渲染物体
+		 * @param[in] baseTransformMatrix 基本变换矩阵
+		 * @param[in] baseOpacity 基本的不透明度
+		 * @param[in] pixelObject 物体
+		 * @param[in] instanceData 构建的渲染数据
+		 * @param[in] camera 使用的摄像机
+		 */
 		void RenderPixelObject(glm::mat4x4 baseTransformMatrix, float baseOpacity, PixelObject* pixelObject,
 			std::vector<InstanceData>* instanceData, Camera* camera);
 
+		/**
+		 * @brief 渲染整个物体
+		 */
 		void RenderPixelObjects();
 	public:
 		/**
@@ -224,9 +238,19 @@ namespace PixelWorldEngine {
 		 */
 		void SetTextureManager(TextureManager* textureManager);
 
-		void SetPixelObject(PixelObject* pixelObject, PixelObjectLayer layer = PixelObjectLayer::WorldLayer);
+		/**
+		 * @brief 设置物体到对应的层
+		 * @param[in] pixelObject 物体，物体的父亲将不会为nullptr
+		 * @param[in] layer 所处于的层
+		 */
+		void SetPixelObject(PixelObject* pixelObject, Layer layer = Layer::WorldLayer);
 
-		void CancelPixelObject(std::string name, PixelObjectLayer layer = PixelObjectLayer::WorldLayer);
+		/**
+		 * @brief 从对应的层取消对应的物体
+		 * @param[in] name 物体的名字
+		 * @param[in[ layer 层
+		 */
+		void CancelPixelObject(std::string name, Layer layer = Layer::WorldLayer);
 
 		/**
 		 * @brief 获取当前的世界地图
@@ -234,7 +258,12 @@ namespace PixelWorldEngine {
 		 */
 		auto GetWorldMap() -> WorldMap*;
 
-		auto GetPixelObject(std::string name, PixelObjectLayer layer = PixelObjectLayer::WorldLayer) -> PixelObject*;
+		/**
+		 * @brief 获取物体
+		 * @param[in] name 物体的名字
+		 * @parma[in] layer 物体所在的层
+		 */
+		auto GetPixelObject(std::string name, Layer layer = Layer::WorldLayer) -> PixelObject*;
 
 		/**
 		 * @brief 获取在当前状况下的世界的图像

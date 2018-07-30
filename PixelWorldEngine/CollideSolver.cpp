@@ -1,5 +1,7 @@
 #include "CollideSolver.hpp"
 
+int PixelWorldEngine::Internal::CollideSolver::iterations = 10;
+
 void PixelWorldEngine::Internal::CollideSolver::BuildCollideObjects(PixelObject * object, glm::mat4x4 baseTransform,
 	glm::mat4x4 baseOldTransform, CollideObject::Collection & collideObjects)
 {
@@ -28,8 +30,8 @@ void PixelWorldEngine::Internal::CollideSolver::IntersectWithEnterAndLeaveEvent(
 			collideEvent.CollideObject[0] = &collideObjectsA[i];
 			collideEvent.CollideObject[1] = &collideObjectsB[j];
 
-			if (objectA.Object->isEnablePhysicsCollide == false ||
-				objectB.Object->isEnablePhysicsCollide == false) {
+			if (objectA.Object->IsEnablePhysicsCollide == false ||
+				objectB.Object->IsEnablePhysicsCollide == false) {
 
 				bool beforeState = objectA.Collider.Intersect(objectB.Collider, objectA.OldTransform, objectB.OldTransform);
 				bool afterState = objectA.Collider.Intersect(objectB.Collider, objectA.Transform, objectB.Transform);
@@ -51,8 +53,8 @@ auto PixelWorldEngine::Internal::CollideSolver::IntersectWithCollideEvent(Collid
 			auto objectA = collideObjectsA[i];
 			auto objectB = collideObjectsB[j];
 
-			if (objectA.Object->isEnablePhysicsCollide == true &&
-				objectB.Object->isEnablePhysicsCollide == true) {
+			if (objectA.Object->IsEnablePhysicsCollide == true &&
+				objectB.Object->IsEnablePhysicsCollide == true) {
 
 				if (objectA.Collider.Intersect(objectB.Collider, objectA.Transform, objectB.Transform) == true) {
 
@@ -82,6 +84,41 @@ auto PixelWorldEngine::Internal::CollideSolver::Intersect(CollideObject::Collect
 	return false;
 }
 
+void PixelWorldEngine::Internal::CollideSolver::SolveCollideEvent(CollideEvent collideEvent)
+{
+	float leftValue = 0.0f;
+	float rightValue = 1.0f;
+	int times = iterations;
+		
+	auto transformA = collideEvent.CollideObject[0]->Object->Transform;
+	auto transformB = collideEvent.CollideObject[1]->Object->Transform;
+
+	auto oldTransformA = collideEvent.CollideObject[0]->Object->oldTransform;
+	auto oldTransformB = collideEvent.CollideObject[1]->Object->oldTransform;
+
+	auto tempTransformA = transformA - oldTransformA;
+	auto tempTransformB = transformB - oldTransformB;
+
+	for (int i = 0; i < times; i++) {
+		float halfValue = (leftValue + rightValue) * 0.5f;
+		
+		auto matrixA = (oldTransformA + tempTransformA * halfValue).GetMatrix();
+		auto matrixB = (oldTransformB + tempTransformB * halfValue).GetMatrix();
+
+		if (collideEvent.CollideObject[0]->Collider.Intersect(collideEvent.CollideObject[1]->Collider,
+			matrixA, matrixB) == true) rightValue = halfValue;
+		else leftValue = halfValue;
+	}
+
+	auto value = leftValue;
+
+	collideEvent.CollideObject[0]->Object->Transform = oldTransformA + tempTransformA * value;
+	collideEvent.CollideObject[1]->Object->Transform = oldTransformB + tempTransformB * value;
+	
+	collideEvent.CollideObject[0]->Transform = collideEvent.CollideObject[0]->Object->Transform.GetMatrix();
+	collideEvent.CollideObject[1]->Transform = collideEvent.CollideObject[1]->Object->Transform.GetMatrix();
+}
+
 void PixelWorldEngine::Internal::CollideSolver::SolveCollide(PixelObject * rootObject)
 {
 	std::vector<CollideObject::Collection> objectColliders;
@@ -101,6 +138,11 @@ void PixelWorldEngine::Internal::CollideSolver::SolveCollide(PixelObject * rootO
 	}
 
 	//solve the collide 
+	for (auto it = collideEvents.begin(); it != collideEvents.end(); it++)
+		SolveCollideEvent(*it);
+
+	for (auto it = collideEvents.begin(); it != collideEvents.end(); it++)
+		Internal::PixelObjectProcess::ProcessObjectCollide(it->CollideObject[0]->Object, it->CollideObject[1]->Object);
 	//end
 	
 	std::vector<CollideEvent> enterEvents;
@@ -122,9 +164,15 @@ void PixelWorldEngine::Internal::CollideSolver::SolveCollide(PixelObject * rootO
 	for (auto it = leaveEvents.begin(); it != leaveEvents.end(); it++)
 		PixelObjectProcess::ProcessObjectLeave(it->CollideObject[0]->Object, it->CollideObject[1]->Object);
 
+	PixelObject::UpdateTransform(rootObject);
 }
 
-auto PixelWorldEngine::Internal::CollideSolver::Intersect(PixelObject * object1, PixelObject * object2)
+void PixelWorldEngine::Internal::CollideSolver::SetIterations(int count)
+{
+	iterations = count;
+}
+
+auto PixelWorldEngine::Internal::CollideSolver::Intersect(PixelObject * object1, PixelObject * object2) -> bool
 {
 	std::vector<CollideObject> collideObjects[2];
 
