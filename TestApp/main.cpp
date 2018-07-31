@@ -27,10 +27,12 @@ TextureManager* textureManager = new TextureManager(app, PixelWorldEngine::Graph
 
 Camera camera = Camera(RectangleF(0, 0, 1280, 720)); //构建摄像机
 
-PixelObject object = PixelObject("1");
-PixelObject objectSon1 = PixelObject("son1");
+PixelObject* object = new PixelObject("1");
+PixelObject* objectSon1 = new PixelObject("son1");
 
-PixelObject targetObject = PixelObject("TargetObject");
+PixelObject* targetObject = new PixelObject("TargetObject");
+
+Graphics::Font* font = dataManager->RegisterFont("Consola.ttf", "Consola", 20);
 
 void MakeTextureManager() {
 	auto texture = dataManager->RegisterTexture(u8"MapBlock.jpg"); //读取纹理
@@ -98,7 +100,7 @@ void OnUpdate(void* sender) {
 
 		translate = glm::normalize(translate) * speed * deltaTime;
 
-		object.Transform.SetPosition(object.Transform.GetPosition() + translate);
+		object->Transform.SetPosition(object->Transform.GetPosition() + translate);
 	}
 
 	
@@ -120,28 +122,31 @@ void MakeWorld() {
 		}
 	}
 
-	object.RenderObjectID = 2;
-	object.SetSize(100, 100);
-	object.Opacity = 0.7f;
-	object.Transform.SetPosition(glm::vec2(0, 0));
+	object->RenderObjectID = 2;
+	object->SetSize(100, 100);
+	object->Opacity = 0.7f;
+	object->Transform.SetPosition(glm::vec2(0, 0));
 	//object.Transform.SetForward(glm::vec2(1, 1));
 
-	objectSon1.RenderObjectID = 3;
-	objectSon1.Transform.SetPosition(glm::vec2(10, 10));
-	objectSon1.SetSize(50, 50);
+	objectSon1->RenderObjectID = 3;
+	objectSon1->Transform.SetPosition(glm::vec2(10, 10));
+	objectSon1->SetSize(50, 50);
+	
+	targetObject->RenderObjectID = 4;
+	targetObject->SetSize(200, 150);
+	targetObject->Opacity = 1.0f;
+	targetObject->Transform.SetPosition(glm::vec2(200, 200));
+	targetObject->Font = font;
+	targetObject->Text = "cccc\ncccc";
+	targetObject->TextColor = glm::vec3(1, 0, 0);
+	//targetObject->Transform.SetRotate(glm::pi<float>() * 0.25f);
 
-	targetObject.RenderObjectID = 4;
-	targetObject.SetSize(200, 150);
-	targetObject.Opacity = 1.0f;
-	targetObject.Transform.SetPosition(glm::vec2(200, 200));
-	//targetObject.Transform.SetRotate(glm::pi<float>() * 0.25f);
+	object->ObjectCollide.push_back(OnCollide);
 
-	object.ObjectCollide.push_back(OnCollide);
+	object->SetChild(objectSon1);
 
-	object.SetChild(&objectSon1);
-
-	world->SetPixelObject(&object, Layer::WorldLayer);
-	world->SetPixelObject(&targetObject, Layer::WorldLayer);
+	world->SetPixelObject(object, Layer::WorldLayer);
+	world->SetPixelObject(targetObject, Layer::WorldLayer);
 
 	world->SetResolution(width, height); //设置分辨率
 

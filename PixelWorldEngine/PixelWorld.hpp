@@ -60,7 +60,7 @@ namespace PixelWorldEngine {
 	 * @brief 实例数据
 	 */
 	struct InstanceData {
-		int setting[4]; //设置，第一个元素是使用的渲染编号，第二个元素是使用的纹理页编号
+		int setting[4]; //设置，第一个元素是使用的渲染编号，第二个元素是使用的纹理页编号，第三个元素表示其使用的纹理管理器编号
 		glm::mat4x4 worldTransform; //世界变换矩阵
 		glm::mat4x4 texcoordTransform; //纹理变换矩阵
 		glm::vec4 renderCoor; //渲染的颜色，第四个分量是不透明度
@@ -73,7 +73,7 @@ namespace PixelWorldEngine {
 	 */
 	class PixelWorld {
 	private:
-		std::string worldName; //世界的名字 
+		std::string name; //世界的名字 
 
 		int resolutionWidth; //分辨率宽度
 		int resolutionHeight; //分辨率高度
@@ -99,7 +99,7 @@ namespace PixelWorldEngine {
 
 		std::vector<Graphics::Buffer*> buffers; //缓冲数组
 		std::vector<Graphics::BufferArray*> bufferArrays; //缓冲数组
-		std::vector<PixelObject*> layerRoots;
+		std::vector<PixelObject*> layerRoots; //层根结点
 
 		Graphics::RectangleF* renderObject; //正方形
 		Graphics::RectangleF* renderCanvas; //画布
@@ -110,6 +110,9 @@ namespace PixelWorldEngine {
 
 		WorldMap* worldMap; //当前使用的地图，默认为nullptr
 
+		static TextureManager* TextTextureManager; //文字纹理管理器
+
+		friend class PixelObject;
 		friend class Application;
 	private:
 		/**
@@ -182,10 +185,10 @@ namespace PixelWorldEngine {
 	public:
 		/**
 		 * @brief 构造函数
-		 * @param[in] WorldName 世界的名字
+		 * @param[in] Name 世界的名字
 		 * @param[in] Application 呈现世界的应用程序
 		 */
-		PixelWorld(std::string WorldName, Application* Application);
+		PixelWorld(std::string Name, Application* Application);
 
 		/**
 		 * @brief 析构函数

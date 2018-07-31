@@ -1,6 +1,9 @@
 #include "PixelObject.hpp"
 
 #include "DebugLayer.hpp"
+#include "PixelWorld.hpp"
+
+int PixelWorldEngine::PixelObject::ObjectCount = 0;
 
 void PixelWorldEngine::PixelObject::UpdateTransform(PixelObject * object)
 {
@@ -8,6 +11,29 @@ void PixelWorldEngine::PixelObject::UpdateTransform(PixelObject * object)
 
 	for (auto it = object->childrenDepthSort.begin(); it != object->childrenDepthSort.end(); it++)
 		UpdateTransform(*it);
+}
+
+void PixelWorldEngine::PixelObject::UpdateText(PixelObject * object)
+{
+	//如果文字不需要改变，那么返回
+	if (object->textInstance != nullptr && object->Text == object->textInstance->GetText() &&
+		object->Font == object->textInstance->GetFont() && object->isSizeChange == false) return;
+
+	//将注册的纹理取消
+	if (PixelWorld::TextTextureManager->IsExist(object->textRenderObjectID) == true)
+		PixelWorld::TextTextureManager->UnRegisterTexture(object->textRenderObjectID);
+
+	//释放原本的资源
+	Utility::Delete(object->textInstance);
+
+	//如果不需要渲染文字，那么返回
+	if (object->Font == nullptr || object->width <= 0 || object->Text == "") return;
+	
+	//创建文字纹理
+	object->textInstance = new PixelWorldEngine::Text(object->Text, object->Font, (int)object->width);
+
+	//注册纹理
+	PixelWorld::TextTextureManager->RegisterTexture(object->textRenderObjectID, object->textInstance->GetTexture());
 }
 
 PixelWorldEngine::PixelObject::PixelObject(std::string Name, PixelWorldEngine::Transform transform)
@@ -21,17 +47,28 @@ PixelWorldEngine::PixelObject::PixelObject(std::string Name, PixelWorldEngine::T
 	depth = 0;
 
 	isHover = false;
+	isSizeChange = false;
 	IsEnableRead = false;
 	IsEnablePhysicsCollide = true;
 
 	collider.SetArea(0, 0, 0, 0);
 
+	textInstance = nullptr;
+
 	Transform = transform;
 	oldTransform = transform;
 
+	Text = "";
+	Font = nullptr;
+	
 	RenderObjectID = 0;
 
+	TextColor = glm::vec3(1.0f, 1.0f, 1.0f);
+
 	Opacity = 1.0f;
+
+	//记录物体个数，同时给每个物体编号
+	textRenderObjectID = ++ObjectCount;
 }
 
 void PixelWorldEngine::PixelObject::SetDepth(int Depth)
@@ -42,12 +79,17 @@ void PixelWorldEngine::PixelObject::SetDepth(int Depth)
 
 	if (parent == nullptr) return;
 
+	//更新深度后，其在父亲中的排序要改变
 	parent->childrenDepthSort.erase(this);
 	parent->childrenDepthSort.insert(this);
 }
 
 void PixelWorldEngine::PixelObject::SetSize(float Width, float Height)
 {
+	DebugReturn(DebugLayer::Assert(Width <= 0 || Height <= 0, Error::WidthOrHeightLessThanZero, name, FunctionName));
+
+	if (width != Width || height != Height) isSizeChange = true;
+
 	width = Width;
 	height = Height;
 	
@@ -59,14 +101,14 @@ void PixelWorldEngine::PixelObject::SetSize(float Width, float Height)
 
 void PixelWorldEngine::PixelObject::SetParent(PixelObject * Parent)
 {
-	DebugReturn(DebugLayer::Assert(Parent == nullptr, Error::TheValueIsNotRight, "Parent", FunctionName));
+	DebugReturn(DebugLayer::Assert(Parent == nullptr, Error::TheObjectIsNull, "Parent", FunctionName));
 
 	Parent->SetChild(this);
 }
 
 void PixelWorldEngine::PixelObject::SetChild(PixelObject * child)
 {
-	DebugReturn(DebugLayer::Assert(child == nullptr, Error::TheValueIsNotRight, "child", FunctionName));
+	DebugReturn(DebugLayer::Assert(child == nullptr, Error::TheObjectIsNull, "child", FunctionName));
 
 	if (child->parent != nullptr) child->parent->CancelChild(child->name);
 
@@ -78,7 +120,7 @@ void PixelWorldEngine::PixelObject::SetChild(PixelObject * child)
 
 void PixelWorldEngine::PixelObject::CancelChild(std::string name)
 {
-	DebugReturn(DebugLayer::Assert(childrenNameIndex.count(name) == 0, Error::TheNameIsNotExist, name, FunctionName));
+	DebugReturn(DebugLayer::Assert(childrenNameIndex.count(name) == 0, Error::TheObjectIsNull, name, FunctionName));
 
 	auto child = childrenNameIndex[name];
 
@@ -110,7 +152,7 @@ auto PixelWorldEngine::PixelObject::GetParent() -> PixelObject *
 
 auto PixelWorldEngine::PixelObject::GetChildren(std::string name) -> PixelObject *
 {
-	if (childrenNameIndex.count(name) == 0) return nullptr;
+	DebugReturnWithValue(DebugLayer::Assert(childrenNameIndex.count(name) == 0, Error::TheNameIsNotExist, name, FunctionName), nullptr);
 
 	return childrenNameIndex[name];
 }
@@ -125,6 +167,10 @@ void PixelWorldEngine::Internal::PixelObjectProcess::ProcessUpdate(PixelObject *
 	object->OnUpdate(object);
 
 	Events::DoEventHandlers(object->Update, object);
+
+	PixelObject::UpdateText(object);
+
+	object->isSizeChange = false;
 
 	for (auto it = object->childrenDepthSort.begin(); it != object->childrenDepthSort.end(); it++)
 		ProcessUpdate(*it);

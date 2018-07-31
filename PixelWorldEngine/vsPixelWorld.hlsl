@@ -39,7 +39,8 @@ cbuffer RenderConfig : register(b1)
 
 StructuredBuffer<InstanceData> instanceData : register(t0);
 
-Texture2DArray Texture : register(t1);
+Texture2DArray Texture0 : register(t1);
+Texture2DArray Texture1 : register(t2);
 
 SamplerState sampler0 : register(s0);
 

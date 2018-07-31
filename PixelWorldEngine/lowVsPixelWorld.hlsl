@@ -42,7 +42,8 @@ cbuffer InstanceDatas : register(b2)
     InstanceData instanceData[100];
 }
 
-Texture2DArray Texture : register(t1);
+Texture2DArray Texture0 : register(t1);
+Texture2DArray Texture1 : register(t2);
 
 SamplerState sampler0 : register(s0);
 

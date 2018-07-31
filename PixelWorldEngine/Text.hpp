@@ -23,13 +23,14 @@ namespace PixelWorldEngine {
 		int height; //文本纹理的高度
 
 		/**
-		 * @brief 计算文本纹理的高度
+		 * @brief 计算文本纹理的大小
 		 * @param[in] text 文本
 		 * @param[in] font 使用的字体
-		 * @param[in] textWidth 文本宽度
-		 * @return 文本纹理的高度
+		 * @param[in] maxWidth 最大的宽度
+		 * @param[in] maxHeight 最大的高度
+		 * @return 文本纹理的大小
 		 */
-		static auto CalculateHeight(std::string text, Graphics::Font* font, int textWidth) -> int;
+		static auto CalculateSize(std::string text, Graphics::Font* font, int maxWidth, int maxHeight)->std::pair<int, int>;
 
 		/**
 		 * @brief 根据文本数据将文字纹理创建到文本纹理中去
@@ -40,10 +41,10 @@ namespace PixelWorldEngine {
 		/**
 		 * @brief 构造函数
 		 * @param[in] text 文本
-		 * @param[in] width 宽度
-		 * @param[in] height 高度，如果为0，那么自动生成
+		 * @param[in] width 最大宽度，如果为0，那么就只有一行
+		 * @param[in] height 最大高度，如果为0，那么自动生成适合的高度
 		 */
-		Text(std::string text, Graphics::Font* font, int width, int height = 0);
+		Text(std::string text, Graphics::Font* font, int maxWidth = 0, int maxHeight = 0);
 
 		/**
 		 * @brief 获取宽度

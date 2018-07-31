@@ -13,12 +13,16 @@ namespace PixelWorldEngine {
 #define DebugReturn(x) if (x == true) return 
 #define DebugReturnWithValue(x, value) if (x == true) return value
 #define DebugThrow(x) if (x == true) throw "Error"
+#define DebugContinue(x) if (x == true) continue
+#define DebugNone(x) x
 
 #else
 
 #define DebugReturn(x)
 #define DebugReturnWithValue(x, value)
 #define DebugThrow(x)
+#define DebugContinue(x)
+#define DebugNone(x)
 
 #endif
 	enum class Error {
@@ -54,6 +58,12 @@ namespace PixelWorldEngine {
 		TheValueIsNotRight,
 		//Allocate memory error.
 		MemoryAllocateError,
+		//Draw Failed: The Shader is null.
+		TheShaderIsNull,
+		//Draw Failed: The Camera is null.
+		TheCameraIsNull,
+		//Draw Failed: The TextureManager is null.
+		TheTextureManagerIsNull,
 		Count
 	};
 
@@ -73,18 +83,21 @@ namespace PixelWorldEngine {
 		"The name of object is not exist.",
 		"The ID is not exist.",
 		"The value is not right.",
-		"Allocate memory error."
+		"Allocate memory error.",
+		"Draw Failed: The Shader is null.",
+		"Draw Failed: The Camera is null.",
+		"Draw Failed: The TextureManager is null."
 	};
 
 	class DebugLayer {
 	private:
-		static void ReportMessage(std::string message);
+		static void ReportMessage(const std::string &message);
 	public:
-		static void ReportError(Error error, std::string exMessage);
+		static void ReportError(Error error, const std::string &exMessage);
 
-		static bool Assert(bool test, Error error, std::string exMessage);
+		static bool Assert(bool test, Error error, const std::string &exMessage);
 
-		static bool Assert(bool test, Error error, std::string target, std::string type);
+		static bool Assert(bool test, Error error, const std::string &target, const std::string &type);
 
 	};
 

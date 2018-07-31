@@ -590,19 +590,21 @@ void PixelWorldEngine::Application::RunLoop()
 
 void PixelWorldEngine::Application::SetWorld(PixelWorld * PixelWorld)
 {
+	DebugReturn(DebugLayer::Assert(PixelWorld == nullptr, Error::TheObjectIsNull, "PixelWorld", FunctionName));
+	
 	pixelWorld = PixelWorld;
 }
 
 void PixelWorldEngine::Application::RegisterAnimator(Animator * animator)
 {
-	DebugReturn(DebugLayer::Assert(animator == nullptr, Error::TheObjectIsNull, applicationName, FunctionName));
+	DebugReturn(DebugLayer::Assert(animator == nullptr, Error::TheObjectIsNull, "animator", FunctionName));
 		
 	animators[animator->name] = animator;
 }
 
 void PixelWorldEngine::Application::UnRegisterAnimator(Animator * animator)
 {
-	DebugReturn(DebugLayer::Assert(animator == nullptr, Error::TheObjectIsNull, applicationName, FunctionName));
+	DebugReturn(DebugLayer::Assert(animator == nullptr, Error::TheObjectIsNull, "animator", FunctionName));
 	
 	animators.erase(animator->name);
 }

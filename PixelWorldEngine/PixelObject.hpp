@@ -8,6 +8,9 @@
 #include "Collider.hpp"
 #include "BaseStruct.hpp"
 
+#include "GraphicsFont.hpp"
+#include "Text.hpp"
+
 namespace PixelWorldEngine {
 
 	class PixelObject;
@@ -74,6 +77,7 @@ namespace PixelWorldEngine {
 		int depth; //物体的深度，用于决定处于同层的物体显示的先后顺序
 	
 		bool isHover; //鼠标是否悬浮在上面
+		bool isSizeChange; //大小是否改变
 
 		Collider collider; //碰撞盒
 
@@ -82,11 +86,23 @@ namespace PixelWorldEngine {
 		std::map<std::string, PixelObject*> childrenNameIndex; //儿子物体
 		std::multiset<PixelObject*, Internal::PixelObjectCompare> childrenDepthSort; //儿子物体，按照深度排序
 
+		/**/
+		PixelWorldEngine::Text* textInstance; //文字纹理
+		int textRenderObjectID; //文字的渲染编号
+
+		static int ObjectCount; //记录物体个数
+
 		/**
 		 * @brief 更新物体的变换，将旧变换改变成新变换
 		 * @param[in] object 物体，包括其子孙物体
 		 */
 		static void UpdateTransform(PixelObject* object); 
+
+		/**
+		 * @brief 更新物体的文本内容
+		 * @param[in] object 物体
+		 */
+		static void UpdateText(PixelObject* object);
 
 		friend class PixelWorld;
 		friend class Internal::PixelObjectProcess;
@@ -177,9 +193,25 @@ namespace PixelWorldEngine {
 
 		float Opacity; //物体的不透明度
 
+		glm::vec3 TextColor; //字体颜色
+
+		std::string Text; //文本内容，设置为""将不会显示文字
+
+		Graphics::Font* Font; //字体，设置为nullptr的话将不会显示文字
+
 		bool IsEnableRead; //是否允许键盘事件
 		bool IsEnablePhysicsCollide; //是否允许物理碰撞
 	public:
+		/**
+		 * @brief 禁止复制实例
+		 */
+		PixelObject(PixelObject &&) = delete;
+
+		/**
+		 * @brief 禁止复制实例
+		 */
+		PixelObject(const PixelObject &&) = delete;
+
 		/**
 		 * @brief 构造函数
 		 * @param[in] name 物体的名字

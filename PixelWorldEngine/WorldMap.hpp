@@ -31,6 +31,8 @@ namespace PixelWorldEngine {
 		float mapBlockSize; //地图格子的大小，默认为32
 
 		std::string mapName; //世界的地图的名字
+
+		friend class PixelWorld;
 	protected:
 		std::vector<MapData> mapData; //存储世界的地图数据信息
 	public:

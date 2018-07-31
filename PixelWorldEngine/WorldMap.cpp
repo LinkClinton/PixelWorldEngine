@@ -45,6 +45,8 @@ auto PixelWorldEngine::WorldMap::GetMapData(int x, int y) -> MapData
 {
 	int id = y * width + x;
 
+	DebugReturnWithValue(DebugLayer::Assert(id > (int)mapData.size(), Error::TheValueIsNotRight, "x and y", FunctionName), MapData());
+
 	return mapData[y * width + x];
 }
 

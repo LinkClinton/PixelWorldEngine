@@ -37,7 +37,8 @@ cbuffer RenderConfig : register(b1)
 
 StructuredBuffer<InstanceData> instanceData : register(t0);
 
-Texture2DArray Texture : register(t1);
+Texture2DArray Texture0 : register(t1);
+Texture2DArray Texture1 : register(t2);
 
 SamplerState sampler0 : register(s0);
 
@@ -48,7 +49,10 @@ float4 main(OutputData input, uint id : SV_INSTANCEID) : SV_TARGET
 
     int which = instanceData[id].setting[1];
     
-    float4 texColor = Texture.Sample(sampler0, float3(input.tex0, which));
+    float4 texColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+    if (instanceData[id].setting[2] == 0) texColor = Texture0.Sample(sampler0, float3(input.tex0, which));
+    if (instanceData[id].setting[2] == 1) texColor = float4(1.0f, 1.0f, 1.0f, Texture1.Sample(sampler0, float3(input.tex0, which)).w);
 
     return texColor * instanceData[id].renderColor;
 }
