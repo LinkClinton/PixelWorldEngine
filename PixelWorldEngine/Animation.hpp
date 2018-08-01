@@ -8,7 +8,7 @@
 namespace PixelWorldEngine {
 
 	/**
-	 * @brief 关键帧
+	 * @brief 关键帧，要求数据允许复制
 	 */
 	class KeyFrame {
 	private:
@@ -314,7 +314,7 @@ namespace PixelWorldEngine {
 	template<typename T>
 	inline auto PixelWorldEngine::KeyFrame::GetData() -> T
 	{
-		return T(*data);
+		return *(T*)data;
 	}
 
 	template<typename T>

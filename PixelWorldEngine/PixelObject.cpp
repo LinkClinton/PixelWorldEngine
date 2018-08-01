@@ -3,7 +3,10 @@
 #include "DebugLayer.hpp"
 #include "PixelWorld.hpp"
 
+#define DEFAULT_BASE_NAME "PIXELOBJECT"
+
 int PixelWorldEngine::PixelObject::ObjectCount = 0;
+std::vector<int> PixelWorldEngine::PixelObject::FreeObjectID;
 
 void PixelWorldEngine::PixelObject::UpdateTransform(PixelObject * object)
 {
@@ -20,8 +23,8 @@ void PixelWorldEngine::PixelObject::UpdateText(PixelObject * object)
 		object->Font == object->textInstance->GetFont() && object->isSizeChange == false) return;
 
 	//将注册的纹理取消
-	if (PixelWorld::TextTextureManager->IsExist(object->textRenderObjectID) == true)
-		PixelWorld::TextTextureManager->UnRegisterTexture(object->textRenderObjectID);
+	if (PixelWorld::TextTextureManager->IsExist(object->objectID) == true)
+		PixelWorld::TextTextureManager->UnRegisterTexture(object->objectID);
 
 	//释放原本的资源
 	Utility::Delete(object->textInstance);
@@ -33,7 +36,20 @@ void PixelWorldEngine::PixelObject::UpdateText(PixelObject * object)
 	object->textInstance = new PixelWorldEngine::Text(object->Text, object->Font, (int)object->width);
 
 	//注册纹理
-	PixelWorld::TextTextureManager->RegisterTexture(object->textRenderObjectID, object->textInstance->GetTexture());
+	PixelWorld::TextTextureManager->RegisterTexture(object->objectID, object->textInstance->GetTexture());
+}
+
+auto PixelWorldEngine::PixelObject::GetObjectID() -> int
+{
+	if (FreeObjectID.size() != 0) {
+		int result = FreeObjectID.back();
+		
+		FreeObjectID.pop_back();
+
+		return result;
+	}
+
+	return ++ObjectCount;
 }
 
 PixelWorldEngine::PixelObject::PixelObject(std::string Name, PixelWorldEngine::Transform transform)
@@ -48,6 +64,7 @@ PixelWorldEngine::PixelObject::PixelObject(std::string Name, PixelWorldEngine::T
 
 	isHover = false;
 	isSizeChange = false;
+	IsEnableVisual = true;
 	IsEnableRead = false;
 	IsEnablePhysicsCollide = true;
 
@@ -63,12 +80,25 @@ PixelWorldEngine::PixelObject::PixelObject(std::string Name, PixelWorldEngine::T
 	
 	RenderObjectID = 0;
 
-	TextColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	TextColor = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	Opacity = 1.0f;
 
-	//记录物体个数，同时给每个物体编号
-	textRenderObjectID = ++ObjectCount;
+	objectID = GetObjectID();
+}
+
+PixelWorldEngine::PixelObject::PixelObject(PixelWorldEngine::Transform transform)
+	:PixelObject("", transform)
+{
+	name = DEFAULT_BASE_NAME + Utility::ToString(objectID);
+}
+
+PixelWorldEngine::PixelObject::~PixelObject()
+{
+	Utility::Delete(textInstance);
+
+	ObjectCount--;
+	FreeObjectID.push_back(objectID);
 }
 
 void PixelWorldEngine::PixelObject::SetDepth(int Depth)
@@ -155,6 +185,22 @@ auto PixelWorldEngine::PixelObject::GetChildren(std::string name) -> PixelObject
 	DebugReturnWithValue(DebugLayer::Assert(childrenNameIndex.count(name) == 0, Error::TheNameIsNotExist, name, FunctionName), nullptr);
 
 	return childrenNameIndex[name];
+}
+
+auto PixelWorldEngine::PixelObject::CreateFromInstance(std::string name, PixelObject * object) -> PixelObject *
+{
+	if (object == nullptr) return nullptr;
+
+	auto result = new PixelObject(name);
+
+	int id = result->objectID;
+
+	memcpy(result, object, sizeof(PixelObject));
+
+	result->name = name;
+	result->objectID = id;
+
+	return result;
 }
 
 bool PixelWorldEngine::Internal::PixelObjectCompare::operator()(PixelObject * object1, PixelObject * object2) const

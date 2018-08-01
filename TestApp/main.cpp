@@ -71,7 +71,6 @@ void OnMouseMove(void* sender, Events::MouseMoveEvent* e) {
 	//auto position = Utility::ConvertPosition(&camera, glm::vec2((float)e->x / width, (float)e->y / height));
 
 	//object.Transform.SetPosition(position);
-
 }
 
 void OnUpdate(void* sender) {

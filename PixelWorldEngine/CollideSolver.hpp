@@ -43,6 +43,10 @@ namespace PixelWorldEngine {
 
 			static int iterations;
 		public:
+			/**
+			 * @brief 处理整个根系的碰撞
+			 * @param[in] rootObject 根物体
+			 */
 			void SolveCollide(PixelObject* rootObject);
 
 			/**

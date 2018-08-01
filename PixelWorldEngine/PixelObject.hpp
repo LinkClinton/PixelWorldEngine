@@ -63,7 +63,7 @@ namespace PixelWorldEngine {
 	}
 
 	/**
-	 * @brief 物体，引擎的核心类
+	 * @brief 物体，引擎的核心类，不可复制实例，只能使用new构造
 	 */
 	class PixelObject {
 	private:
@@ -88,9 +88,10 @@ namespace PixelWorldEngine {
 
 		/**/
 		PixelWorldEngine::Text* textInstance; //文字纹理
-		int textRenderObjectID; //文字的渲染编号
+		int objectID; //物体编号，同时也是文字的渲染编号
 
 		static int ObjectCount; //记录物体个数
+		static std::vector<int> FreeObjectID; //空闲的ID
 
 		/**
 		 * @brief 更新物体的变换，将旧变换改变成新变换
@@ -103,6 +104,12 @@ namespace PixelWorldEngine {
 		 * @param[in] object 物体
 		 */
 		static void UpdateText(PixelObject* object);
+
+		/**
+		 * @brief 获取物体的编号，如果有空余编号，那么使用空余编号，否则新增编号
+		 * @return 物体的编号
+		 */
+		static auto GetObjectID() -> int;
 
 		friend class PixelWorld;
 		friend class Internal::PixelObjectProcess;
@@ -189,18 +196,19 @@ namespace PixelWorldEngine {
 
 		Transform Transform; //物体的变换，包括位移旋转缩放
 
-		int RenderObjectID; //物体的渲染编号
+		int RenderObjectID; //物体的渲染编号，默认为0
 
-		float Opacity; //物体的不透明度
+		float Opacity; //物体的不透明度，默认为1
 
-		glm::vec3 TextColor; //字体颜色
+		glm::vec3 TextColor; //字体颜色，默认为 (0, 0, 0)
 
 		std::string Text; //文本内容，设置为""将不会显示文字
 
 		Graphics::Font* Font; //字体，设置为nullptr的话将不会显示文字
 
-		bool IsEnableRead; //是否允许键盘事件
-		bool IsEnablePhysicsCollide; //是否允许物理碰撞
+		bool IsEnableVisual; //是否允许显示，默认为true
+		bool IsEnableRead; //是否允许键盘事件，默认为false
+		bool IsEnablePhysicsCollide; //是否允许物理碰撞，默认为true
 	public:
 		/**
 		 * @brief 禁止复制实例
@@ -218,6 +226,17 @@ namespace PixelWorldEngine {
 		 * @param[in] transform 物体的变换
 		 */
 		PixelObject(std::string name, PixelWorldEngine::Transform transform = PixelWorldEngine::Transform());
+
+		/**
+		 * @brief 匿名构造，其名字将会是PixelObject + 其物体编号
+		 * @param[in] transform 物体的变换
+		 */
+		PixelObject(PixelWorldEngine::Transform transform = PixelWorldEngine::Transform());
+
+		/**
+		 * @brief 默认析构函数
+		 */
+		~PixelObject();
 
 		/**
 		 * @brief 设置物体的深度
@@ -279,6 +298,14 @@ namespace PixelWorldEngine {
 		 * @return 物体的子物体
 		 */
 		virtual auto GetChildren(std::string name) -> PixelObject*;
+
+		/**
+		 * @brief 基于一个物体创建一个新的物体
+		 * @param[in] name 新物体的名字
+		 * @param[in] object 旧物体
+		 * @return 新物体的地址
+		 */
+		static auto CreateFromInstance(std::string name, PixelObject* object) -> PixelObject*;
 	};
 
 }

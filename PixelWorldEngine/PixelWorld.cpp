@@ -355,6 +355,8 @@ void PixelWorldEngine::PixelWorld::RenderWorldMap()
 void PixelWorldEngine::PixelWorld::RenderPixelObject(glm::mat4x4 baseTransformMatrix, float baseOpacity, PixelObject * pixelObject,
 	std::vector<InstanceData>* instanceData, Camera* camera)
 {
+	if (pixelObject->IsEnableVisual == false) return;
+
 	Collider cameraCollider = Collider(camera->GetRectangle());
 
 	auto transformMatrix = baseTransformMatrix * pixelObject->Transform.GetMatrix();
@@ -390,14 +392,14 @@ void PixelWorldEngine::PixelWorld::RenderPixelObject(glm::mat4x4 baseTransformMa
 			float scaleY = (float)pixelObject->textInstance->GetHeight();
 			
 			auto matrix = glm::scale(transformMatrix, glm::vec3(scaleX, scaleY, 1.0f));
-			int arrayIndex = TextTextureManager->GetArrayIndex(pixelObject->textRenderObjectID);
+			int arrayIndex = TextTextureManager->GetArrayIndex(pixelObject->objectID);
 
 			data.renderCoor = glm::vec4(pixelObject->TextColor, opacity);
-			data.setting[0] = pixelObject->textRenderObjectID;
+			data.setting[0] = pixelObject->objectID;
 			data.setting[1] = arrayIndex;
 			data.setting[2] = 1;
 			data.worldTransform = matrix;
-			data.texcoordTransform = TextTextureManager->GetTexCoordTransform(pixelObject->textRenderObjectID);
+			data.texcoordTransform = TextTextureManager->GetTexCoordTransform(pixelObject->objectID);
 
 			instanceData->push_back(data);
 
