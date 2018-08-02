@@ -109,7 +109,7 @@ void OnUpdate(void* sender) {
 * @brief 构建世界
 */
 void MakeWorld() {
-
+	
 	//将地图使用渲染编号为18的纹理覆盖
 	for (int x = 0; x < mapWidth; x++) {//地图宽度
 		for (int y = 0; y < mapHeight; y++) {//地图高度
@@ -126,7 +126,7 @@ void MakeWorld() {
 	object->Opacity = 0.7f;
 	object->Transform.SetPosition(glm::vec2(0, 0));
 	//object.Transform.SetForward(glm::vec2(1, 1));
-
+	
 	objectSon1->RenderObjectID = 3;
 	objectSon1->Transform.SetPosition(glm::vec2(10, 10));
 	objectSon1->SetSize(50, 50);

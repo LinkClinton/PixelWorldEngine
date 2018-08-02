@@ -5,7 +5,27 @@
 
 void PixelWorldEngine::KeyFrame::Destory()
 {
-	Utility::Delete(data);
+	DestoryData(data);
+}
+
+void PixelWorldEngine::KeyFrame::DestoryData(void * data)
+{
+	if (data == nullptr) return;
+	free(data); data = nullptr;
+}
+
+PixelWorldEngine::KeyFrame::KeyFrame(const KeyFrame &other)
+{
+	size = other.size;
+	data = malloc(other.size);
+	timePos = other.timePos;
+
+	memcpy(data, other.data, size);
+}
+
+PixelWorldEngine::KeyFrame::~KeyFrame()
+{
+	Destory();
 }
 
 void PixelWorldEngine::KeyFrame::SetTimePos(float TimePos)
@@ -44,8 +64,6 @@ PixelWorldEngine::Animation::Animation(std::string Name, FrameProcessUnit FrameP
 
 PixelWorldEngine::Animation::~Animation()
 {
-	for (size_t i = 0; i < keyFrames.size(); i++) 
-		keyFrames[i].Destory();
 }
 
 void PixelWorldEngine::Animation::Sort()

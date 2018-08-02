@@ -14,29 +14,50 @@ namespace PixelWorldEngine {
 	private:
 		void* data; //存储数据
 
-		float timePos; //时间点
+		int size; //数据大小
 
-		/**
-		 * @brief 构造函数
-		 * @param[in] data 数据信息
-		 * @param[in] timePos 时间点
-		 */
-		template<typename T>
-		KeyFrame(T data, float timePos);
+		float timePos; //时间点
 
 		/**
 		 * @brief 销毁数据，用于释放内存
 		 */
 		void Destory();
 
+		/**
+		 * @brief 从模板数据中创建类型
+		 * @param[in] data 数据
+		 * @return 数据的指针
+		 */
+		template<typename T>
+		static auto CreateDataFromTemplate(T data) -> void*;
+
+		/**
+		 * @brief 销毁数据
+		 * @param[in] data 数据
+		 */
+		static void DestoryData(void* data);
+
 		friend class Animator;
 		friend class Animation;
 		friend class AnimatorItem;
 	public:
 		/**
-		 * @brief 构造函数销毁
+		* @brief 构造函数
+		* @param[in] data 数据信息
+		* @param[in] timePos 时间点
+		*/
+		template<typename T>
+		KeyFrame(T data, float timePos);
+
+		/**
+		 * @brief 默认构造函数
 		 */
-		KeyFrame() = delete;
+		KeyFrame(const KeyFrame &);
+
+		/**
+		 * 析构函数
+		 */
+		~KeyFrame();
 
 		/**
 		 * @brief 设置数据信息
@@ -222,7 +243,7 @@ namespace PixelWorldEngine {
 
 		TimerExt timer; //计时器
 
-		std::set<AnimatorItem> items; //存储要播放的动画
+		std::multiset<AnimatorItem> items; //存储要播放的动画
 
 		/**
 		 * @brief 更新事件
@@ -296,9 +317,21 @@ namespace PixelWorldEngine {
 	};
 
 	template<typename T>
+	inline auto KeyFrame::CreateDataFromTemplate(T data) -> void *
+	{
+		auto result = malloc(sizeof(T));
+
+		memcpy(result, &data, sizeof(T));
+		
+		return result;
+	}
+
+	template<typename T>
 	inline KeyFrame::KeyFrame(T Data, float TimePos)
 	{
-		data = new T(Data);
+		data = CreateDataFromTemplate(Data);
+
+		size = sizeof(T);
 
 		timePos = TimePos;
 	}
@@ -306,9 +339,11 @@ namespace PixelWorldEngine {
 	template<typename T>
 	inline void PixelWorldEngine::KeyFrame::SetData(T Data)
 	{
-		Utility::Delete(data);
+		DestoryData(data);
 
-		data = new T(Data);
+		data = CreateDataFromTemplate(Data);
+
+		size = sizeof(T);
 	}
 
 	template<typename T>
