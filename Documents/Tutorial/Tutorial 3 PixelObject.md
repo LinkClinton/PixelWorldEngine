@@ -32,26 +32,21 @@
     player = new PixelObject("Player");
 
     player->SetSize(64, 64);
-    player->SetPosition(0, 0);
-    player->SetRenderObjectID(1);
+    player->Transform.SetPosition(glm::vec2());
+    player->RenderObjectID = 1;
 
-    world->RegisterPixelObject(player);
+    world->SetPixelObject(player, Layer::World);
 ```
 
 以上代码就是我们创建一个名字为`Player`，大小为64，位置为(0, 0)且渲染编号为1的物体。如果我们想要使用我们的物体，那么我们就必须将物体注册到世界中去。**但是需要注意的是，一个物体只能存在于一个世界中，如果被注册的物体已经在一个世界中了，那么我们就会先调用卸载函数，然后再调用注册函数。**
 
 ### 移动物体
 
-当物体被加载到世界中去后，我们可以对物体进行移动，移动方式有两种，第一种是单纯的修改其位置，第二种则是考虑世界中的物体碰撞以及禁止移动区域。我们在前面的内容中知道`MapData`有一个`MoveEnable`属性，则是用来限制一个物体是否能够移动到这一个地图块的。以及如果移动到的位置已经有一个物体的话，那么我们是否还需要移动，同样也是需要考虑的问题。
-
-所幸的是，引擎已经提供了这样的处理函数。
+当物体被加载到世界中去后，我们可以对物体进行移动，只需要修改Transform即可，但是要注意的是，如果物体开启了物理碰撞属性或者移动到的位置上有物体拥有这个属性，那么我们将会进行迭代(迭代次数可以自己设置，但是目前仍然没有去处理TOI问题)，使得物体能够移动到最接近目标位置的地方的同时也不会产生重叠。
 
 ```C++
-    void PixelObject::SetPosition(float x, float y); //表示单纯的修改物体的位置
-    void PixelObject::Move(float translationX, float translationY); //移动的时候考虑其他物体以及地图块属性
+	void Transform::SetPosition(glm::vec2());
 ```
-
-上面两个函数是我们修改位置信息的两个方法，前者是单纯修改位置信息，后者则是通过位移来进行移动，并判断我们的移动是否合法，也就是说即便我们提供了位移数据，物体也未必会位移那么多，因为可能被其他物体阻挡住了。
 
 而如何实现物体的位移，这里我们提供一部分参考。
 
@@ -64,7 +59,7 @@ void OnUpdate(void* sender) {
 
 	float speed = 200; //速度
 
-	//根据WSAD移动
+					   //根据WSAD移动
 	if (Input::GetKeyCodeDown(KeyCode::A) == true)
 		translate.x -= 1;
 	if (Input::GetKeyCodeDown(KeyCode::D) == true)
@@ -73,58 +68,36 @@ void OnUpdate(void* sender) {
 		translate.y += 1;
 	if (Input::GetKeyCodeDown(KeyCode::W) == true)
 		translate.y -= 1;
-
-    //根据方向键来调整高度
-	if (Input::GetKeyCodeDown(KeyCode::Up) == true)
-		cameraTimes += deltaTime * cameraSpeed;
-	if (Input::GetKeyCodeDown(KeyCode::Down) == true)
-		cameraTimes -= deltaTime * cameraSpeed;
-
-	cameraTimes = Utility::Limit(cameraTimes, 0.5f, 2.0f);
-
+	
 	//位移
 	if (translate != glm::vec2(0, 0)) {
 
 		translate = glm::normalize(translate) * speed * deltaTime;
 
-		player->SetNeedTranslate(translate);
-		player->Move(translate.x, translate.y);
+		player->Transform.SetPosition(player->Transform.GetPosition() + translate);
 	}
-
-	//移动摄像机，将物体作为中心点
-	camera.SetFocus(player->GetPositionX() + player->GetWidth() * 0.5f,
-		player->GetPositionY() + player->GetHeight() * 0.5f,
-		RectangleF(cameraWidth * 0.5f * cameraTimes, cameraHeight * 0.5f * cameraTimes, cameraWidth * 0.5f * cameraTimes, cameraHeight * 0.5f * cameraTimes));
 }
 ```
 
-上面的代码中，我们记录每一帧之间经过的时间，然后通过时间我们可以计算出位移的量，然后再去调用`PixelObject::Move`即可完成我们的位移。当然我们还需要注意的是，有些时候我们位移物体的话，还需要考虑摄像机的位移。
+上面的代码中，我们记录每一帧之间经过的时间，然后通过时间我们可以计算出位移的量，然后再去调用`Transform::SetPosition`即可完成我们的位移。当然我们还需要注意的是，有些时候我们位移物体的话，还需要考虑摄像机的位移(建议在AfterUpdate中考虑摄像机的位移，因为我们移动物体后因为物理碰撞的原因，在Update中考虑摄像机的话并没有办法保证摄像机位置的正确，甚至会产生抖动)。
 
 ### 物体的碰撞
 
-我们提到过，我们的物体是支持进行碰撞检测的，但是仅限于同类物体(包括子类)。我们默认是开启了物体实体碰撞的，即我们不能够穿过物体，但是我们同样可以取消。
+我们提到过，我们的物体是支持进行碰撞检测的，但是仅限于同类物体(包括子类)。我们默认是关闭了物体实体碰撞的。
 
 ```C++
-    void PixelObject::EnablePhysicsCollision(bool enable);
+    void PixelObject::IsEnablePhysicsCollide = false;
 ```
 
 以上函数就是用来设置我们的碰撞检测的状态的，当设置为`true`的时候，我们的物体移动的时候将会考虑其他物体，而如果设置为`false`那么就不会考虑， 而会直接穿过去。
 
-而我们的物体碰撞到其他物体的话，就会产生`OnCollide`事件，我们可以通过`OnCollide`事件来进行一些简单效果实现。例如下面的例子。
+而我们的物体碰撞到其他物体的话，就会产生`OnCollide`事件，我们可以通过`OnCollide`事件来进行一些简单效果实现。
 
 ```C++
-void GameObject::OnCollide(void * sender, PixelObject * object)
-{
-	GameObject* self = (GameObject*)sender;
-	GameObject* gameObject = (GameObject*)object;
-
-	gameObject->SetNeedTranslate(needTranslate);
-	gameObject->Move(needTranslate.x, needTranslate.y);
-}
-
+void PixelObject::OnObjectCollide(PixelObject* sender, PixelObject* object);
+void PixelObject::OnObjectEnter(PixelObject* sender, PixelObject* object);
+void PixelObject::OnObjectLeave(PixelObject* sender, PixelObject* object);
 ```
-
-`GameObject`是`PixelObject`的子类，我们重新编写了OnCollide函数，以上函数作用是当我们碰撞到一个物体的时候，将碰撞的物体也同样移动，使得我们可以简单的实现一个物体碰撞移动的过程。
 
 ### 物体的继承
 
@@ -134,10 +107,6 @@ void GameObject::OnCollide(void * sender, PixelObject * object)
 class GameObject : public PixelObject {
 private:
 	glm::vec2 needTranslate; //记录需要移动的量
-protected:
-	virtual void OnMove(float translationX, float translationY)override; //移动事件
-
-	virtual void OnCollide(void* sender, PixelObject* object)override; //碰撞事件
 public:
 	GameObject(std::string name); //构造函数
 

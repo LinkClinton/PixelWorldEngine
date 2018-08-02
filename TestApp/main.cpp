@@ -144,8 +144,8 @@ void MakeWorld() {
 
 	object->SetChild(objectSon1);
 
-	world->SetPixelObject(object, Layer::WorldLayer);
-	world->SetPixelObject(targetObject, Layer::WorldLayer);
+	world->SetPixelObject(object, Layer::World);
+	world->SetPixelObject(targetObject, Layer::World);
 
 	world->SetResolution(width, height); //ÉèÖÃ·Ö±æÂÊ
 

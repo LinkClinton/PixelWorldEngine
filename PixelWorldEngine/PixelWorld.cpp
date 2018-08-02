@@ -9,8 +9,8 @@ void PixelWorldEngine::PixelWorld::OnMouseMove(void * sender, Events::MouseMoveE
 {
 	Camera* usedCamera[(int)Layer::Count];
 
-	usedCamera[(int)Layer::WorldLayer] = camera;
-	usedCamera[(int)Layer::UILayer] = &UICamera;
+	usedCamera[(int)Layer::World] = camera;
+	usedCamera[(int)Layer::UI] = &UICamera;
 
 	for (size_t i = 0; i < layerRoots.size(); i++) {
 		
@@ -32,8 +32,8 @@ void PixelWorldEngine::PixelWorld::OnMouseClick(void * sender, Events::MouseClic
 {
 	Camera* usedCamera[(int)Layer::Count];
 
-	usedCamera[(int)Layer::WorldLayer] = camera;
-	usedCamera[(int)Layer::UILayer] = &UICamera;
+	usedCamera[(int)Layer::World] = camera;
+	usedCamera[(int)Layer::UI] = &UICamera;
 
 	for (size_t i = 0; i < layerRoots.size(); i++) {
 
@@ -55,8 +55,8 @@ void PixelWorldEngine::PixelWorld::OnMouseWheel(void * sender, Events::MouseWhee
 {
 	Camera* usedCamera[(int)Layer::Count];
 
-	usedCamera[(int)Layer::WorldLayer] = camera;
-	usedCamera[(int)Layer::UILayer] = &UICamera;
+	usedCamera[(int)Layer::World] = camera;
+	usedCamera[(int)Layer::UI] = &UICamera;
 
 	for (size_t i = 0; i < layerRoots.size(); i++) {
 
@@ -86,7 +86,7 @@ void PixelWorldEngine::PixelWorld::OnUpdate(float deltaTime)
 		Internal::PixelObjectProcess::ProcessUpdate(*it);
 
 	//处理碰撞事件
-	collideSolver.SolveCollide(layerRoots[(int)Layer::WorldLayer]);
+	collideSolver.SolveCollide(layerRoots[(int)Layer::World]);
 
 	for (auto it = layerRoots.begin(); it != layerRoots.end(); it++)
 		Internal::PixelObjectProcess::ProcessAfterUpdate(*it);
@@ -120,8 +120,8 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string Name, Application * Applica
 		bufferArrays[(int)BufferArrayIndex::UIObjectInstanceData] = new Graphics::BufferArray(graphics, nullptr, sizeof(InstanceData));
 	}
 
-	layerRoots[(int)Layer::WorldLayer] = new PixelObject("WorldLayer");
-	layerRoots[(int)Layer::UILayer] = new PixelObject("UILayer");
+	layerRoots[(int)Layer::World] = new PixelObject("WorldLayer");
+	layerRoots[(int)Layer::UI] = new PixelObject("UILayer");
 
 	if (graphics->GetGraphicsMode() == Graphics::GraphicsMode::High) {
 		defaultShader = new Graphics::GraphicsShader(graphics,
@@ -420,11 +420,11 @@ void PixelWorldEngine::PixelWorld::RenderPixelObjects()
 	std::vector<Camera*> usedCamera((int)Layer::Count);
 	std::vector<BufferArrayIndex> arrayIndex((int)Layer::Count);
 
-	usedCamera[(int)Layer::WorldLayer] = camera;
-	usedCamera[(int)Layer::UILayer] = &UICamera;
+	usedCamera[(int)Layer::World] = camera;
+	usedCamera[(int)Layer::UI] = &UICamera;
 
-	arrayIndex[(int)Layer::WorldLayer] = BufferArrayIndex::PixelObjectInstanceData;
-	arrayIndex[(int)Layer::UILayer] = BufferArrayIndex::UIObjectInstanceData;
+	arrayIndex[(int)Layer::World] = BufferArrayIndex::PixelObjectInstanceData;
+	arrayIndex[(int)Layer::UI] = BufferArrayIndex::UIObjectInstanceData;
 
 	for (size_t i = 0; i < layerRoots.size(); i++) {
 		std::vector<InstanceData> instanceData;

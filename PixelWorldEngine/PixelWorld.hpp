@@ -44,8 +44,8 @@ namespace PixelWorldEngine {
 	 * @brief 物体层
 	 */
 	enum class Layer {
-		WorldLayer, //世界层
-		UILayer, //UI层
+		World, //世界层
+		UI, //UI层
 		Count
 	};
 
@@ -246,14 +246,14 @@ namespace PixelWorldEngine {
 		 * @param[in] pixelObject 物体，物体的父亲将不会为nullptr
 		 * @param[in] layer 所处于的层
 		 */
-		void SetPixelObject(PixelObject* pixelObject, Layer layer = Layer::WorldLayer);
+		void SetPixelObject(PixelObject* pixelObject, Layer layer = Layer::World);
 
 		/**
 		 * @brief 从对应的层取消对应的物体
 		 * @param[in] name 物体的名字
 		 * @param[in[ layer 层
 		 */
-		void CancelPixelObject(std::string name, Layer layer = Layer::WorldLayer);
+		void CancelPixelObject(std::string name, Layer layer = Layer::World);
 
 		/**
 		 * @brief 获取当前的世界地图
@@ -266,7 +266,7 @@ namespace PixelWorldEngine {
 		 * @param[in] name 物体的名字
 		 * @parma[in] layer 物体所在的层
 		 */
-		auto GetPixelObject(std::string name, Layer layer = Layer::WorldLayer) -> PixelObject*;
+		auto GetPixelObject(std::string name, Layer layer = Layer::World) -> PixelObject*;
 
 		/**
 		 * @brief 获取在当前状况下的世界的图像
