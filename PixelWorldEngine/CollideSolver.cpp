@@ -1,6 +1,6 @@
 #include "CollideSolver.hpp"
 
-int PixelWorldEngine::Internal::CollideSolver::iterations = 10;
+int PixelWorldEngine::Internal::CollideSolver::iterations = 5;
 
 void PixelWorldEngine::Internal::CollideSolver::BuildCollideObjects(PixelObject * object, glm::mat4x4 baseTransform,
 	glm::mat4x4 baseOldTransform, CollideObject::Collection & collideObjects)
@@ -30,7 +30,7 @@ void PixelWorldEngine::Internal::CollideSolver::IntersectWithEnterAndLeaveEvent(
 			collideEvent.CollideObject[0] = &collideObjectsA[i];
 			collideEvent.CollideObject[1] = &collideObjectsB[j];
 
-			if (objectA.Object->IsEnablePhysicsCollide == false ||
+			if (objectA.Object->IsEnablePhysicsCollide == false &&
 				objectB.Object->IsEnablePhysicsCollide == false) {
 
 				bool beforeState = objectA.Collider.Intersect(objectB.Collider, objectA.OldTransform, objectB.OldTransform);
@@ -53,7 +53,7 @@ auto PixelWorldEngine::Internal::CollideSolver::IntersectWithCollideEvent(Collid
 			auto objectA = collideObjectsA[i];
 			auto objectB = collideObjectsB[j];
 
-			if (objectA.Object->IsEnablePhysicsCollide == true &&
+			if (objectA.Object->IsEnablePhysicsCollide == true ||
 				objectB.Object->IsEnablePhysicsCollide == true) {
 
 				if (objectA.Collider.Intersect(objectB.Collider, objectA.Transform, objectB.Transform) == true) {

@@ -32,6 +32,8 @@ namespace PixelWorldEngine {
 		public:
 			static void ProcessUpdate(PixelObject* object);
 
+			static void ProcessAfterUpdate(PixelObject* object);
+
 			static void ProcessMouseEnter(PixelObject* object);
 
 			static void ProcessMouseLeave(PixelObject* object);
@@ -123,6 +125,12 @@ namespace PixelWorldEngine {
 		virtual void OnUpdate(void* sender) {}
 
 		/**
+		 * @brief 更新结束后触发
+		 * @param[in] sender 谁触发了
+		 */
+		virtual void OnAfterUpdate(void* sender) {}
+
+		/**
 		 * @brief 鼠标进入事件，当鼠标进入物体范围的时候触发
 		 * @param[in] sender 谁触发了
 		 */
@@ -184,6 +192,7 @@ namespace PixelWorldEngine {
 		virtual void OnObjectLeave(PixelObject* objectA, PixelObject* objectB) {}
 	public:
 		Events::UpdateEventHandlers Update; //更新事件集合
+		Events::UpdateEventHandlers AfterUpdate; //更新完成后事件
 		Events::MouseEnterEventHandlers MouseEnter; //鼠标进入事件集合
 		Events::MouseLeaveEventHandlers MouseLeave; //鼠标离开事件集合
 		Events::MouseMoveHandlers MouseMove; //鼠标移动事件集合
@@ -208,7 +217,7 @@ namespace PixelWorldEngine {
 
 		bool IsEnableVisual; //是否允许显示，默认为true
 		bool IsEnableRead; //是否允许键盘事件，默认为false
-		bool IsEnablePhysicsCollide; //是否允许物理碰撞，默认为true
+		bool IsEnablePhysicsCollide; //是否允许物理碰撞，默认为false
 	public:
 		/**
 		 * @brief 禁止复制实例

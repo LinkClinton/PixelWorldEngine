@@ -87,6 +87,9 @@ void PixelWorldEngine::PixelWorld::OnUpdate(float deltaTime)
 
 	//处理碰撞事件
 	collideSolver.SolveCollide(layerRoots[(int)Layer::WorldLayer]);
+
+	for (auto it = layerRoots.begin(); it != layerRoots.end(); it++)
+		Internal::PixelObjectProcess::ProcessAfterUpdate(*it);
 }
 
 PixelWorldEngine::PixelWorld::PixelWorld(std::string Name, Application * Application)

@@ -1,5 +1,7 @@
 # Tutorial 1 HelloWorld
 
+- Version 1.03beta
+
 ## 目标
 
 - 学会如何使用引擎创建一个窗口。

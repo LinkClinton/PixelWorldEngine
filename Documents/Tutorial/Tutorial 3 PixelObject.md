@@ -1,5 +1,7 @@
 # Tutorial 3 PixelObject
 
+- Version 1.03beta
+
 ## 目标
 
 - 了解什么是物体(PixelObject)。

@@ -66,7 +66,7 @@ PixelWorldEngine::PixelObject::PixelObject(std::string Name, PixelWorldEngine::T
 	isSizeChange = false;
 	IsEnableVisual = true;
 	IsEnableRead = false;
-	IsEnablePhysicsCollide = true;
+	IsEnablePhysicsCollide = false;
 
 	collider.SetArea(0, 0, 0, 0);
 
@@ -220,6 +220,16 @@ void PixelWorldEngine::Internal::PixelObjectProcess::ProcessUpdate(PixelObject *
 
 	for (auto it = object->childrenDepthSort.begin(); it != object->childrenDepthSort.end(); it++)
 		ProcessUpdate(*it);
+}
+
+void PixelWorldEngine::Internal::PixelObjectProcess::ProcessAfterUpdate(PixelObject * object)
+{
+	object->OnAfterUpdate(object);
+
+	Events::DoEventHandlers(object->AfterUpdate, object);
+
+	for (auto it = object->childrenDepthSort.begin(); it != object->childrenDepthSort.end(); it++)
+		ProcessAfterUpdate(*it);
 }
 
 void PixelWorldEngine::Internal::PixelObjectProcess::ProcessMouseEnter(PixelObject * object)
