@@ -12,16 +12,9 @@ namespace PixelWorldEngine {
 	 */
 	class KeyFrame {
 	private:
-		void* data; //存储数据
-
-		int size; //数据大小
+		std::vector<byte> data;
 
 		float timePos; //时间点
-
-		/**
-		 * @brief 销毁数据，用于释放内存
-		 */
-		void Destory();
 
 		/**
 		 * @brief 从模板数据中创建类型
@@ -29,13 +22,7 @@ namespace PixelWorldEngine {
 		 * @return 数据的指针
 		 */
 		template<typename T>
-		static auto CreateDataFromTemplate(T data) -> void*;
-
-		/**
-		 * @brief 销毁数据
-		 * @param[in] data 数据
-		 */
-		static void DestoryData(void* data);
+		static auto CreateDataFromTemplate(T data) -> std::vector<byte>;
 
 		friend class Animator;
 		friend class Animation;
@@ -48,11 +35,6 @@ namespace PixelWorldEngine {
 		*/
 		template<typename T>
 		KeyFrame(T data, float timePos);
-
-		/**
-		 * @brief 默认构造函数
-		 */
-		KeyFrame(const KeyFrame &);
 
 		/**
 		 * 析构函数
@@ -317,12 +299,12 @@ namespace PixelWorldEngine {
 	};
 
 	template<typename T>
-	inline auto KeyFrame::CreateDataFromTemplate(T data) -> void *
+	inline auto KeyFrame::CreateDataFromTemplate(T data) -> std::vector<byte>
 	{
-		auto result = malloc(sizeof(T));
+		std::vector<byte> result(sizeof(T));
 
-		memcpy(result, &data, sizeof(T));
-		
+		memcpy(&result[0], &data, sizeof(T));
+
 		return result;
 	}
 
@@ -331,25 +313,19 @@ namespace PixelWorldEngine {
 	{
 		data = CreateDataFromTemplate(Data);
 
-		size = sizeof(T);
-
 		timePos = TimePos;
 	}
 
 	template<typename T>
 	inline void PixelWorldEngine::KeyFrame::SetData(T Data)
 	{
-		DestoryData(data);
-
 		data = CreateDataFromTemplate(Data);
-
-		size = sizeof(T);
 	}
 
 	template<typename T>
 	inline auto PixelWorldEngine::KeyFrame::GetData() -> T
 	{
-		return *(T*)data;
+		return *(T*)&data[0];
 	}
 
 	template<typename T>

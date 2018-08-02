@@ -3,29 +3,9 @@
 #include "DebugLayer.hpp"
 #include "Application.hpp"
 
-void PixelWorldEngine::KeyFrame::Destory()
-{
-	DestoryData(data);
-}
-
-void PixelWorldEngine::KeyFrame::DestoryData(void * data)
-{
-	if (data == nullptr) return;
-	free(data); data = nullptr;
-}
-
-PixelWorldEngine::KeyFrame::KeyFrame(const KeyFrame &other)
-{
-	size = other.size;
-	data = malloc(other.size);
-	timePos = other.timePos;
-
-	memcpy(data, other.data, size);
-}
-
 PixelWorldEngine::KeyFrame::~KeyFrame()
 {
-	Destory();
+	
 }
 
 void PixelWorldEngine::KeyFrame::SetTimePos(float TimePos)
@@ -98,7 +78,7 @@ void PixelWorldEngine::AnimatorItem::ProcessAnimation(float timePos)
 		nextFrame++;
 
 		if (nextFrame == animation->keyFrames.size()) {
-			function(target, animation->keyFrames[lastFrame].data);
+			function(target, &animation->keyFrames[lastFrame].data[0]);
 			Reset(); return;
 		}
 	}
@@ -106,7 +86,7 @@ void PixelWorldEngine::AnimatorItem::ProcessAnimation(float timePos)
 	auto frame = animation->frameProcessUnit(timePos, animation->keyFrames[lastFrame],
 		animation->keyFrames[nextFrame]);
 
-	function(target, frame.data);
+	function(target, &frame.data[0]);
 }
 
 PixelWorldEngine::AnimatorItem::AnimatorItem(void* Target, AnimationSetFunction Function, Animation* Animation, float StartTime) {

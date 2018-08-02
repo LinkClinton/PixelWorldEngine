@@ -134,8 +134,7 @@ PixelWorldEngine::PixelWorld::PixelWorld(std::string Name, Application * Applica
 			Utility::CharArrayToVector((char*)lowPsPixelWorldDefaultShaderCode));
 	}
 
-	defaultSampler = new Graphics::StaticSampler(graphics, Graphics::TextureAddressMode::Clamp,
-		Graphics::TextureFilter::Anisotropic);
+	defaultSampler = new Graphics::StaticSampler(graphics, Graphics::TextureAddressMode::Clamp);
 
 	worldMap = nullptr;
 	textureManager = nullptr;
