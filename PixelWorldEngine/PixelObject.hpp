@@ -222,12 +222,7 @@ namespace PixelWorldEngine {
 		/**
 		 * @brief 禁止复制实例
 		 */
-		PixelObject(PixelObject &&) = delete;
-
-		/**
-		 * @brief 禁止复制实例
-		 */
-		PixelObject(const PixelObject &&) = delete;
+		PixelObject(const PixelObject &) = delete;
 
 		/**
 		 * @brief 构造函数

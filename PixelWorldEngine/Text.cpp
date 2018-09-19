@@ -44,12 +44,12 @@ auto PixelWorldEngine::Text::CalculateSize(std::string text, Graphics::Font* fon
 			penPositionY += baseLineDistance;
 		}
 
+		//宽度上由于这个文字需要进行渲染，因此有必要考虑其文字宽度
+		result.first = Utility::Max(result.first, penPositionX + codeMetrics.texture->GetWidth() + codeMetrics.horiBearingX);
+		result.second = Utility::Max(result.second, penPositionY);
+
 		//移动笔的X坐标
 		penPositionX += codeMetrics.advance;
-
-		//宽度上由于这个文字需要进行渲染，因此有必要考虑其文字宽度
-		result.first = Utility::Max(result.first, penPositionX + codeMetrics.horiBearingX);
-		result.second = Utility::Max(result.second, penPositionY);
 	}
 
 	result.first = Utility::Min(result.first, maxWidth);
@@ -92,7 +92,7 @@ void PixelWorldEngine::Text::CreateText(Text* text)
 		auto codeMetrics = text->font->GetCharacterCodeMetrics(*it);
 
 		//换行
-		if (penPositionX + codeMetrics.advance >= text->width) {
+		if (penPositionX + codeMetrics.horiBearingX + codeMetrics.texture->GetWidth() > text->width) {
 			penPositionX = 0;
 			penPositionY += baseLineDistance;
 		}
