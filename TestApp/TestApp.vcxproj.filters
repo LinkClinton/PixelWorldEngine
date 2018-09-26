@@ -18,7 +18,7 @@
     <Image Include="p.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="MapBlock.jpg">
+    <Image Include="MapBlock(中文测试).jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

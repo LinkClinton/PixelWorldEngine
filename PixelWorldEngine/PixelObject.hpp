@@ -220,11 +220,6 @@ namespace PixelWorldEngine {
 		bool IsEnablePhysicsCollide; //是否允许物理碰撞，默认为false
 	public:
 		/**
-		 * @brief 禁止复制实例
-		 */
-		PixelObject(const PixelObject &) = delete;
-
-		/**
 		 * @brief 构造函数
 		 * @param[in] name 物体的名字
 		 * @param[in] transform 物体的变换

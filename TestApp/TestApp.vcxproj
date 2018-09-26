@@ -142,7 +142,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="MapBlock.jpg" />
+    <Image Include="MapBlock(中文测试).jpg" />
     <Image Include="p.png" />
   </ItemGroup>
   <ItemGroup>

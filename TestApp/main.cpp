@@ -27,15 +27,15 @@ TextureManager* textureManager = new TextureManager(app, PixelWorldEngine::Graph
 
 Camera camera = Camera(RectangleF(0, 0, 1280, 720)); //构建摄像机
 
-PixelObject* object = new PixelObject("1");
-PixelObject* objectSon1 = new PixelObject("son1");
+PixelObject* object = new PixelObject(u8"1");
+PixelObject* objectSon1 = new PixelObject(u8"son1");
 
-PixelObject* targetObject = new PixelObject("TargetObject");
+PixelObject* targetObject = new PixelObject(u8"TargetObject");
 
-Graphics::Font* font = dataManager->RegisterFont("Consola.ttf", "Consola", 20);
+Graphics::Font* font = dataManager->RegisterFont(u8"Consola.ttf", u8"Consola", 20);
 
 void MakeTextureManager() {
-	auto texture = dataManager->RegisterTexture(u8"MapBlock.jpg"); //读取纹理
+	auto texture = dataManager->RegisterTexture(u8"MapBlock(中文测试).jpg"); //读取纹理
 
 	int renderObjectID = 0; //渲染编号，即将纹理映射成整数，方便我们使用
 
