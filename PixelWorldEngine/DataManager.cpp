@@ -1,6 +1,7 @@
 #include "DataManager.hpp"
 
 #include "Application.hpp"
+#include "Encoding.hpp"
 
 #include <SDL2\SDL_image.h>
 
@@ -63,8 +64,12 @@ auto PixelWorldEngine::DataManager::ReadFile(std::string fileName) -> FileData
 	FileData result;
 	
 	std::ifstream file;
-	
+
+#ifdef _WIN32
+	file.open(Encoding::ToWideChar(fileName), std::ios::binary | std::ios::ate);
+#else
 	file.open(fileName, std::ios::binary | std::ios::ate);
+#endif
 
 	size_t size = (size_t)file.tellg();
 

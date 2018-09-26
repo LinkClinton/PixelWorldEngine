@@ -13,7 +13,15 @@ namespace PixelWorldEngine {
 	private:
 		RectangleF rect; //描述盒子的范围
 
-		bool isEnablePhysics; //是否启用
+		/**
+		 * @brief 检测两个碰撞盒在指定变换下是否相交
+		 * @param[in] colliderA 碰撞盒A
+		 * @param[in] colliderB 碰撞盒B
+		 * @param[in] transformA 变换A
+		 * @param[in] transformB 变换B
+		 * @return 是否相交
+		 */
+		static auto SubIntersect(Collider colliderA, Collider colliderB, glm::mat4x4 transformA, glm::mat4x4 transformB) -> bool;
 	public:
 		/**
 		* @brief 构造函数
@@ -40,37 +48,27 @@ namespace PixelWorldEngine {
 		void SetArea(float left, float top, float right, float bottom);
 
 		/**
-		* @brief 是否启用物理碰撞
-		* @param[in] enable 表示物理碰撞的启用状态，即是否拥有物理属性，例如无法穿过等等，true表示启用，false则表示不启用，默认为true
-		*/
-		void EnablePhysics(bool enable);
-
-		/**
 		* @brief 获取碰撞盒范围
 		* @return 碰撞盒范围
 		*/
 		auto GetArea()->RectangleF;
 
 		/**
-		* @brief 获取物理碰撞的启用状态
-		* @return 物理碰撞的启用状态
-		*/
-		auto IsEnablePhysics() -> bool;
+		 * @brief 检测碰撞盒在给定变换中是否覆盖指定点
+		 * @param[in] position 指定点
+		 * @param[in] transform 给定的变换
+		 * @return 是否覆盖
+		 */
+		auto Intersect(glm::vec2 position, glm::mat4x4 transform) -> bool;
 
 		/**
-		* @brief 检测是否和一个碰撞盒相撞
-		* @return 是否相撞
-		*/
-		auto Intersect(Collider collider) -> bool;
-
-		/**
-		* @brief 对碰撞盒进行位移
-		* @param[in] collider 碰撞盒
-		* @param[in] x X位移
-		* @param[in[ y Y位移
-		* @return 结果碰撞盒
-		*/
-		static auto Translate(Collider collider, float x, float y)->Collider;
+		 * @brief 检测两个碰撞盒是否相交，在给定变换的情况下
+		 * @param[in] other 另外一个碰撞盒
+		 * @parma[in] transform 碰撞盒的变换
+		 * @param[in] otherTransform 另外一个碰撞盒的变换
+		 * @return 是否相交
+		 */
+		auto Intersect(Collider other, glm::mat4x4 transform, glm::mat4x4 otherTransform) -> bool;
 	};
 
 }

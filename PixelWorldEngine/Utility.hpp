@@ -4,6 +4,8 @@
 
 #include "GraphicsEnum.hpp"
 
+#include "Camera.hpp"
+
 namespace PixelWorldEngine {
 
 	/**
@@ -77,6 +79,14 @@ namespace PixelWorldEngine {
 		template<typename T>
 		static bool IsLimit(T value, T lower, T upeer);
 
+		/**
+		 * @brief 将在摄像机可视范围内的坐标转换到真实坐标中去
+		 * @param[in] camera 摄像机
+		 * @param[in] position 摄像机可视范围内坐标，比例坐标，范围在[0, 1]之间
+		 * @return 真实坐标
+		 */
+		static auto ConvertPosition(Camera* camera, glm::vec2 position) -> glm::vec2;
+		
 		/**
 		 * @brief 释放资源，必须要有Release成员函数
 		 * @param[in] 物体

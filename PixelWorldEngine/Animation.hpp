@@ -8,35 +8,38 @@
 namespace PixelWorldEngine {
 
 	/**
-	 * @brief 关键帧
+	 * @brief 关键帧，要求数据允许复制
 	 */
 	class KeyFrame {
 	private:
-		void* data; //存储数据
+		std::vector<byte> data;
 
 		float timePos; //时间点
 
 		/**
-		 * @brief 构造函数
-		 * @param[in] data 数据信息
-		 * @param[in] timePos 时间点
+		 * @brief 从模板数据中创建类型
+		 * @param[in] data 数据
+		 * @return 数据的指针
 		 */
 		template<typename T>
-		KeyFrame(T data, float timePos);
-
-		/**
-		 * @brief 销毁数据，用于释放内存
-		 */
-		void Destory();
+		static auto CreateDataFromTemplate(T data) -> std::vector<byte>;
 
 		friend class Animator;
 		friend class Animation;
 		friend class AnimatorItem;
 	public:
 		/**
-		 * @brief 构造函数销毁
+		* @brief 构造函数
+		* @param[in] data 数据信息
+		* @param[in] timePos 时间点
+		*/
+		template<typename T>
+		KeyFrame(T data, float timePos);
+
+		/**
+		 * 析构函数
 		 */
-		KeyFrame() = delete;
+		~KeyFrame();
 
 		/**
 		 * @brief 设置数据信息
@@ -222,7 +225,7 @@ namespace PixelWorldEngine {
 
 		TimerExt timer; //计时器
 
-		std::set<AnimatorItem> items; //存储要播放的动画
+		std::multiset<AnimatorItem> items; //存储要播放的动画
 
 		/**
 		 * @brief 更新事件
@@ -296,9 +299,19 @@ namespace PixelWorldEngine {
 	};
 
 	template<typename T>
+	inline auto KeyFrame::CreateDataFromTemplate(T data) -> std::vector<byte>
+	{
+		std::vector<byte> result(sizeof(T));
+
+		memcpy(&result[0], &data, sizeof(T));
+
+		return result;
+	}
+
+	template<typename T>
 	inline KeyFrame::KeyFrame(T Data, float TimePos)
 	{
-		data = new T(Data);
+		data = CreateDataFromTemplate(Data);
 
 		timePos = TimePos;
 	}
@@ -306,15 +319,13 @@ namespace PixelWorldEngine {
 	template<typename T>
 	inline void PixelWorldEngine::KeyFrame::SetData(T Data)
 	{
-		Utility::Delete(data);
-
-		data = new T(Data);
+		data = CreateDataFromTemplate(Data);
 	}
 
 	template<typename T>
 	inline auto PixelWorldEngine::KeyFrame::GetData() -> T
 	{
-		return T(*data);
+		return *(T*)&data[0];
 	}
 
 	template<typename T>

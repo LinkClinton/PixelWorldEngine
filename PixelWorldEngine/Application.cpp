@@ -303,7 +303,7 @@ void PixelWorldEngine::Application::OnProcessMessage(MSG message)
 
 		eventArg->x = GET_X_LPARAM(message.lParam);
 		eventArg->y = GET_Y_LPARAM(message.lParam);
-		eventArg->offset = HIWORD(message.wParam);
+		eventArg->offset = (short)HIWORD(message.wParam);
 
 		OnMouseWheel(this, eventArg);
 
@@ -590,19 +590,21 @@ void PixelWorldEngine::Application::RunLoop()
 
 void PixelWorldEngine::Application::SetWorld(PixelWorld * PixelWorld)
 {
+	DebugReturn(DebugLayer::Assert(PixelWorld == nullptr, Error::TheObjectIsNull, "PixelWorld", FunctionName));
+	
 	pixelWorld = PixelWorld;
 }
 
 void PixelWorldEngine::Application::RegisterAnimator(Animator * animator)
 {
-	DebugReturn(DebugLayer::Assert(animator == nullptr, Error::TheObjectIsNull, applicationName, FunctionName));
+	DebugReturn(DebugLayer::Assert(animator == nullptr, Error::TheObjectIsNull, "animator", FunctionName));
 		
 	animators[animator->name] = animator;
 }
 
 void PixelWorldEngine::Application::UnRegisterAnimator(Animator * animator)
 {
-	DebugReturn(DebugLayer::Assert(animator == nullptr, Error::TheObjectIsNull, applicationName, FunctionName));
+	DebugReturn(DebugLayer::Assert(animator == nullptr, Error::TheObjectIsNull, "animator", FunctionName));
 	
 	animators.erase(animator->name);
 }

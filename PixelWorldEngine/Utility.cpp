@@ -58,3 +58,15 @@ auto PixelWorldEngine::Utility::ToString(int number) -> std::string
 
 	return result;
 }
+
+auto PixelWorldEngine::Utility::ConvertPosition(Camera * camera, glm::vec2 position) -> glm::vec2
+{
+	auto rect = camera->GetRectangle();
+
+	auto result = glm::vec2();
+
+	result.x = position.x * (rect.right - rect.left) + rect.left;
+	result.y = position.y * (rect.bottom - rect.top) + rect.top;
+
+	return result;
+}

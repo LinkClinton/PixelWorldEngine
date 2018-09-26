@@ -3,21 +3,23 @@
 #include "Encoding.hpp"
 #include "DebugLayer.hpp"
 
-auto PixelWorldEngine::Text::CalculateHeight(std::string text, Graphics::Font* font, int textWidth) -> int
+#define MAX_TEXT_WIDTH 1000000
+#define MAX_TEXT_HEIGHT 1000000
+
+auto PixelWorldEngine::Text::CalculateSize(std::string text, Graphics::Font* font, int maxWidth, int maxHeight) -> std::pair<int, int>
 {
 	auto utf16Text = Encoding::ToUTF16String(text);
 
 	//获取全局度量
 	auto sizeMetrics = font->fontFace->size->metrics;
 
-	//获取字符中最高的高度
-	auto maxHeight = sizeMetrics.ascender - sizeMetrics.descender;
-
 	//获取标准线之间的距离
 	auto baseLineDistance = sizeMetrics.height >> 6;
 
 	int penPositionX = 0;
 	int penPositionY = baseLineDistance;
+
+	std::pair<int, int> result;
 
 	for (auto it = utf16Text.begin(); it != utf16Text.end(); it++) {
 
@@ -26,6 +28,9 @@ auto PixelWorldEngine::Text::CalculateHeight(std::string text, Graphics::Font* f
 			penPositionX = 0;
 			penPositionY += baseLineDistance;
 
+			result.first = Utility::Max(result.first, penPositionX);
+			result.second = Utility::Max(result.second, penPositionY);
+
 			continue;
 		}
 
@@ -33,16 +38,24 @@ auto PixelWorldEngine::Text::CalculateHeight(std::string text, Graphics::Font* f
 		auto codeMetrics = font->GetCharacterCodeMetrics(*it);
 
 		//换行
-		if (penPositionX + codeMetrics.advance >= textWidth) {
+		if (penPositionX + codeMetrics.advance >= maxWidth) {
+			
 			penPositionX = 0;
 			penPositionY += baseLineDistance;
 		}
+
+		//宽度上由于这个文字需要进行渲染，因此有必要考虑其文字宽度
+		result.first = Utility::Max(result.first, penPositionX + codeMetrics.texture->GetWidth() + codeMetrics.horiBearingX);
+		result.second = Utility::Max(result.second, penPositionY);
 
 		//移动笔的X坐标
 		penPositionX += codeMetrics.advance;
 	}
 
-	return penPositionY;
+	result.first = Utility::Min(result.first, maxWidth);
+	result.second = Utility::Min(result.second, maxHeight);
+
+	return result;
 }
 
 void PixelWorldEngine::Text::CreateText(Text* text)
@@ -79,7 +92,7 @@ void PixelWorldEngine::Text::CreateText(Text* text)
 		auto codeMetrics = text->font->GetCharacterCodeMetrics(*it);
 
 		//换行
-		if (penPositionX + codeMetrics.advance >= text->width) {
+		if (penPositionX + codeMetrics.horiBearingX + codeMetrics.texture->GetWidth() > text->width) {
 			penPositionX = 0;
 			penPositionY += baseLineDistance;
 		}
@@ -102,20 +115,24 @@ void PixelWorldEngine::Text::CreateText(Text* text)
 	}
 }
 
-PixelWorldEngine::Text::Text(std::string Text, Graphics::Font * Font, int Width, int Height)
+PixelWorldEngine::Text::Text(std::string Text, Graphics::Font * Font, int maxWidth, int maxHeight)
 {
+	DebugReturn(DebugLayer::Assert(maxWidth < 0, Error::WidthOrHeightLessThanZero, "Text", FunctionName));
+	DebugReturn(DebugLayer::Assert(Font == nullptr, Error::TheObjectIsNull, "Font", FunctionName));
+
 	graphics = Font->graphics;
 
 	text = Text;
 	font = Font;
 
-	width = Width;
-	height = Height;
+	//当最大的限制为0的话，那么我们就将其设置为无限大
+	if (maxWidth == 0) maxWidth = MAX_TEXT_WIDTH;
+	if (maxHeight == 0) maxHeight = MAX_TEXT_HEIGHT;
 
-	DebugReturn(DebugLayer::Assert(width <= 0, Error::WidthOrHeightLessThanZero, "Text", FunctionName));
-
-	if (height == 0)
-		height = CalculateHeight(text, font, width);
+	auto size = CalculateSize(text, font, maxWidth, maxHeight);
+	
+	width = size.first;
+	height = size.second;
 
 	textTexture = new Graphics::Texture2D(graphics, nullptr, width, height, Graphics::PixelFormat::A8);
 

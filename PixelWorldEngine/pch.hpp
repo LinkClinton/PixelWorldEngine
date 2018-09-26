@@ -9,12 +9,14 @@
 #include <memory>
 #include <vector>
 #include <chrono>
+#include <queue>
 #include <cmath>
 #include <map>
 #include <set>
 
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

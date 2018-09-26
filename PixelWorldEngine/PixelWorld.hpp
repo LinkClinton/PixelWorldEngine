@@ -8,12 +8,13 @@
 #include "Events.hpp"
 
 #include "WorldMap.hpp"
-#include "PixelObject.hpp"
 #include "Geometry.hpp"
 #include "Utility.hpp"
 #include "Camera.hpp"
 
-#include "UIObject.hpp"
+#include "PixelObject.hpp"
+
+#include "CollideSolver.hpp"
 
 namespace PixelWorldEngine {
 
@@ -40,18 +41,26 @@ namespace PixelWorldEngine {
 	};
 
 	/**
+	 * @brief 物体层
+	 */
+	enum class Layer {
+		World, //世界层
+		UI, //UI层
+		Count
+	};
+
+	/**
 	 * @brief 全局渲染设置，目前不使用
 	 */
 	struct PixelWorldRenderConfig {
-		Graphics::PixelFormat mergeTextureFormat[MAX_MERGETEXTURE_COUNT]; //使用的合并纹理的格式
-		glm::vec4 unused[3];
+		glm::vec4 unused[4];
 	};
 
 	 /**
 	 * @brief 实例数据
 	 */
 	struct InstanceData {
-		int setting[4]; //设置，第一个元素是使用的渲染编号，第二个元素是使用的纹理页编号
+		int setting[4]; //设置，第一个元素是使用的渲染编号，第二个元素是使用的纹理页编号，第三个元素表示其使用的纹理管理器编号
 		glm::mat4x4 worldTransform; //世界变换矩阵
 		glm::mat4x4 texcoordTransform; //纹理变换矩阵
 		glm::vec4 renderCoor; //渲染的颜色，第四个分量是不透明度
@@ -64,7 +73,7 @@ namespace PixelWorldEngine {
 	 */
 	class PixelWorld {
 	private:
-		std::string worldName; //世界的名字 
+		std::string name; //世界的名字 
 
 		int resolutionWidth; //分辨率宽度
 		int resolutionHeight; //分辨率高度
@@ -78,6 +87,8 @@ namespace PixelWorldEngine {
 
 		float backGroundColor[4]; //背景颜色，默认为(0, 0, 0, 1)
 
+		Internal::CollideSolver collideSolver; //碰撞处理器
+
 		Graphics::Graphics* graphics; //...
 
 		Graphics::Texture2D* renderBuffer; //存储世界被渲染后的像素信息
@@ -88,6 +99,7 @@ namespace PixelWorldEngine {
 
 		std::vector<Graphics::Buffer*> buffers; //缓冲数组
 		std::vector<Graphics::BufferArray*> bufferArrays; //缓冲数组
+		std::vector<PixelObject*> layerRoots; //层根结点
 
 		Graphics::RectangleF* renderObject; //正方形
 		Graphics::RectangleF* renderCanvas; //画布
@@ -98,16 +110,8 @@ namespace PixelWorldEngine {
 
 		WorldMap* worldMap; //当前使用的地图，默认为nullptr
 
-		std::map<std::string, WorldMap*> worldMaps; //存储世界的地图
-		std::map<std::string, PixelObject*> pixelObjects; //存储世界的物体
-		std::map<std::string, UIObject*> UIObjects; //存储UI物体
-		
-		std::multiset<PixelObject*, PixelObjectCompare> pixelObjectLayer;//存储不同层的PixelObject
-		std::multiset<UIObject*, UIObjectCompare> UIObjectLayer; //存储不同层的UIObject
+		static TextureManager* TextTextureManager; //文字纹理管理器
 
-		UIObject* focusUIObject; //得到焦点的UIObject，默认为nullptr
-
-		friend class UIObject;
 		friend class PixelObject;
 		friend class Application;
 	private:
@@ -164,30 +168,27 @@ namespace PixelWorldEngine {
 		void RenderWorldMap();
 
 		/**
-		 * @brief 渲染像素物体，作为GetCurrentWorld的子部分
+		 * @brief 渲染物体
+		 * @param[in] baseTransformMatrix 基本变换矩阵
+		 * @param[in] baseOpacity 基本的不透明度
+		 * @param[in] pixelObject 物体
+		 * @param[in] instanceData 构建的渲染数据
+		 * @param[in] camera 使用的摄像机
+		 */
+		void RenderPixelObject(glm::mat4x4 baseTransformMatrix, float baseOpacity, PixelObject* pixelObject,
+			std::vector<InstanceData>* instanceData, Camera* camera);
+
+		/**
+		 * @brief 渲染整个物体
 		 */
 		void RenderPixelObjects();
-
-		/**
-		 * @brief 渲染UI物体
-		 * @param[in] baseTransform 父亲的位移
-		 * @param[in] baseOpacity 父亲的不透明度
-		 * @param[in] object 物体
-		 * @param[in] instanceData 构建的实例数据
-		 */
-		void RenderUIObject(glm::mat4x4 baseTransform, float baseOpacity, UIObject* object, std::vector<InstanceData>* instanceData);
-
-		/**
-		 * @brief 渲染UI物体，作为GetCurrentWorld的子部分
-		 */
-		void RenderUIObjects();
 	public:
 		/**
 		 * @brief 构造函数
-		 * @param[in] WorldName 世界的名字
+		 * @param[in] Name 世界的名字
 		 * @param[in] Application 呈现世界的应用程序
 		 */
-		PixelWorld(std::string WorldName, Application* Application);
+		PixelWorld(std::string Name, Application* Application);
 
 		/**
 		 * @brief 析构函数
@@ -229,12 +230,6 @@ namespace PixelWorldEngine {
 		void SetShader();
 
 		/**
-		 * @brief 设置我们使用的世界地图，使用的地图必须要求注册
-		 * @param[in] worldMapName 地图的名字
-		 */
-		void SetWorldMap(std::string worldMapName);
-
-		/**
 		 * @brief 设置我们使用的世界地图，如果地图没有注册那么我们将会为其注册
 		 * @param[in] worldMap 要使用的世界地图
 		 */
@@ -247,52 +242,31 @@ namespace PixelWorldEngine {
 		void SetTextureManager(TextureManager* textureManager);
 
 		/**
-		 * @brief 注册世界的地图
-		 * @param[in] worldMap 世界的地图
+		 * @brief 设置物体到对应的层
+		 * @param[in] pixelObject 物体，物体的父亲将不会为nullptr
+		 * @param[in] layer 所处于的层
 		 */
-		void RegisterWorldMap(WorldMap* worldMap);
+		void SetPixelObject(PixelObject* pixelObject, Layer layer = Layer::World);
 
 		/**
-		 * @brief 注册世界的物体，被注册的物体将会加入到世界中去，如果物体之前在另外一个世界里，那么将会先从移除然后再加入
-		 * @param[in] pixelObject 要被注册的物体
+		 * @brief 从对应的层取消对应的物体
+		 * @param[in] name 物体的名字
+		 * @param[in[ layer 层
 		 */
-		void RegisterPixelObject(PixelObject* pixelObject);
-
-		/**
-		 * @brief 取消注册物体，物体将会从世界中移除
-		 * @param[in] pixelObject 要被取消注册的物体
-		 */
-		void UnRegisterPixelObject(PixelObject* pixelObject);
-
-		/**
-		 * @brief 取消注册物体，物体将会从世界中移除
-		 * @param[in] objectName 要被取消注册的物体的名字
-		 */
-		void UnRegisterPixelObject(std::string objectName);
-
-		/**
-		 * @brief 注册UI物体，被注册的物体将会加入到世界中去，如果物体之前在另外一个世界里，那么将会先从移除然后再加入
-		 * @param[in] object 物体
-		 */
-		void RegisterUIObject(UIObject* object);
-
-		/**
-		 * @brief 取消注册物体
-		 * @param[in] object 物体
-		 */
-		void UnRegisterUIObject(UIObject* object);
-
-		/**
-		 * @brief 取消注册物体
-		 * @param[in] object 物体的名字
-		 */
-		void UnRegisterUIObject(std::string name);
+		void CancelPixelObject(std::string name, Layer layer = Layer::World);
 
 		/**
 		 * @brief 获取当前的世界地图
 		 * @return 世界地图
 		 */
 		auto GetWorldMap() -> WorldMap*;
+
+		/**
+		 * @brief 获取物体
+		 * @param[in] name 物体的名字
+		 * @parma[in] layer 物体所在的层
+		 */
+		auto GetPixelObject(std::string name, Layer layer = Layer::World) -> PixelObject*;
 
 		/**
 		 * @brief 获取在当前状况下的世界的图像

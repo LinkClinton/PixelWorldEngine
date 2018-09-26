@@ -3,9 +3,9 @@
 #include "DebugLayer.hpp"
 #include "Application.hpp"
 
-void PixelWorldEngine::KeyFrame::Destory()
+PixelWorldEngine::KeyFrame::~KeyFrame()
 {
-	Utility::Delete(data);
+	
 }
 
 void PixelWorldEngine::KeyFrame::SetTimePos(float TimePos)
@@ -44,8 +44,6 @@ PixelWorldEngine::Animation::Animation(std::string Name, FrameProcessUnit FrameP
 
 PixelWorldEngine::Animation::~Animation()
 {
-	for (size_t i = 0; i < keyFrames.size(); i++) 
-		keyFrames[i].Destory();
 }
 
 void PixelWorldEngine::Animation::Sort()
@@ -80,7 +78,7 @@ void PixelWorldEngine::AnimatorItem::ProcessAnimation(float timePos)
 		nextFrame++;
 
 		if (nextFrame == animation->keyFrames.size()) {
-			function(target, animation->keyFrames[lastFrame].data);
+			function(target, &animation->keyFrames[lastFrame].data[0]);
 			Reset(); return;
 		}
 	}
@@ -88,7 +86,7 @@ void PixelWorldEngine::AnimatorItem::ProcessAnimation(float timePos)
 	auto frame = animation->frameProcessUnit(timePos, animation->keyFrames[lastFrame],
 		animation->keyFrames[nextFrame]);
 
-	function(target, frame.data);
+	function(target, &frame.data[0]);
 }
 
 PixelWorldEngine::AnimatorItem::AnimatorItem(void* Target, AnimationSetFunction Function, Animation* Animation, float StartTime) {
